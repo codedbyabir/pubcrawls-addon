@@ -751,7 +751,10 @@ class Pubcrawls_City_Events extends \Elementor\Widget_Base
 				// ── ACF repeater ───────────────────────────────
 				$event_dates   = function_exists('get_field') ? get_field('event_dates', $event_id) : [];
 				$has_dates     = ! empty($event_dates) && is_array($event_dates);
-				$post_provider = function_exists('get_field') ? sanitize_key(get_field('ticket_provider', $event_id) ?: 'squadup') : 'squadup';
+				$default_provider = class_exists('Pubcrawls_Admin')
+					? Pubcrawls_Admin::get_setting('default_ticket_provider', 'squadup')
+					: 'squadup';
+				$post_provider = function_exists('get_field') ? sanitize_key(get_field('ticket_provider', $event_id) ?: '') : '';
 
 				// ── Skip if no upcoming dates ──────────────────
 				$has_upcoming_date = false;
@@ -776,11 +779,20 @@ class Pubcrawls_City_Events extends \Elementor\Widget_Base
 						$date_raw  = $row['eventdate']        ?? '';
 						$start_raw = $row['start_time']       ?? '';
 						$end_raw   = $row['end_time']         ?? '';
-						$row_prov  = ! empty($row['ticket_provider']) ? $row['ticket_provider'] : $post_provider;
-						$platform  = sanitize_key($row_prov ?: 'squadup');
 						$eb_id     = trim($row['eventbrite_id']   ?? '');
 						$eb_link   = trim($row['eventbrite_link'] ?? '');
 						$su_id     = trim($row['squadup_id']      ?? '');
+
+						$row_prov  = ! empty($row['ticket_provider']) ? sanitize_key($row['ticket_provider']) : $post_provider;
+						if (! empty($row_prov)) {
+							$platform = $row_prov;
+						} elseif (! empty($su_id) && empty($eb_id) && empty($eb_link)) {
+							$platform = 'squadup';
+						} elseif ((! empty($eb_id) || ! empty($eb_link)) && empty($su_id)) {
+							$platform = 'eventbrite';
+						} else {
+							$platform = $default_provider;
+						}
 
 						$ts      = ! empty($date_raw) ? strtotime($date_raw) : null;
 						$d_label = $ts ? gmdate('D, M j', $ts) : '';

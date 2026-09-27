@@ -397,10 +397,24 @@ if (! function_exists('pcet_build_date_rows')) {
 			$date_raw  = $row['eventdate']        ?? '';
 			$start_raw = $row['start_time']       ?? '';
 			$end_raw   = $row['end_time']         ?? '';
-			$provider  = sanitize_key($row['ticket_provider'] ?? 'squadup');
 			$eb_id     = trim($row['eventbrite_id']   ?? '');
 			$eb_link   = trim($row['eventbrite_link'] ?? '');
 			$su_id     = trim($row['squadup_id']      ?? '');
+
+			$default_provider = class_exists('Pubcrawls_Admin')
+				? Pubcrawls_Admin::get_setting('default_ticket_provider', 'squadup')
+				: 'squadup';
+
+			$row_provider = ! empty($row['ticket_provider']) ? sanitize_key($row['ticket_provider']) : '';
+			if (! empty($row_provider)) {
+				$provider = $row_provider;
+			} elseif (! empty($su_id) && empty($eb_id) && empty($eb_link)) {
+				$provider = 'squadup';
+			} elseif ((! empty($eb_id) || ! empty($eb_link)) && empty($su_id)) {
+				$provider = 'eventbrite';
+			} else {
+				$provider = $default_provider;
+			}
 
 			$date_parts = pcet_parse_date($date_raw);
 			$time_range = pcet_format_time_range($start_raw, $end_raw);

@@ -61,10 +61,6 @@ require_once PUBCRAWLS_ADDON_DIR . 'includes/ai-links-helpers.php';
 require_once PUBCRAWLS_ADDON_DIR . 'includes/admin/class-pubcrawls-admin.php';
 Pubcrawls_Admin::init();
 
-// ── Load Helpers & Bulk Tools ─────────────────────────────────────────────────
-require_once PUBCRAWLS_ADDON_DIR . 'includes/helpers/class-pubcrawls-helpers-loader.php';
-Pubcrawls_Helpers_Loader::init();
-
 // ── Load Elementor Integration ────────────────────────────────────────────────
 require_once PUBCRAWLS_ADDON_DIR . 'includes/class-pubcrawls-addon.php';
 
