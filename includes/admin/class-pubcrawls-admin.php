@@ -179,6 +179,8 @@ class Pubcrawls_Admin {
 			'squadup_enable_sms'          => '1',
 			'eventbrite_confirmation_url' => 'https://pubcrawls.com/purchase-confirmation/',
 			'eventbrite_open_fallback'    => '1',
+			'enable_faq_seo_importer'     => '1',
+			'enable_bulk_title_editor'    => '1',
 		);
 	}
 
@@ -206,28 +208,54 @@ class Pubcrawls_Admin {
 	 * @return array
 	 */
 	public function sanitize_settings( $input ): array {
-		$clean    = array();
+		if ( ! is_array( $input ) ) {
+			return self::get_default_settings();
+		}
+
+		$existing = get_option( self::SETTINGS_KEY, self::get_default_settings() );
 		$defaults = self::get_default_settings();
+		$clean    = is_array( $existing ) ? array_merge( $defaults, $existing ) : $defaults;
 
-		$clean['default_ticket_provider'] = ( isset( $input['default_ticket_provider'] ) && 'eventbrite' === $input['default_ticket_provider'] )
-			? 'eventbrite'
-			: 'squadup';
+		// Ticket provider settings
+		if ( isset( $input['default_ticket_provider'] ) ) {
+			$clean['default_ticket_provider'] = ( 'eventbrite' === $input['default_ticket_provider'] ) ? 'eventbrite' : 'squadup';
+		}
 
-		$clean['squadup_confirmation_url'] = ! empty( $input['squadup_confirmation_url'] )
-			? esc_url_raw( $input['squadup_confirmation_url'] )
-			: $defaults['squadup_confirmation_url'];
+		if ( isset( $input['squadup_confirmation_url'] ) ) {
+			$clean['squadup_confirmation_url'] = ! empty( $input['squadup_confirmation_url'] )
+				? esc_url_raw( $input['squadup_confirmation_url'] )
+				: $defaults['squadup_confirmation_url'];
+		}
 
-		$clean['squadup_sms_question'] = ! empty( $input['squadup_sms_question'] )
-			? sanitize_text_field( $input['squadup_sms_question'] )
-			: $defaults['squadup_sms_question'];
+		if ( isset( $input['squadup_sms_question'] ) ) {
+			$clean['squadup_sms_question'] = ! empty( $input['squadup_sms_question'] )
+				? sanitize_text_field( $input['squadup_sms_question'] )
+				: $defaults['squadup_sms_question'];
+		}
 
-		$clean['squadup_enable_sms'] = ! empty( $input['squadup_enable_sms'] ) ? '1' : '0';
+		if ( isset( $input['ticket_settings_submitted'] ) || isset( $input['default_ticket_provider'] ) ) {
+			$clean['squadup_enable_sms']       = ! empty( $input['squadup_enable_sms'] ) ? '1' : '0';
+			$clean['eventbrite_open_fallback'] = ! empty( $input['eventbrite_open_fallback'] ) ? '1' : '0';
+		}
 
-		$clean['eventbrite_confirmation_url'] = ! empty( $input['eventbrite_confirmation_url'] )
-			? esc_url_raw( $input['eventbrite_confirmation_url'] )
-			: $defaults['eventbrite_confirmation_url'];
+		if ( isset( $input['eventbrite_confirmation_url'] ) ) {
+			$clean['eventbrite_confirmation_url'] = ! empty( $input['eventbrite_confirmation_url'] )
+				? esc_url_raw( $input['eventbrite_confirmation_url'] )
+				: $defaults['eventbrite_confirmation_url'];
+		}
 
-		$clean['eventbrite_open_fallback'] = ! empty( $input['eventbrite_open_fallback'] ) ? '1' : '0';
+		// Helper & Tool toggles
+		if ( isset( $input['helpers_settings_submitted'] ) ) {
+			$clean['enable_faq_seo_importer']  = ! empty( $input['enable_faq_seo_importer'] ) ? '1' : '0';
+			$clean['enable_bulk_title_editor'] = ! empty( $input['enable_bulk_title_editor'] ) ? '1' : '0';
+		} else {
+			if ( isset( $input['enable_faq_seo_importer'] ) ) {
+				$clean['enable_faq_seo_importer'] = ! empty( $input['enable_faq_seo_importer'] ) ? '1' : '0';
+			}
+			if ( isset( $input['enable_bulk_title_editor'] ) ) {
+				$clean['enable_bulk_title_editor'] = ! empty( $input['enable_bulk_title_editor'] ) ? '1' : '0';
+			}
+		}
 
 		return $clean;
 	}

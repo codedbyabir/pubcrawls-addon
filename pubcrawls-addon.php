@@ -3,8 +3,8 @@
 /**
  * Plugin Name:       Pubcrawl 
  * Plugin URI:        https://pubcrawls.com/
- * Description:       Complete standalone solution for PubCrawls — provides Custom Post Types (Cities, Events, Venues, FAQs, Press, City Maps), Taxonomies, Shortcodes, Ticket Integrations (SquadUp & Eventbrite), and 23 native Elementor Widgets with rich content & style controls. Fully replaces both pub-crawls and pubcrawls-eventbrite-tickets.
- * Version:           1.0.0
+ * Description:       Complete standalone solution for PubCrawls — provides Custom Post Types (Cities, Events, Venues, FAQs, Press, City Maps), Taxonomies, Shortcodes, Ticket Integrations (SquadUp & Eventbrite), and 17 native Elementor Widgets with rich content & style controls.
+ * Version:           2.0.0
  * Author:            Nexiby LLC
  * Author URI:        https://nexiby.com/
  * License:           GPL-2.0+
@@ -21,7 +21,7 @@ if (! defined('ABSPATH')) {
 }
 
 // ── Plugin Constants ──────────────────────────────────────────────────────────
-define('PUBCRAWLS_ADDON_VERSION', '1.0.2');
+define('PUBCRAWLS_ADDON_VERSION', '2.0.0');
 define('PUBCRAWLS_ADDON_DIR',     plugin_dir_path(__FILE__));
 define('PUBCRAWLS_ADDON_URL',     plugin_dir_url(__FILE__));
 define('PUBCRAWLS_ADDON_FILE',    __FILE__);
@@ -60,6 +60,10 @@ require_once PUBCRAWLS_ADDON_DIR . 'includes/ai-links-helpers.php';
 // ── Load Admin Dashboard ──────────────────────────────────────────────────────
 require_once PUBCRAWLS_ADDON_DIR . 'includes/admin/class-pubcrawls-admin.php';
 Pubcrawls_Admin::init();
+
+// ── Load Helpers & Bulk Tools ─────────────────────────────────────────────────
+require_once PUBCRAWLS_ADDON_DIR . 'includes/helpers/class-pubcrawls-helpers-loader.php';
+Pubcrawls_Helpers_Loader::init();
 
 // ── Load Elementor Integration ────────────────────────────────────────────────
 require_once PUBCRAWLS_ADDON_DIR . 'includes/class-pubcrawls-addon.php';

@@ -448,3 +448,21 @@
 .pubcrawls-switch input:checked + .pubcrawls-slider:before {
 	transform: translateX(-19px); /* move to left */
 }
+
+/* Standard Switch: unchecked = gray (off), checked = green (on) */
+.pubcrawls-switch--standard .pubcrawls-slider {
+	background-color: #cbd5e1;
+}
+
+.pubcrawls-switch--standard .pubcrawls-slider:before {
+	left: 3px;
+}
+
+.pubcrawls-switch--standard input:checked + .pubcrawls-slider {
+	background-color: #22c55e;
+}
+
+.pubcrawls-switch--standard input:checked + .pubcrawls-slider:before {
+	transform: translateX(19px);
+}
+

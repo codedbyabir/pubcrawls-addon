@@ -88,6 +88,15 @@ if ( ! is_array( $disabled_tax ) ) {
 		<a href="?page=pubcrawls-addon&tab=settings" class="nav-tab <?php echo 'settings' === $active_tab ? 'nav-tab-active' : ''; ?>" data-tab="settings">
 			<span class="dashicons dashicons-admin-settings"></span> <?php esc_html_e( 'Ticket Settings', 'pubcrawls-addon' ); ?>
 		</a>
+		<a href="?page=pubcrawls-addon&tab=helpers" class="nav-tab <?php echo 'helpers' === $active_tab ? 'nav-tab-active' : ''; ?>" data-tab="helpers">
+			<span class="dashicons dashicons-admin-tools"></span> <?php esc_html_e( 'Helpers & Tools', 'pubcrawls-addon' ); ?>
+			<?php 
+			$active_helpers_count = ( ! empty( $settings['enable_faq_seo_importer'] ) && '1' === (string) $settings['enable_faq_seo_importer'] ? 1 : 0 )
+				+ ( ! empty( $settings['enable_bulk_title_editor'] ) && '1' === (string) $settings['enable_bulk_title_editor'] ? 1 : 0 );
+			if ( $active_helpers_count > 0 ) : ?>
+				<span class="pubcrawls-tab-count" style="background:#22c55e;color:#fff;"><?php echo esc_html( $active_helpers_count ); ?></span>
+			<?php endif; ?>
+		</a>
 	</nav>
 
 	<!-- ============================================================ -->
@@ -380,6 +389,7 @@ if ( ! is_array( $disabled_tax ) ) {
 		
 		<form method="post" action="options.php">
 			<?php settings_fields( 'pubcrawls_settings_group' ); ?>
+			<input type="hidden" name="<?php echo esc_attr( Pubcrawls_Admin::SETTINGS_KEY ); ?>[ticket_settings_submitted]" value="1" />
 
 			<div class="pubcrawls-card">
 				<div class="pubcrawls-card__header">
@@ -469,6 +479,163 @@ if ( ! is_array( $disabled_tax ) ) {
 				</div>
 				<div class="pubcrawls-card__footer">
 					<?php submit_button( esc_html__( 'Save Ticket Settings', 'pubcrawls-addon' ), 'primary', 'submit', false ); ?>
+				</div>
+			</div>
+
+		</form>
+
+	</section>
+
+	<!-- ============================================================ -->
+	<!-- TAB 5: HELPERS & TOOLS -->
+	<!-- ============================================================ -->
+	<section class="pubcrawls-tab-pane <?php echo 'helpers' === $active_tab ? 'is-active' : ''; ?>" id="tab-helpers">
+		
+		<form method="post" action="options.php">
+			<?php settings_fields( 'pubcrawls_settings_group' ); ?>
+			<input type="hidden" name="<?php echo esc_attr( Pubcrawls_Admin::SETTINGS_KEY ); ?>[helpers_settings_submitted]" value="1" />
+
+			<div class="pubcrawls-card" style="margin-bottom: 24px;">
+				<div class="pubcrawls-card__header">
+					<h2><span class="dashicons dashicons-admin-tools"></span> <?php esc_html_e( 'Modular Helper Features & Utilities', 'pubcrawls-addon' ); ?></h2>
+					<span class="pubcrawls-card__subtitle"><?php esc_html_e( 'Enable or disable standalone helper features. Disabled helpers are completely unregistered to optimize memory and keep your admin menu clean.', 'pubcrawls-addon' ); ?></span>
+				</div>
+				<div class="pubcrawls-card__body">
+
+					<?php $importer_enabled = ! empty( $settings['enable_faq_seo_importer'] ) && '1' === (string) $settings['enable_faq_seo_importer']; ?>
+
+					<div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:10px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+						<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+							<div style="display:flex;gap:16px;align-items:flex-start;">
+								<div style="width:44px;height:44px;background:#eff6ff;color:#2563eb;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+									<span class="dashicons dashicons-upload" style="font-size:24px;width:24px;height:24px;"></span>
+								</div>
+								<div>
+									<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+										<h3 style="margin:0;font-size:16px;font-weight:700;color:#0f172a;"><?php esc_html_e( 'FAQ & SEO Bulk Importer', 'pubcrawls-addon' ); ?></h3>
+										<?php if ( $importer_enabled ) : ?>
+											<span class="pubcrawls-status-tag pubcrawls-status-tag--ok"><?php esc_html_e( 'Active', 'pubcrawls-addon' ); ?></span>
+										<?php else : ?>
+											<span class="pubcrawls-status-tag" style="background:#f1f5f9;color:#64748b;"><?php esc_html_e( 'Disabled', 'pubcrawls-addon' ); ?></span>
+										<?php endif; ?>
+									</div>
+									<p style="margin:0 0 14px 0;font-size:13px;color:#475569;line-height:1.5;max-width:700px;">
+										<?php esc_html_e( 'Bulk-fill ACF faqs repeater fields along with Yoast/Rank Math/AIOSEO title & meta description across city and events post types using structured JSON payloads with batching (25 posts/batch), dry-run testing, and direct database counts.', 'pubcrawls-addon' ); ?>
+									</p>
+									<?php if ( $importer_enabled ) : ?>
+										<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+											<a href="<?php echo esc_url( admin_url( 'admin.php?page=city-faq-import' ) ); ?>" class="button button-primary">
+												<span class="dashicons dashicons-location-alt" style="vertical-align:middle;margin-top:-2px;"></span> <?php esc_html_e( 'Open City Importer', 'pubcrawls-addon' ); ?>
+											</a>
+											<a href="<?php echo esc_url( admin_url( 'admin.php?page=tribe_events-faq-import' ) ); ?>" class="button button-secondary">
+												<span class="dashicons dashicons-calendar-alt" style="vertical-align:middle;margin-top:-2px;"></span> <?php esc_html_e( 'Open Events Importer', 'pubcrawls-addon' ); ?>
+											</a>
+										</div>
+									<?php endif; ?>
+								</div>
+							</div>
+
+							<div>
+								<label class="pubcrawls-switch pubcrawls-switch--standard" title="<?php esc_attr_e( 'Toggle Helper Feature', 'pubcrawls-addon' ); ?>">
+									<input type="checkbox" name="<?php echo esc_attr( Pubcrawls_Admin::SETTINGS_KEY ); ?>[enable_faq_seo_importer]" value="1" <?php checked( true, $importer_enabled ); ?> />
+									<span class="pubcrawls-slider"></span>
+								</label>
+							</div>
+						</div>
+					</div>
+
+					<?php $title_editor_enabled = ! empty( $settings['enable_bulk_title_editor'] ) && '1' === (string) $settings['enable_bulk_title_editor']; ?>
+
+					<div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:10px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,0.04);margin-top:16px;">
+						<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+							<div style="display:flex;gap:16px;align-items:flex-start;">
+								<div style="width:44px;height:44px;background:#f0fdf4;color:#16a34a;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+									<span class="dashicons dashicons-editor-textcolor" style="font-size:24px;width:24px;height:24px;"></span>
+								</div>
+								<div>
+									<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+										<h3 style="margin:0;font-size:16px;font-weight:700;color:#0f172a;"><?php esc_html_e( 'Bulk Title & Slug Editor', 'pubcrawls-addon' ); ?></h3>
+										<?php if ( $title_editor_enabled ) : ?>
+											<span class="pubcrawls-status-tag pubcrawls-status-tag--ok"><?php esc_html_e( 'Active', 'pubcrawls-addon' ); ?></span>
+										<?php else : ?>
+											<span class="pubcrawls-status-tag" style="background:#f1f5f9;color:#64748b;"><?php esc_html_e( 'Disabled', 'pubcrawls-addon' ); ?></span>
+										<?php endif; ?>
+									</div>
+									<p style="margin:0 0 14px 0;font-size:13px;color:#475569;line-height:1.5;max-width:700px;">
+										<?php esc_html_e( 'Adds batch title operations directly to the WordPress post list table bulk actions menu: Append to title (end), Prepend to title (start), Remove from start/end, and Find & Replace. Includes live typing preview, spacing toggle, and optional URL slug synchronization.', 'pubcrawls-addon' ); ?>
+									</p>
+									<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px;">
+										<span style="font-size:11px;background:#f1f5f9;color:#334155;padding:3px 8px;border-radius:4px;font-weight:600;">+ Append</span>
+										<span style="font-size:11px;background:#f1f5f9;color:#334155;padding:3px 8px;border-radius:4px;font-weight:600;">+ Prepend</span>
+										<span style="font-size:11px;background:#f1f5f9;color:#334155;padding:3px 8px;border-radius:4px;font-weight:600;">- Remove End</span>
+										<span style="font-size:11px;background:#f1f5f9;color:#334155;padding:3px 8px;border-radius:4px;font-weight:600;">- Remove Prefix</span>
+										<span style="font-size:11px;background:#f1f5f9;color:#334155;padding:3px 8px;border-radius:4px;font-weight:600;">🔄 Find & Replace</span>
+										<span style="font-size:11px;background:#f1f5f9;color:#334155;padding:3px 8px;border-radius:4px;font-weight:600;">🔗 Slug Sync</span>
+									</div>
+									<?php if ( $title_editor_enabled ) : ?>
+										<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+											<a href="<?php echo esc_url( admin_url( 'edit.php?post_type=tribe_events' ) ); ?>" class="button button-secondary">
+												<span class="dashicons dashicons-calendar-alt" style="vertical-align:middle;margin-top:-2px;"></span> <?php esc_html_e( 'Open Events List Table', 'pubcrawls-addon' ); ?>
+											</a>
+											<a href="<?php echo esc_url( admin_url( 'edit.php?post_type=city' ) ); ?>" class="button button-secondary">
+												<span class="dashicons dashicons-location-alt" style="vertical-align:middle;margin-top:-2px;"></span> <?php esc_html_e( 'Open Cities List Table', 'pubcrawls-addon' ); ?>
+											</a>
+										</div>
+									<?php endif; ?>
+								</div>
+							</div>
+
+							<div>
+								<label class="pubcrawls-switch pubcrawls-switch--standard" title="<?php esc_attr_e( 'Toggle Helper Feature', 'pubcrawls-addon' ); ?>">
+									<input type="checkbox" name="<?php echo esc_attr( Pubcrawls_Admin::SETTINGS_KEY ); ?>[enable_bulk_title_editor]" value="1" <?php checked( true, $title_editor_enabled ); ?> />
+									<span class="pubcrawls-slider"></span>
+								</label>
+							</div>
+						</div>
+					</div>
+
+				</div>
+				<div class="pubcrawls-card__footer">
+					<?php submit_button( esc_html__( 'Save Helpers Settings', 'pubcrawls-addon' ), 'primary', 'submit', false ); ?>
+				</div>
+			</div>
+
+			<!-- Multi-site Portability Notice Card -->
+			<div class="pubcrawls-card">
+				<div class="pubcrawls-card__header">
+					<h2><span class="dashicons dashicons-admin-site-alt3"></span> <?php esc_html_e( 'Multi-Site & Migration Portability', 'pubcrawls-addon' ); ?></h2>
+					<span class="pubcrawls-card__subtitle"><?php esc_html_e( 'Architecture details for installing this plugin across different WordPress environments.', 'pubcrawls-addon' ); ?></span>
+				</div>
+				<div class="pubcrawls-card__body">
+					<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:16px;">
+						<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:16px;">
+							<h4 style="margin:0 0 8px;font-size:14px;color:#0f172a;display:flex;align-items:center;gap:6px;">
+								<span class="dashicons dashicons-randomize" style="color:#2563eb;"></span>
+								<?php esc_html_e( 'Dynamic ACF Key Discovery', 'pubcrawls-addon' ); ?>
+							</h4>
+							<p style="margin:0;font-size:12px;color:#475569;line-height:1.5;">
+								<?php esc_html_e( 'On new sites where ACF field keys differ from the original database, the importer dynamically queries acf_get_field("faqs") to discover live field keys with graceful fallback to field names.', 'pubcrawls-addon' ); ?>
+							</p>
+						</div>
+						<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:16px;">
+							<h4 style="margin:0 0 8px;font-size:14px;color:#0f172a;display:flex;align-items:center;gap:6px;">
+								<span class="dashicons dashicons-search" style="color:#ca8a04;"></span>
+								<?php esc_html_e( 'Universal SEO Compatibility', 'pubcrawls-addon' ); ?>
+							</h4>
+							<p style="margin:0;font-size:12px;color:#475569;line-height:1.5;">
+								<?php esc_html_e( 'Seamlessly writes to Yoast SEO, Rank Math, All In One SEO, and SEOPress postmeta. Whatever SEO plugin is active on the target site will receive the imported title and description.', 'pubcrawls-addon' ); ?>
+							</p>
+						</div>
+						<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:16px;">
+							<h4 style="margin:0 0 8px;font-size:14px;color:#0f172a;display:flex;align-items:center;gap:6px;">
+								<span class="dashicons dashicons-filter" style="color:#16a34a;"></span>
+								<?php esc_html_e( 'Post Type Detection & Filter', 'pubcrawls-addon' ); ?>
+							</h4>
+							<p style="margin:0;font-size:12px;color:#475569;line-height:1.5;">
+								<?php esc_html_e( 'Verifies post_type_exists() before querying or registering admin pages. You can also filter supported post types via the pubcrawls_faq_importer_post_types hook.', 'pubcrawls-addon' ); ?>
+							</p>
+						</div>
+					</div>
 				</div>
 			</div>
 
