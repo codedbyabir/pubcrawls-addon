@@ -182,6 +182,8 @@ class Pubcrawls_Admin {
 			'enable_faq_seo_importer'     => '1',
 			'enable_bulk_title_editor'    => '1',
 			'enable_quick_featured_image' => '1',
+			'enable_post_url_column'      => '1',
+			'post_url_column_post_types'  => array( 'tribe_events', 'city', 'venue', 'post', 'page' ),
 		);
 	}
 
@@ -250,6 +252,14 @@ class Pubcrawls_Admin {
 			$clean['enable_faq_seo_importer']     = ! empty( $input['enable_faq_seo_importer'] ) ? '1' : '0';
 			$clean['enable_bulk_title_editor']    = ! empty( $input['enable_bulk_title_editor'] ) ? '1' : '0';
 			$clean['enable_quick_featured_image'] = ! empty( $input['enable_quick_featured_image'] ) ? '1' : '0';
+			$clean['enable_post_url_column']      = ! empty( $input['enable_post_url_column'] ) ? '1' : '0';
+
+			// Post types enabled for URL column
+			if ( ! empty( $input['post_url_column_post_types'] ) && is_array( $input['post_url_column_post_types'] ) ) {
+				$clean['post_url_column_post_types'] = array_values( array_map( 'sanitize_key', $input['post_url_column_post_types'] ) );
+			} else {
+				$clean['post_url_column_post_types'] = array();
+			}
 		} else {
 			if ( isset( $input['enable_faq_seo_importer'] ) ) {
 				$clean['enable_faq_seo_importer'] = ! empty( $input['enable_faq_seo_importer'] ) ? '1' : '0';
@@ -259,6 +269,12 @@ class Pubcrawls_Admin {
 			}
 			if ( isset( $input['enable_quick_featured_image'] ) ) {
 				$clean['enable_quick_featured_image'] = ! empty( $input['enable_quick_featured_image'] ) ? '1' : '0';
+			}
+			if ( isset( $input['enable_post_url_column'] ) ) {
+				$clean['enable_post_url_column'] = ! empty( $input['enable_post_url_column'] ) ? '1' : '0';
+			}
+			if ( isset( $input['post_url_column_post_types'] ) && is_array( $input['post_url_column_post_types'] ) ) {
+				$clean['post_url_column_post_types'] = array_values( array_map( 'sanitize_key', $input['post_url_column_post_types'] ) );
 			}
 		}
 

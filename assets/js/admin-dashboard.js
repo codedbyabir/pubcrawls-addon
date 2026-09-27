@@ -74,6 +74,15 @@
 		$('#pubcrawls-disable-all-tax').on('click', function () {
 			$('.pubcrawls-tax-toggle').prop('checked', true).trigger('change');
 		});
+
+		// ── Bulk Post URL Column Actions ───────────────────────
+		$('#pubcrawls-select-all-url-pts').on('click', function () {
+			$('.pubcrawls-url-pt-checkbox').prop('checked', true);
+		});
+
+		$('#pubcrawls-deselect-all-url-pts').on('click', function () {
+			$('.pubcrawls-url-pt-checkbox').prop('checked', false);
+		});
 	});
 
 })(jQuery);

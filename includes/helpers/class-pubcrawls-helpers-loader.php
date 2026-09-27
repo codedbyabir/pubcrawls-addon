@@ -94,6 +94,15 @@ class Pubcrawls_Helpers_Loader {
 			}
 		}
 
+		// 4. Post URL Column Helper.
+		if ( self::is_helper_enabled( 'post_url_column', '1' ) ) {
+			$url_col_file = PUBCRAWLS_ADDON_DIR . 'includes/helpers/post-url-column/class-pubcrawls-post-url-column.php';
+			if ( file_exists( $url_col_file ) ) {
+				require_once $url_col_file;
+				Pubcrawls_Post_URL_Column::init();
+			}
+		}
+
 		/**
 		 * Action hook allowing third-party or future modules to initialize.
 		 */

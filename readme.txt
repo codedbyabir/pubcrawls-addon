@@ -38,6 +38,7 @@ Pubcrawl is the complete, standalone Elementor solution for PubCrawls. It replac
 * **FAQ & SEO Bulk Importer** — Fast batch import of ACF `faqs` repeaters and Yoast / Rank Math / All In One SEO title & meta description across city and events post types using structured JSON. Features dry-run simulation, 25-item chunking to prevent server timeouts, live database counts, and dynamic ACF field key auto-discovery for multi-site portability.
 * **Bulk Title & Slug Editor** — Direct bulk editing tools in the WordPress post list tables for `tribe_events`, `city`, `venue`, and custom post types: Append to title (end), Prepend to title (start), Remove from start/end, and Find & Replace. Includes live typing preview, spacing options, and optional URL permalink slug synchronization.
 * **Quick Edit Featured Image** — Fast thumbnail preview column directly in WordPress post tables with full image selection, media library modal picker, live thumbnail preview, and removal controls integrated directly into the WordPress Quick Edit inline form.
+* **Post URL Column in Admin Lists** — Displays full clickable permalink URLs directly in admin post list tables (Events, Cities, Venues, Pages, Posts, etc.), with granular per-post-type enable/disable checkboxes.
 * **Dashboard Toggles** — Easily activate or deactivate helpers individually in the PubCrawls Dashboard under "Helpers & Tools".
 
 == Installation ==
@@ -55,6 +56,7 @@ Pubcrawl is the complete, standalone Elementor solution for PubCrawls. It replac
 * Added FAQ & SEO Bulk Importer with batching (25/step), dry-run testing, overwrite mode, and direct database queries.
 * Added Bulk Title & Slug Editor with Append, Prepend, Remove (start/end), Find & Replace, and URL slug sync.
 * Added Quick Edit Featured Image helper with table thumbnail column, media modal picker, and AJAX save/remove.
+* Added Post URL Column helper displaying full clickable permalinks with per-post-type enable/disable settings.
 * Added dynamic ACF field key auto-discovery (`acf_get_field('faqs')`) with fallback keys for multi-site installation portability.
 * Added multi-SEO plugin compatibility (Yoast SEO, Rank Math, All In One SEO, SEOPress).
 * Added Admin Dashboard "Helpers & Tools" tab with one-click enable/disable toggles and active status badges.
