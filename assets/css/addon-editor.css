@@ -1,0 +1,41 @@
+/**
+ * Pubcrawl Addon — Elementor Editor Styles
+ */
+
+.pubcrawls-editor-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 16px 20px;
+    background: #f8fafc;
+    border: 1.5px dashed #cbd5e1;
+    border-radius: 8px;
+    color: #475569 !important;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.4;
+    text-align: center;
+    box-sizing: border-box;
+    margin: 6px 0;
+    transition: all 0.2s ease;
+}
+
+.pubcrawls-editor-placeholder:hover {
+    background: #f1f5f9;
+    border-color: #94a3b8;
+}
+
+.pubcrawls-editor-placeholder .pubcrawls-placeholder-icon,
+.pubcrawls-editor-placeholder .dashicons {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: #64748b;
+    flex-shrink: 0;
+}
+
+.pubcrawls-editor-placeholder .pubcrawls-placeholder-text {
+    display: inline-block;
+    color: #475569 !important;
+}

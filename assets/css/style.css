@@ -1,0 +1,1493 @@
+/**
+ * Pub Crawls Plugin — Frontend Styles
+ * Covers: City Grid, City Cards, Event Count Badge
+ */
+
+/* ============================================================
+   City Grid
+   ============================================================ */
+
+.pubcrawls-city-card-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1.5rem;
+    padding: 1rem 0;
+}
+
+/* ============================================================
+   City Card
+   ============================================================ */
+
+.pubcrawls-city-card-grid .pubcrawls-city-item {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #1a1a1a;
+    transition: transform 0.25s ease-in-out;
+}
+
+.pubcrawls-city-card-grid .pubcrawls-city-item:hover {}
+
+/* ── Thumbnail ── */
+
+.pubcrawls-city-card-grid .pubcrawls-city-item img {
+    display: block;
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.pubcrawls-city-card-grid .pubcrawls-city-item:hover img {
+    transform: scale(1.06);
+}
+
+/* ── Overlay gradient ── */
+
+.pubcrawls-city-card-grid .pubcrawls-city-item::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(0deg, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.3) 50%, rgba(0, 0, 0, 0) 100%);
+
+    pointer-events: none;
+}
+
+/* ── Content area ── */
+
+.pubcrawls-city-card-grid .pubcrawls-city-content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 10px 20px;
+    z-index: 1;
+}
+
+/* ── City name ── */
+
+.pubcrawls-city-card-grid .pubcrawls-city-name {
+    font-family: var(--e-global-typography-2adc7ec-font-family), Sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: #ffffff;
+
+    transform: translateY(0px);
+    transition: transform 0.3s ease-in-out;
+}
+
+.pubcrawls-city-card-grid .pubcrawls-city-name a {
+    color: #fff;
+    text-decoration: none;
+    transition: opacity 0.2s;
+
+
+}
+
+.pubcrawls-city-card-grid .pubcrawls-city-name a:hover {
+    /*     opacity: 0.85; */
+    color: #fff;
+}
+
+
+.pubcrawls-city-card-grid .pubcrawls-city-item:hover .pubcrawls-city-name {
+    transform: translateY(-8px);
+
+}
+
+
+
+/* ── Event count badge ── */
+
+.pubcrawls-city-card-grid .pubcrawls-city-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: #E6B325;
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+.pubcrawls-city-card-grid .pubcrawls-city-item:hover .pubcrawls-city-count {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+
+
+.pubcrawls-city-card-grid .pubcrawls-city-count svg {
+    width: 14px;
+    height: 14px;
+}
+
+.pubcrawls-city-card-grid .pubcrawls-city-count svg path {
+    fill: #E6B325;
+}
+
+/* ── No cities fallback ── */
+
+.pubcrawls-no-cities {
+    color: #888;
+    font-size: 0.9rem;
+    text-align: center;
+    padding: 2rem;
+}
+
+/* ============================================================
+   Booking Deadline (inline output from shortcode)
+   Wrap in a container in Elementor for styling, or use these
+   classes if you wrap the shortcode output in your template.
+   ============================================================ */
+
+/* .pc-booking-deadline {
+    display: inline-block;
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 5px 14px;
+    border-radius: 999px;
+    background: #fff8e1;
+    color: #7a5800;
+    border: 1px solid #f0c040;
+}
+
+.pc-booking-deadline.closed {
+    background: #fdecea;
+    color: #c0392b;
+    border-color: #e74c3c;
+} */
+
+/* ============================================================
+   Responsive
+   ============================================================ */
+@media (max-width: 1024px) {
+    .pubcrawls-city-card-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .pubcrawls-city-card-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .pubcrawls-city-card-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .pubcrawls-city-item img {
+        height: 220px;
+    }
+}
+
+
+
+/* ============================================================
+   FAQ Grid
+   ============================================================ */
+
+.pubcrawls-faq-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    padding: 1rem 0;
+}
+
+
+.pubcrawls-faq-grid .pubcrawls-faq-item {
+    background: #222631;
+    border-radius: 16px;
+    padding: 24px;
+    border: 1px solid #2E3440;
+    transition: border 0.3s ease;
+}
+
+.pubcrawls-faq-grid .pubcrawls-faq-item:hover {
+    border-color: #E6B325;
+}
+
+
+.pubcrawls-faq-grid .pubcrawls-faq-question {
+    font-family: var(--e-global-typography-2adc7ec-font-family), Sans-serif;
+    font-size: var(--e-global-typography-2adc7ec-font-size);
+    font-weight: var(--e-global-typography-2adc7ec-font-weight);
+    letter-spacing: 0.03em;
+    color: #ffffff;
+    margin: 0 0 0.85rem;
+    line-height: 1.4;
+}
+
+
+.pubcrawls-faq-grid .pubcrawls-faq-answer {
+    font-family: var(--e-global-typography-8ac7e2d-font-family), Sans-serif;
+    font-size: var(--e-global-typography-006bc37-font-size);
+    font-weight: var(--e-global-typography-006bc37-font-weight);
+    line-height: var(--e-global-typography-8ac7e2d-line-height);
+    color: #B8BDC7;
+    line-height: 1.5;
+
+}
+
+
+
+.pubcrawls-no-faqs {
+    color: #fff;
+    font-size: 0.9rem;
+    text-align: center;
+    padding: 2rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .pubcrawls-faq-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+/* ============================================================
+   Venue City Directory — [pubcrawls_venue_cities]
+   ============================================================ */
+
+.pubcrawls-vc-wrap {
+    padding: 2rem 0;
+
+}
+
+.pubcrawls-vc-wrap .pubcrawls-vc-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 2.5rem 2rem;
+}
+
+/* Letter heading */
+.pubcrawls-vc-wrap .pubcrawls-vc-letter {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #E6B325;
+    margin-bottom: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+
+    gap: 10px;
+}
+
+.pubcrawls-vc-wrap .pubcrawls-vc-line {
+    display: block;
+    /*     flex: 1; */
+    height: 1px;
+    background: #2E3440;
+    opacity: 1;
+}
+
+/* City list */
+.pubcrawls-vc-wrap .pubcrawls-vc-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.pubcrawls-vc-wrap .pubcrawls-vc-list a {
+    color: #B8BDC7;
+    text-decoration: none;
+    font-size: 1rem;
+    transition: color 0.2s;
+}
+
+.pubcrawls-vc-wrap .pubcrawls-vc-list a:hover {
+    color: #fff;
+}
+
+.pubcrawls-vc-wrap .pubcrawls-vc-none {
+    color: #888;
+    text-align: center;
+    padding: 2rem;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .pubcrawls-vc-wrap .pubcrawls-vc-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .pubcrawls-vc-wrap .pubcrawls-vc-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .pubcrawls-vc-wrap .pubcrawls-vc-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Search Box */
+.pubcrawls-vc-search-wrap {
+    margin-bottom: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.pubcrawls-vc-search-inner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #222631;
+    border: 1px solid #2E344080;
+    border-radius: 999px;
+    padding: 12px 22px;
+    max-width: 600px;
+    transition: border-color 0.2s;
+    width: 100%;
+}
+
+.pubcrawls-vc-search-inner:focus-within {
+    border-color: #E6B325;
+}
+
+.pubcrawls-vc-search-inner svg {
+    color: #E6B325;
+    flex-shrink: 0;
+}
+
+.pubcrawls-vc-search-input {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #f0ece4;
+    font-size: 0.92rem;
+    width: 100%;
+}
+
+.pubcrawls-vc-search-input::placeholder {
+    color: #7D8593B2;
+}
+
+.pubcrawls-vc-no-results {
+    color: #fff;
+    font-size: 1.25rem;
+    margin-top: 1rem;
+    padding-left: 4px;
+}
+
+
+
+
+
+
+
+
+/* ============================================================
+   City Events Grid — [pubcrawls_city_events]
+   ============================================================ */
+
+.pubcrawls-ce-grid,
+.pc-events-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    padding: 1rem 0;
+}
+
+/* ── Card ── */
+.pubcrawls-ce-grid .pubcrawls-ce-card,
+.pc-events-grid .pc-event-card {
+    background: #0F1115;
+    border: 1px solid #2E3440;
+    border-radius: 16px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: border-color 0.25s, transform 0.2s;
+}
+
+.pubcrawls-ce-grid .pubcrawls-ce-card:hover,
+.pc-events-grid .pc-event-card:hover {
+    border-color: #E6B325;
+    transform: translateY(-4px);
+}
+
+/* ── Thumbnail ── */
+.pubcrawls-ce-grid .pubcrawls-ce-thumb,
+.pc-events-grid .pc-event-card-thumb {
+    position: relative;
+    overflow: hidden;
+}
+
+.pubcrawls-ce-grid .pubcrawls-ce-thumb img,
+.pc-events-grid .pc-event-card-thumb img {
+    display: block;
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.pubcrawls-ce-grid .pubcrawls-ce-card:hover .pubcrawls-ce-thumb img,
+.pc-events-grid .pc-event-card:hover .pc-event-card-thumb img {
+    transform: scale(1.04);
+}
+
+/* ── Date Badge (top left over image) ── */
+.pubcrawls-ce-grid .pubcrawls-ce-date-badge,
+.pc-events-grid .pc-event-date-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: rgba(0, 0, 0, 0.85);
+    border-radius: 8px;
+    padding: 6px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 44px;
+    border: 1px solid #E6B325;
+}
+
+.pubcrawls-ce-grid .pubcrawls-ce-day,
+.pc-events-grid .pc-event-day {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1;
+    margin-bottom: 5px;
+}
+
+.pubcrawls-ce-grid .pubcrawls-ce-month,
+.pc-events-grid .pc-event-month {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #E6B325;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.pubcrawls-ce-grid .pubcrawls-ce-year,
+.pc-events-grid .pc-event-year {
+    font-size: 0.875rem;
+    color: #fff;
+    letter-spacing: 0.04em;
+    font-weight: 700;
+}
+
+/* ── Category Title── */
+.pubcrawls-ce-grid .pubcrawls-ce-cat-title {
+    font-family: var(--e-global-typography-e4e3e55-font-family), Sans-serif;
+    font-size: var(--e-global-typography-e4e3e55-font-size);
+    font-weight: var(--e-global-typography-e4e3e55-font-weight);
+    line-height: var(--e-global-typography-e4e3e55-line-height);
+    color: #fff;
+}
+
+.pubcrawls-ce-grid .pubcrawls-ce-cat-title {
+    color: #fff;
+}
+
+/* ── Content ── */
+.pubcrawls-ce-grid .pubcrawls-ce-content,
+.pc-events-grid .pc-event-card-body {
+    padding: 1rem 1rem 0.5rem;
+    flex: 1;
+}
+
+.pubcrawls-ce-grid .pubcrawls-ce-date-text,
+.pc-events-grid .pc-event-date-text {
+    font-size: 0.875rem;
+    color: #E6B325;
+    margin: 0 0 0.4rem;
+    font-weight: 500;
+}
+
+.pubcrawls-ce-grid .pubcrawls-ce-title,
+.pc-events-grid .pc-event-card-title {
+    font-family: var(--e-global-typography-2adc7ec-font-family), Sans-serif;
+    font-size: var(--e-global-typography-2adc7ec-font-size);
+    font-weight: var(--e-global-typography-2adc7ec-font-weight);
+    line-height: 1.5em;
+
+}
+
+.pubcrawls-ce-grid .pubcrawls-ce-title,
+.pc-events-grid .pc-event-card-title a {
+    color: #fff;
+}
+
+.pubcrawls-ce-grid .pubcrawls-ce-title,
+.pc-events-grid .pc-event-card-title a:hover {
+    color: #E6B325;
+}
+
+
+
+/* ── Buttons ── */
+.pubcrawls-ce-grid .pubcrawls-ce-buttons,
+.pc-events-grid .pc-event-card-buttons {
+    display: flex;
+    gap: 8px;
+    /*     padding: 0.75rem 1rem 1rem; */
+}
+
+.pubcrawls-ce-grid .pubcrawls-ce-btn,
+.pc-events-grid .pc-event-btn {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 12px;
+    border-radius: 7px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background 0.2s, color 0.2s;
+    text-align: center;
+}
+
+.pubcrawls-ce-grid .pubcrawls-ce-btn--info,
+.pc-events-grid .pc-event-btn--info {
+    background: #0F1115;
+    border: 1px solid #2E3440;
+    color: #fff;
+    font-family: var(--e-global-typography-a6b9697-font-family), Sans-serif;
+    font-size: var(--e-global-typography-a6b9697-font-size);
+    font-weight: var(--e-global-typography-a6b9697-font-weight);
+}
+
+.pubcrawls-ce-grid .pubcrawls-ce-btn--info:hover,
+.pc-events-grid .pc-event-btn--info:hover {
+    background: #1A1D24;
+    color: #fff;
+    text-decoration: none;
+}
+
+.pubcrawls-ce-grid .pubcrawls-ce-btn--buy,
+.pc-events-grid .pc-event-btn--buy {
+    background: #E6B325;
+    border: 1px solid #E6B325;
+    color: #000;
+    font-family: var(--e-global-typography-a6b9697-font-family), Sans-serif;
+    font-size: var(--e-global-typography-a6b9697-font-size);
+    font-weight: var(--e-global-typography-a6b9697-font-weight);
+    cursor: pointer;
+}
+
+.pubcrawls-ce-grid .pubcrawls-ce-btn--buy:hover,
+.pc-events-grid .pc-event-btn--buy:hover {
+    background: #C9971E;
+    border-color: #C9971E;
+    color: #000;
+    text-decoration: none;
+}
+
+/* Event Card Select  */
+.pc-events-grid .pc-event-date-select {
+    width: 100%;
+    padding: 0.625rem 2.25rem 0.625rem 0.875rem;
+    font-size: 1rem;
+    color: var(--pcet-text);
+    border: 1px solid var(--pcet-border);
+    border-radius: 8px;
+
+    appearance: none;
+    -webkit-appearance: none;
+
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%236c6c70' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+
+    background-repeat: no-repeat;
+    background-position: right 0.875rem center;
+    background-size: 12px;
+
+    cursor: pointer;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    margin-bottom: 1rem;
+}
+
+.pc-events-grid .pcet-event-date-select-wrapper {
+    padding: 0.75rem 1rem 1rem;
+}
+
+.pc-events-grid .pcet-event-date-select-wrapper .pc-event-select-label {
+    color: #fff;
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.pc-events-grid .pc-event-date-select.single-date {
+    pointer-events: none;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+/* ============================================================
+   SquadUp Modal (for City Events Grid)
+   ============================================================ */
+
+.pcet-su-modal,
+.pc-su-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: none;
+}
+
+.pcet-su-modal.is-open,
+.pc-su-modal.is-open {
+    display: block !important;
+}
+
+.pcet-su-modal__overlay,
+.pc-su-modal-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(17, 17, 17, 0.62);
+    backdrop-filter: saturate(120%) blur(2px);
+    -webkit-backdrop-filter: saturate(120%) blur(2px);
+}
+
+.pcet-su-modal__dialog,
+.pc-su-modal-dialog {
+    position: relative;
+    max-width: 680px;
+    margin: 6vh auto;
+    max-height: 88vh;
+    display: flex;
+    flex-direction: column;
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+    overflow: hidden;
+    animation: pcSuModalFadeIn 0.25s ease-out;
+    z-index: 1;
+}
+
+@keyframes pcSuModalFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.squadup-user-banner img {
+    width: 100px;
+}
+
+.pcet-su-modal__head,
+.pc-su-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #ebebeb;
+    background: #ffffff;
+}
+
+.pcet-su-modal__title {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #111827;
+    font-family: inherit;
+    line-height: 1.3;
+}
+
+.pcet-su-modal__close,
+.pc-su-modal-close {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: #6b7280;
+    padding: 0.25rem 0.5rem;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.15s, color 0.15s;
+    line-height: 1;
+}
+
+
+.pcet-su-modal__close svg,
+.pc-su-modal-close svg {
+    display: block;
+    width: 22px;
+    height: 22px;
+}
+
+.pcet-su-modal__body,
+.pc-su-modal-body {
+    padding: 1rem 1.25rem;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 420px;
+    background: #ffffff;
+}
+
+#squadup-checkout {
+    width: 100%;
+    min-height: 380px;
+}
+
+@media (max-width: 600px) {
+
+    .pcet-su-modal__dialog,
+    .pc-su-modal-dialog {
+        margin: 0;
+        max-width: none;
+        height: 100%;
+        max-height: 100%;
+        border-radius: 0;
+    }
+}
+
+
+
+/* ── Empty state ── */
+.pubcrawls-ce-none {
+    text-align: center;
+    padding: 2rem;
+
+    color: #fff;
+    font-size: 1.25rem;
+    margin-top: 1rem;
+    padding-left: 4px;
+}
+
+
+
+/* City Archive  */
+.pubcrawl-archive-cities-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 24px;
+}
+
+.pubcrawl-archive-cities-grid .pubcrawl-city-card {
+    position: relative;
+    z-index: 0;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0px 25px 50px -12px #00000040;
+    border: 1px solid #2E3440;
+    transition: transform 0.3s ease-in-out;
+
+
+}
+
+.pubcrawl-archive-cities-grid .pubcrawl-city-card:hover {
+    border-color: #E6B325;
+    transform: translateY(-4px);
+}
+
+
+
+
+
+.pubcrawl-archive-cities-grid .pubcrawl-city-card__thumb img {
+    height: 300px;
+    width: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease-in-out;
+}
+
+.pubcrawl-archive-cities-grid .pubcrawl-city-card:hover img {
+    transform: scale(1.05);
+}
+
+.pubcrawl-archive-cities-grid .pubcrawl-city-card__body {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(0deg, rgba(0, 0, 0, 0.8) 24.52%, rgba(0, 0, 0, 0.3) 50%, rgba(0, 0, 0, 0) 100%);
+    z-index: 1;
+    left: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding: 24px;
+    gap: 1rem;
+
+}
+
+.pubcrawl-archive-cities-grid .pubcrawl-city-card__body .pubcrawl-city-event-count {
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 4px 12px;
+    background-color: #E6B325;
+    color: #000000;
+    border-radius: 100px;
+    line-height: 1rem;
+    text-transform: uppercase;
+}
+
+.pubcrawl-archive-cities-grid .pubcrawl-city-card__body .pubcrawl-city-card__title {
+    color: #fff;
+}
+
+/* Responsive  */
+@media (max-width: 1320px) {
+    .pubcrawl-archive-cities-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (max-width: 1024px) {
+    .pubcrawl-archive-cities-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .pubcrawl-archive-cities-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .pubcrawl-archive-cities-grid {
+        grid-template-columns: repeat(1, 1fr);
+    }
+}
+
+
+
+
+/* Pubcrawls Event Agenda  */
+.pubcrawl-agenda {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    /*         max-width: 640px; */
+    width: 100%;
+}
+
+.pubcrawl-agenda .pubcrawl-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    background: #0F1115;
+    border: 1px solid #2E3440;
+    border-radius: 16px;
+    padding: 24px;
+    /* 		Transiton */
+    transition: 0.3s ease-in-out;
+}
+
+.pubcrawl-agenda .pubcrawl-step:hover {
+    border-color: #E6B325;
+}
+
+.pubcrawl-agenda .pubcrawl-time-badge {
+    background: #E6B3251A;
+    color: #E6B325;
+    font-size: 0.875rem;
+    font-weight: 700;
+    padding: 8px 16px;
+    border-radius: 14px;
+    border: 1px solid #E6B3254D;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-top: 2px;
+    /*         line-height: 1.5; */
+}
+
+.pubcrawl-agenda .pubcrawl-card {
+    flex: 1;
+}
+
+.pubcrawl-agenda .pubcrawl-card-title {
+
+    color: #fff;
+    margin-bottom: 10px;
+}
+
+.pubcrawl-agenda .pubcrawl-card-desc {
+    font-size: 1.25rem;
+    color: #B8BDC7;
+    line-height: 1.6;
+    font-weight: 400;
+    margin: 0;
+}
+
+@media(max-width:768px) {
+    .pubcrawl-agenda .pubcrawl-card-desc {
+        font-size: 1.125rem;
+    }
+}
+
+@media(max-width:480px) {
+    .pubcrawl-agenda .pubcrawl-step {
+        flex-direction: column;
+    }
+}
+
+/* Pubcrawls Single Event */
+.pubcrawl-event-venues {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}
+
+.pubcrawl-event-venues .pubcrawl-venue-item {
+    background-color: #0F1115;
+    border-radius: 16px;
+    border: 1px solid #2E3440;
+    overflow: hidden;
+    /* 	Transition */
+    transition: 0.3s ease-in-out;
+}
+
+.pubcrawl-event-venues .pubcrawl-venue-item img {
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+}
+
+.pubcrawl-event-venues .pubcrawl-venue-item:hover {
+    border-color: #E6B325;
+}
+
+.pubcrawl-event-venues .pubcrawl-venue-content {
+    padding: 16px;
+}
+
+.pubcrawl-event-venues .pubcrawl-venue-item .pubcrawl-venue-title {
+    /* 	font-size:1rem; */
+}
+
+.pubcrawl-event-venues .pubcrawl-venue-location {
+    font-size: 1rem;
+    font-weight: 400;
+    color: #B8BDC7;
+    margin-top: 10px
+}
+
+@media(max-width:480px) {
+    .pubcrawl-event-venues {
+        grid-template-columns: repeat(1, 1fr);
+    }
+
+    .pubcrawl-event-venues .pubcrawl-venue-location {
+        font-size: 0.875rem;
+    }
+}
+
+
+
+
+
+/* ============================================================
+   Venues in City page
+   ============================================================ */
+
+
+
+.pubcrawl-city-venues {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    padding: 1rem 0;
+}
+
+/* ── Card ── */
+.pubcrawl-city-venues .pubcrawl-venue-item {
+    background: #1A1D24;
+    border: 1px solid #2E3440;
+    border-radius: 16px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: border-color 0.25s, transform 0.2s;
+}
+
+.pubcrawl-city-venues .pubcrawl-venue-item:hover {
+    border-color: #E6B325;
+    transform: translateY(-4px);
+}
+
+/* ── Thumbnail ── */
+.pubcrawl-city-venues .pubcrawl-venue-item .pubcrawl-venue-thumb {
+    position: relative;
+    overflow: hidden;
+}
+
+.pubcrawl-city-venues .pubcrawl-venue-item .pubcrawl-venue-thumb img {
+    display: block;
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.pubcrawl-city-venues .pubcrawl-venue-item:hover .pubcrawl-venue-thumb img {
+    transform: scale(1.04);
+}
+
+/* ── Content ── */
+.pubcrawl-city-venues .pubcrawl-venue-item .pubcrawl-venue-content {
+    padding: 1.5rem 1.25rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+
+
+.pubcrawl-city-venues .pubcrawl-venue-item .pubcrawl-venue-content .pubcrawl-venue-title a {
+    color: #fff;
+}
+
+.pubcrawl-city-venues .pubcrawl-venue-item .pubcrawl-venue-content .pubcrawl-venue-title a:hover {
+    color: #E6B325;
+}
+
+.pubcrawl-city-venues .pubcrawl-venue-item .pubcrawl-venue-content .pubcrawl-venue-location {
+    color: #fff;
+}
+
+
+
+/* ── Buttons ── */
+
+
+.pubcrawl-city-venues .pubcrawl-venue-item .pubcrawl-venue-destination {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 12px;
+    border-radius: 7px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background 0.2s, color 0.2s;
+    text-align: center;
+    border: 1px solid #E6B325;
+    color: #E6B325;
+    font-family: var(--e-global-typography-a6b9697-font-family), Sans-serif;
+    font-size: var(--e-global-typography-a6b9697-font-size);
+    font-weight: var(--e-global-typography-a6b9697-font-weight);
+}
+
+.pubcrawl-city-venues .pubcrawl-venue-item .pubcrawl-venue-destination:hover {
+    background: #E6B325;
+    border-color: #E6B325;
+    color: #1A1D24 !important;
+    text-decoration: none;
+}
+
+/* ── Empty state ── */
+.pubcrawl-no-venues {
+    text-align: center;
+    padding: 2rem;
+
+    color: #fff;
+    font-size: 1.25rem;
+    /*     margin-top: 1rem; */
+    padding-left: 4px;
+    line-height: 1.7em;
+}
+
+.pubcrawl-no-venues .pubcrawl-contact {
+    margin-top: 1rem;
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 12px;
+    border-radius: 7px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background 0.2s, color 0.2s;
+    text-align: center;
+    border: 1px solid #E6B325;
+    color: #E6B325;
+    font-family: var(--e-global-typography-a6b9697-font-family), Sans-serif;
+    font-size: var(--e-global-typography-a6b9697-font-size);
+    font-weight: var(--e-global-typography-a6b9697-font-weight);
+
+}
+
+.pubcrawl-no-venues .pubcrawl-contact:hover {
+    background: #E6B325;
+    border-color: #E6B325;
+    color: #1A1D24 !important;
+    text-decoration: none;
+}
+
+/* Responsive  */
+@media (max-width: 1024px) {
+    .pubcrawl-city-venues {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .pubcrawl-city-venues {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 540px) {
+    .pubcrawl-city-venues {
+        grid-template-columns: repeat(1, 1fr);
+    }
+}
+
+/* ── Social Share Icons ── */
+.pc-social-share-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+}
+
+.pc-social-share-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    text-decoration: none;
+    transition: all 0.25s ease;
+    box-sizing: border-box;
+    line-height: 1;
+}
+
+.pc-social-share-btn i {
+    font-size: inherit;
+    line-height: 1;
+}
+
+.pc-social-share-btn svg {
+    width: 1em;
+    height: 1em;
+    fill: currentColor;
+    display: block;
+}
+
+/* Official brand colors when selected */
+.pc-social-share-btn--official.pc-social-share--facebook {
+    background-color: #1877f2;
+    color: #ffffff;
+}
+
+.pc-social-share-btn--official.pc-social-share--facebook:hover {
+    background-color: #1464cc;
+    color: #ffffff;
+}
+
+.pc-social-share-btn--official.pc-social-share--twitter {
+    background-color: #000000;
+    color: #ffffff;
+}
+
+.pc-social-share-btn--official.pc-social-share--twitter:hover {
+    background-color: #262626;
+    color: #ffffff;
+}
+
+.pc-social-share-btn--official.pc-social-share--linkedin {
+    background-color: #0a66c2;
+    color: #ffffff;
+}
+
+.pc-social-share-btn--official.pc-social-share--linkedin:hover {
+    background-color: #084d94;
+    color: #ffffff;
+}
+
+.pc-social-share-btn--official.pc-social-share--whatsapp {
+    background-color: #25d366;
+    color: #ffffff;
+}
+
+.pc-social-share-btn--official.pc-social-share--whatsapp:hover {
+    background-color: #1ebe5d;
+    color: #ffffff;
+}
+
+.pc-social-share-btn--official.pc-social-share--pinterest {
+    background-color: #e60023;
+    color: #ffffff;
+}
+
+.pc-social-share-btn--official.pc-social-share--pinterest:hover {
+    background-color: #bd081c;
+    color: #ffffff;
+}
+
+.pc-social-share-btn--official.pc-social-share--reddit {
+    background-color: #ff4500;
+    color: #ffffff;
+}
+
+.pc-social-share-btn--official.pc-social-share--reddit:hover {
+    background-color: #e03d00;
+    color: #ffffff;
+}
+
+.pc-social-share-btn--official.pc-social-share--email {
+    background-color: #ea4335;
+    color: #ffffff;
+}
+
+.pc-social-share-btn--official.pc-social-share--email:hover {
+    background-color: #d33828;
+    color: #ffffff;
+}
+
+.pc-social-share-btn--official.pc-social-share--copy_link,
+.pc-social-share-btn--official.pc-social-share--current_url {
+    background-color: #475569;
+    color: #ffffff;
+}
+
+.pc-social-share-btn--official.pc-social-share--copy_link:hover,
+.pc-social-share-btn--official.pc-social-share--current_url:hover {
+    background-color: #334155;
+    color: #ffffff;
+}
+
+/* ── Next Event Date ── */
+.pc-next-date-wrap {
+    display: inline-flex;
+    align-items: center;
+    vertical-align: middle;
+    line-height: 1.2;
+}
+
+.pc-next-date-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    transition: color 0.25s, background-color 0.25s, border-color 0.25s;
+}
+
+.pc-next-date-icon i {
+    font-size: inherit;
+    line-height: 1;
+}
+
+.pc-next-date-icon svg {
+    width: 1em;
+    height: 1em;
+    fill: currentColor;
+    display: block;
+}
+
+.pc-next-date-text {
+    line-height: inherit;
+}
+
+/* =========================================
+   Pub Crawl City Map
+   ========================================= */
+
+.pubcrawl-city-map {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.pubcrawl-city-map__iframe-wrap {
+    position: relative;
+    width: 100%;
+    height: clamp(450px, 80vh, 900px);
+    min-height: 400px;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+.pubcrawl-city-map__iframe {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 400px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: none;
+}
+
+/* Tablet */
+@media (max-width: 1024px) {
+    .pubcrawl-city-map__iframe-wrap {
+        height: 70vh;
+        min-height: 450px;
+    }
+
+    .pubcrawl-city-map__iframe {
+        min-height: 450px;
+    }
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+    .pubcrawl-city-map__iframe-wrap {
+        height: 75vh;
+        min-height: 500px;
+    }
+
+    .pubcrawl-city-map__iframe {
+        min-height: 500px;
+    }
+}
+
+/* Small mobile */
+@media (max-width: 480px) {
+    .pubcrawl-city-map__iframe-wrap {
+        height: 80vh;
+        min-height: 480px;
+    }
+
+    .pubcrawl-city-map__iframe {
+        min-height: 480px;
+    }
+}
+
+/* ============================================================
+   AI Quick Links Widget
+   ============================================================ */
+
+.pc-ai-links-heading {
+    margin: 0 0 12px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.pc-ai-links-list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+}
+
+.pc-ai-links-list.pc-ai-layout--inline {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.pc-ai-links-list.pc-ai-layout--grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.pc-ai-links-list.pc-ai-layout--stacked {
+    display: flex;
+    flex-direction: column;
+}
+
+.pc-ai-links-list.pc-ai-layout--stacked .pc-ai-link-btn {
+    width: 100%;
+}
+
+.pc-ai-link-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none !important;
+    line-height: 1.3;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    box-sizing: border-box;
+    cursor: pointer;
+    background-color: #000000;
+    color: #ffffff;
+    border: 1px solid #000000;
+}
+
+.pc-ai-link-btn:hover {
+    background-color: #ffffff;
+    color: #000000;
+    border-color: #000000;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+}
+
+.pc-ai-link-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    line-height: 1;
+    color: inherit;
+    font-size: inherit;
+}
+
+.pc-ai-link-icon img {
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
+    display: block;
+}
+
+.pc-ai-link-icon svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    fill: currentColor;
+    color: inherit;
+    transition: color 0.25s cubic-bezier(0.16, 1, 0.3, 1), fill 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pc-ai-link-icon svg path,
+.pc-ai-link-icon svg circle,
+.pc-ai-link-icon svg rect,
+.pc-ai-link-icon svg polygon {
+    fill: currentColor;
+    transition: fill 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pc-ai-link-btn:hover .pc-ai-link-icon,
+.pc-ai-link-btn:hover .pc-ai-link-icon svg {
+    color: inherit;
+    fill: currentColor;
+}
+
+.pc-ai-link-btn:hover .pc-ai-link-icon svg path,
+.pc-ai-link-btn:hover .pc-ai-link-icon svg circle,
+.pc-ai-link-btn:hover .pc-ai-link-icon svg rect,
+.pc-ai-link-btn:hover .pc-ai-link-icon svg polygon {
+    fill: currentColor;
+}
+
+
+.pc-ai-link-text {
+    display: inline-block;
+    white-space: nowrap;
+}

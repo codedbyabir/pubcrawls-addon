@@ -1,0 +1,419 @@
+/**
+ * Pubcrawl Addon — Frontend Helper Styles
+ */
+
+/* Directions Button Default Layout */
+.pc-get-directions-wrapper {
+    display: block;
+    width: 100%;
+}
+
+.pc-get-directions-btn {
+    display: block;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 20px;
+    background-color: #2563eb;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.4;
+    text-decoration: none;
+    border: 0 solid transparent;
+    border-radius: 6px;
+    box-sizing: border-box;
+    transition: all 0.25s ease;
+}
+
+.pc-get-directions-btn:hover,
+.pc-get-directions-btn:focus {
+    background-color: #1d4ed8;
+    color: #ffffff;
+}
+
+.pc-get-directions-btn .pc-btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.pc-get-directions-btn .pc-btn-icon svg {
+    width: 1em;
+    height: 1em;
+    fill: currentColor;
+}
+
+.elementor-align-justify .pc-get-directions-btn,
+.elementor-tablet-align-justify .pc-get-directions-btn,
+.elementor-mobile-align-justify .pc-get-directions-btn {
+    width: 100%;
+}
+
+/* Social Share Links */
+.pc-social-share-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    border-radius: 6px;
+    transition: all 0.25s ease;
+}
+
+.pc-social-share--facebook {
+    background-color: #1877f2;
+    color: #ffffff;
+}
+
+.pc-social-share--facebook:hover {
+    background-color: #1464cc;
+    color: #ffffff;
+}
+
+.pc-social-share--twitter {
+    background-color: #000000;
+    color: #ffffff;
+}
+
+.pc-social-share--twitter:hover {
+    background-color: #262626;
+    color: #ffffff;
+}
+
+.pc-social-share--linkedin {
+    background-color: #0a66c2;
+    color: #ffffff;
+}
+
+.pc-social-share--linkedin:hover {
+    background-color: #084d94;
+    color: #ffffff;
+}
+
+.pc-social-share--current_url {
+    background-color: #475569;
+    color: #ffffff;
+}
+
+.pc-social-share--current_url:hover {
+    background-color: #334155;
+    color: #ffffff;
+}
+
+/* SquadUp Unified Modal */
+.pcet-su-modal,
+.pc-su-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: none;
+}
+
+.pcet-su-modal.is-open,
+.pc-su-modal.is-open {
+    display: block !important;
+}
+
+.pcet-su-modal__overlay,
+.pc-su-modal-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(17, 17, 17, 0.62);
+    backdrop-filter: saturate(120%) blur(2px);
+    -webkit-backdrop-filter: saturate(120%) blur(2px);
+}
+
+.pcet-su-modal__dialog,
+.pc-su-modal-dialog {
+    position: relative;
+    max-width: 680px;
+    margin: 6vh auto;
+    max-height: 88vh;
+    display: flex;
+    flex-direction: column;
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+    overflow: hidden;
+    animation: pcSuModalFadeIn 0.25s ease-out;
+    z-index: 1;
+}
+
+@keyframes pcSuModalFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.pcet-su-modal__head,
+.pc-su-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #ebebeb;
+    background: #ffffff;
+}
+
+.pcet-su-modal__title {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #111827;
+    font-family: inherit;
+    line-height: 1.3;
+}
+
+.pcet-su-modal__close,
+.pc-su-modal-close {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: #6b7280;
+    padding: 0.25rem 0.5rem;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.15s, color 0.15s;
+    line-height: 1;
+}
+
+.pcet-su-modal__close:hover,
+.pc-su-modal-close:hover {
+    background: #f3f4f6;
+    color: #111827;
+}
+
+.pcet-su-modal__close svg,
+.pc-su-modal-close svg {
+    display: block;
+    width: 22px;
+    height: 22px;
+}
+
+.pcet-su-modal__body,
+.pc-su-modal-body {
+    padding: 1rem 1.25rem;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 420px;
+    background: #ffffff;
+}
+
+#squadup-checkout {
+    width: 100%;
+    min-height: 380px;
+}
+
+@media (max-width: 600px) {
+
+    .pcet-su-modal__dialog,
+    .pc-su-modal-dialog {
+        margin: 0;
+        max-width: none;
+        height: 100%;
+        max-height: 100%;
+        border-radius: 0;
+    }
+}
+
+/* =========================================
+   Pub Crawl City Map
+   ========================================= */
+
+.pubcrawl-city-map {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.pubcrawl-city-map__iframe-wrap {
+    position: relative;
+    width: 100%;
+    height: clamp(450px, 80vh, 900px);
+    min-height: 400px;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+.pubcrawl-city-map__iframe {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 400px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: none;
+}
+
+/* Tablet */
+@media (max-width: 1024px) {
+    .pubcrawl-city-map__iframe-wrap {
+        height: 70vh;
+        min-height: 450px;
+    }
+
+    .pubcrawl-city-map__iframe {
+        min-height: 450px;
+    }
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+    .pubcrawl-city-map__iframe-wrap {
+        height: 75vh;
+        min-height: 500px;
+    }
+
+    .pubcrawl-city-map__iframe {
+        min-height: 500px;
+    }
+}
+
+/* Small mobile */
+@media (max-width: 480px) {
+    .pubcrawl-city-map__iframe-wrap {
+        height: 80vh;
+        min-height: 480px;
+    }
+
+    .pubcrawl-city-map__iframe {
+        min-height: 480px;
+    }
+}
+
+/* ============================================================
+   AI Quick Links Widget
+   ============================================================ */
+.pc-ai-links-wrap {
+    margin: 20px 0;
+}
+
+.pc-ai-links-heading {
+    margin: 0 0 12px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.pc-ai-links-list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+}
+
+.pc-ai-links-list.pc-ai-layout--inline {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.pc-ai-links-list.pc-ai-layout--grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.pc-ai-links-list.pc-ai-layout--stacked {
+    display: flex;
+    flex-direction: column;
+}
+
+.pc-ai-links-list.pc-ai-layout--stacked .pc-ai-link-btn {
+    width: 100%;
+}
+
+.pc-ai-link-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none !important;
+    line-height: 1.3;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    box-sizing: border-box;
+    cursor: pointer;
+    background-color: #000000;
+    color: #ffffff;
+    border: 1px solid #000000;
+}
+
+.pc-ai-link-btn:hover {
+    background-color: #ffffff;
+    color: #000000;
+    border-color: #000000;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+}
+
+.pc-ai-link-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    line-height: 1;
+    color: inherit;
+    font-size: inherit;
+}
+
+.pc-ai-link-icon img {
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
+    display: block;
+}
+
+.pc-ai-link-icon svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    fill: currentColor;
+    color: inherit;
+    transition: color 0.25s cubic-bezier(0.16, 1, 0.3, 1), fill 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pc-ai-link-icon svg path,
+.pc-ai-link-icon svg circle,
+.pc-ai-link-icon svg rect,
+.pc-ai-link-icon svg polygon {
+    fill: currentColor;
+    transition: fill 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pc-ai-link-btn:hover .pc-ai-link-icon,
+.pc-ai-link-btn:hover .pc-ai-link-icon svg {
+    color: inherit;
+    fill: currentColor;
+}
+
+.pc-ai-link-btn:hover .pc-ai-link-icon svg path,
+.pc-ai-link-btn:hover .pc-ai-link-icon svg circle,
+.pc-ai-link-btn:hover .pc-ai-link-icon svg rect,
+.pc-ai-link-btn:hover .pc-ai-link-icon svg polygon {
+    fill: currentColor;
+}
+
+.pc-ai-link-text {
+    display: inline-block;
+    white-space: nowrap;
+}
