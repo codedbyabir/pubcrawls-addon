@@ -85,6 +85,15 @@ class Pubcrawls_Helpers_Loader {
 			}
 		}
 
+		// 3. Quick Edit Featured Image Helper.
+		if ( self::is_helper_enabled( 'quick_featured_image', '1' ) ) {
+			$qefi_file = PUBCRAWLS_ADDON_DIR . 'includes/helpers/quick-featured-image/class-pubcrawls-quick-featured-image.php';
+			if ( file_exists( $qefi_file ) ) {
+				require_once $qefi_file;
+				Pubcrawls_Quick_Featured_Image::init();
+			}
+		}
+
 		/**
 		 * Action hook allowing third-party or future modules to initialize.
 		 */

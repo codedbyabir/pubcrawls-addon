@@ -3,9 +3,9 @@ Contributors: nexibyllc
 Donate link: https://pubcrawls.com/
 Tags: elementor, pubcrawls, events, cities, venues
 Requires at least: 5.8
-Tested up to: 6.7
+Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 2.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -37,6 +37,7 @@ Pubcrawl is the complete, standalone Elementor solution for PubCrawls. It replac
 = Modular Helpers & Bulk Tools =
 * **FAQ & SEO Bulk Importer** — Fast batch import of ACF `faqs` repeaters and Yoast / Rank Math / All In One SEO title & meta description across city and events post types using structured JSON. Features dry-run simulation, 25-item chunking to prevent server timeouts, live database counts, and dynamic ACF field key auto-discovery for multi-site portability.
 * **Bulk Title & Slug Editor** — Direct bulk editing tools in the WordPress post list tables for `tribe_events`, `city`, `venue`, and custom post types: Append to title (end), Prepend to title (start), Remove from start/end, and Find & Replace. Includes live typing preview, spacing options, and optional URL permalink slug synchronization.
+* **Quick Edit Featured Image** — Fast thumbnail preview column directly in WordPress post tables with full image selection, media library modal picker, live thumbnail preview, and removal controls integrated directly into the WordPress Quick Edit inline form.
 * **Dashboard Toggles** — Easily activate or deactivate helpers individually in the PubCrawls Dashboard under "Helpers & Tools".
 
 == Installation ==
@@ -53,6 +54,7 @@ Pubcrawl is the complete, standalone Elementor solution for PubCrawls. It replac
 * Added modular Helpers & Tools directory structure (`includes/helpers/`).
 * Added FAQ & SEO Bulk Importer with batching (25/step), dry-run testing, overwrite mode, and direct database queries.
 * Added Bulk Title & Slug Editor with Append, Prepend, Remove (start/end), Find & Replace, and URL slug sync.
+* Added Quick Edit Featured Image helper with table thumbnail column, media modal picker, and AJAX save/remove.
 * Added dynamic ACF field key auto-discovery (`acf_get_field('faqs')`) with fallback keys for multi-site installation portability.
 * Added multi-SEO plugin compatibility (Yoast SEO, Rank Math, All In One SEO, SEOPress).
 * Added Admin Dashboard "Helpers & Tools" tab with one-click enable/disable toggles and active status badges.

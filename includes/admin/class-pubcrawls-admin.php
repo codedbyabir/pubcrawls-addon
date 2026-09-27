@@ -181,6 +181,7 @@ class Pubcrawls_Admin {
 			'eventbrite_open_fallback'    => '1',
 			'enable_faq_seo_importer'     => '1',
 			'enable_bulk_title_editor'    => '1',
+			'enable_quick_featured_image' => '1',
 		);
 	}
 
@@ -246,14 +247,18 @@ class Pubcrawls_Admin {
 
 		// Helper & Tool toggles
 		if ( isset( $input['helpers_settings_submitted'] ) ) {
-			$clean['enable_faq_seo_importer']  = ! empty( $input['enable_faq_seo_importer'] ) ? '1' : '0';
-			$clean['enable_bulk_title_editor'] = ! empty( $input['enable_bulk_title_editor'] ) ? '1' : '0';
+			$clean['enable_faq_seo_importer']     = ! empty( $input['enable_faq_seo_importer'] ) ? '1' : '0';
+			$clean['enable_bulk_title_editor']    = ! empty( $input['enable_bulk_title_editor'] ) ? '1' : '0';
+			$clean['enable_quick_featured_image'] = ! empty( $input['enable_quick_featured_image'] ) ? '1' : '0';
 		} else {
 			if ( isset( $input['enable_faq_seo_importer'] ) ) {
 				$clean['enable_faq_seo_importer'] = ! empty( $input['enable_faq_seo_importer'] ) ? '1' : '0';
 			}
 			if ( isset( $input['enable_bulk_title_editor'] ) ) {
 				$clean['enable_bulk_title_editor'] = ! empty( $input['enable_bulk_title_editor'] ) ? '1' : '0';
+			}
+			if ( isset( $input['enable_quick_featured_image'] ) ) {
+				$clean['enable_quick_featured_image'] = ! empty( $input['enable_quick_featured_image'] ) ? '1' : '0';
 			}
 		}
 

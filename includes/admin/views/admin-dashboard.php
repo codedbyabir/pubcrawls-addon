@@ -92,7 +92,8 @@ if ( ! is_array( $disabled_tax ) ) {
 			<span class="dashicons dashicons-admin-tools"></span> <?php esc_html_e( 'Helpers & Tools', 'pubcrawls-addon' ); ?>
 			<?php 
 			$active_helpers_count = ( ! empty( $settings['enable_faq_seo_importer'] ) && '1' === (string) $settings['enable_faq_seo_importer'] ? 1 : 0 )
-				+ ( ! empty( $settings['enable_bulk_title_editor'] ) && '1' === (string) $settings['enable_bulk_title_editor'] ? 1 : 0 );
+				+ ( ! empty( $settings['enable_bulk_title_editor'] ) && '1' === (string) $settings['enable_bulk_title_editor'] ? 1 : 0 )
+				+ ( ! empty( $settings['enable_quick_featured_image'] ) && '1' === (string) $settings['enable_quick_featured_image'] ? 1 : 0 );
 			if ( $active_helpers_count > 0 ) : ?>
 				<span class="pubcrawls-tab-count" style="background:#22c55e;color:#fff;"><?php echo esc_html( $active_helpers_count ); ?></span>
 			<?php endif; ?>
@@ -588,6 +589,44 @@ if ( ! is_array( $disabled_tax ) ) {
 							<div>
 								<label class="pubcrawls-switch pubcrawls-switch--standard" title="<?php esc_attr_e( 'Toggle Helper Feature', 'pubcrawls-addon' ); ?>">
 									<input type="checkbox" name="<?php echo esc_attr( Pubcrawls_Admin::SETTINGS_KEY ); ?>[enable_bulk_title_editor]" value="1" <?php checked( true, $title_editor_enabled ); ?> />
+									<span class="pubcrawls-slider"></span>
+								</label>
+							</div>
+						</div>
+					</div>
+
+					<?php $qefi_enabled = ! empty( $settings['enable_quick_featured_image'] ) && '1' === (string) $settings['enable_quick_featured_image']; ?>
+
+					<div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:10px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,0.04);margin-top:16px;">
+						<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+							<div style="display:flex;gap:16px;align-items:flex-start;">
+								<div style="width:44px;height:44px;background:#fdf4ff;color:#a855f7;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+									<span class="dashicons dashicons-format-image" style="font-size:24px;width:24px;height:24px;"></span>
+								</div>
+								<div>
+									<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+										<h3 style="margin:0;font-size:16px;font-weight:700;color:#0f172a;"><?php esc_html_e( 'Quick Edit Featured Image', 'pubcrawls-addon' ); ?></h3>
+										<?php if ( $qefi_enabled ) : ?>
+											<span class="pubcrawls-status-tag pubcrawls-status-tag--ok"><?php esc_html_e( 'Active', 'pubcrawls-addon' ); ?></span>
+										<?php else : ?>
+											<span class="pubcrawls-status-tag" style="background:#f1f5f9;color:#64748b;"><?php esc_html_e( 'Disabled', 'pubcrawls-addon' ); ?></span>
+										<?php endif; ?>
+									</div>
+									<p style="margin:0 0 14px 0;font-size:13px;color:#475569;line-height:1.5;max-width:700px;">
+										<?php esc_html_e( 'Displays thumbnail preview column directly in WordPress post tables (Events, Cities, Venues, etc.) and integrates full featured image selection, media library picker, and removal controls directly inside WordPress Quick Edit.', 'pubcrawls-addon' ); ?>
+									</p>
+									<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px;">
+										<span style="font-size:11px;background:#f1f5f9;color:#334155;padding:3px 8px;border-radius:4px;font-weight:600;">🖼️ Table Thumbnail</span>
+										<span style="font-size:11px;background:#f1f5f9;color:#334155;padding:3px 8px;border-radius:4px;font-weight:600;">⚡ Quick Edit Picker</span>
+										<span style="font-size:11px;background:#f1f5f9;color:#334155;padding:3px 8px;border-radius:4px;font-weight:600;">📁 WP Media Modal</span>
+										<span style="font-size:11px;background:#f1f5f9;color:#334155;padding:3px 8px;border-radius:4px;font-weight:600;">🗑️ 1-Click Remove</span>
+									</div>
+								</div>
+							</div>
+
+							<div>
+								<label class="pubcrawls-switch pubcrawls-switch--standard" title="<?php esc_attr_e( 'Toggle Helper Feature', 'pubcrawls-addon' ); ?>">
+									<input type="checkbox" name="<?php echo esc_attr( Pubcrawls_Admin::SETTINGS_KEY ); ?>[enable_quick_featured_image]" value="1" <?php checked( true, $qefi_enabled ); ?> />
 									<span class="pubcrawls-slider"></span>
 								</label>
 							</div>

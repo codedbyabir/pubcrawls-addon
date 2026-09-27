@@ -569,10 +569,13 @@ class Pubcrawls_Page_FAQs extends \Elementor\Widget_Base
 		$title      = ! empty($settings['title']) ? $settings['title'] : esc_html__('Frequently Asked Questions (FAQs)', 'pubcrawls-addon');
 		$title_tag  = ! empty($settings['title_tag']) ? \Elementor\Utils::validate_html_tag($settings['title_tag']) : 'h2';
 ?>
+
+		<?php if ($show_title && ! empty($title)) : ?>
+			<<?php echo esc_attr($title_tag); ?> class="pubcrawl-faq-title"><?php echo esc_html($title); ?></<?php echo esc_attr($title_tag); ?>>
+		<?php endif; ?>
+
 		<div class="pubcrawls-faq-grid">
-			<?php if ($show_title && ! empty($title)) : ?>
-				<<?php echo esc_attr($title_tag); ?> class="pubcrawl-faq-title"><?php echo esc_html($title); ?></<?php echo esc_attr($title_tag); ?>>
-			<?php endif; ?>
+
 
 			<?php foreach ($faqs as $faq) :
 				$qsn = $faq['question'] ?? '';
