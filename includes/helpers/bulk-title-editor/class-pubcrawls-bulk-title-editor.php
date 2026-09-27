@@ -46,47 +46,54 @@ class Pubcrawls_Bulk_Title_Editor {
 	 * Constructor.
 	 */
 	private function __construct() {
-		$target_types = self::get_target_post_types();
+		// Hook filters immediately for known types
+		$this->register_hooks();
 
-		foreach ( $target_types as $pt ) {
-			add_filter( "bulk_actions-edit-{$pt}", array( $this, 'register_bulk_actions' ) );
-			add_filter( "handle_bulk_actions-edit-{$pt}", array( $this, 'handle_bulk_actions' ), 10, 3 );
-		}
+		// Also register on admin_init in case post types were registered late
+		add_action( 'admin_init', array( $this, 'register_hooks' ) );
 
 		add_action( 'admin_footer-edit.php', array( $this, 'render_admin_panel' ) );
 		add_action( 'admin_notices', array( $this, 'render_admin_notices' ) );
 	}
 
 	/**
+	 * Register bulk actions and handlers for all supported post types.
+	 */
+	public function register_hooks(): void {
+		$target_types = self::get_target_post_types();
+
+		foreach ( $target_types as $pt ) {
+			if ( ! has_filter( "bulk_actions-edit-{$pt}", array( $this, 'register_bulk_actions' ) ) ) {
+				add_filter( "bulk_actions-edit-{$pt}", array( $this, 'register_bulk_actions' ) );
+			}
+			if ( ! has_filter( "handle_bulk_actions-edit-{$pt}", array( $this, 'handle_bulk_actions' ) ) ) {
+				add_filter( "handle_bulk_actions-edit-{$pt}", array( $this, 'handle_bulk_actions' ), 10, 3 );
+			}
+		}
+	}
+
+	/**
 	 * Get post types supported by the Bulk Title Editor.
 	 *
-	 * Checks existing post types to ensure portability across different WordPress sites.
+	 * Includes PubCrawls core types (tribe_events, city, venue, faq) as well as
+	 * standard post/page, and allows custom post types via filter.
 	 *
 	 * @return array List of post type slugs.
 	 */
 	public static function get_target_post_types(): array {
-		$types = array();
-
-		if ( post_type_exists( 'tribe_events' ) ) {
-			$types[] = 'tribe_events';
-		}
-		if ( post_type_exists( 'city' ) ) {
-			$types[] = 'city';
-		}
-		if ( post_type_exists( 'venue' ) ) {
-			$types[] = 'venue';
-		}
-		if ( post_type_exists( 'faq' ) ) {
-			$types[] = 'faq';
-		}
-
-		// Fallback for standalone sites where CPTs might not be active yet
-		if ( empty( $types ) ) {
-			$types = array( 'post', 'page' );
-		}
+		$types = array(
+			'tribe_events',
+			'city',
+			'venue',
+			'faq',
+			'post',
+			'page',
+		);
 
 		/**
 		 * Filter supported post types for Bulk Title Editor.
+		 *
+		 * @param array $types Array of post type slugs.
 		 */
 		return apply_filters( 'pubcrawls_bulk_title_editor_post_types', $types );
 	}
@@ -98,11 +105,11 @@ class Pubcrawls_Bulk_Title_Editor {
 	 * @return array
 	 */
 	public function register_bulk_actions( array $actions ): array {
-		$actions['append_to_title']        = esc_html__( 'Append to title (End)', 'pubcrawls-addon' );
-		$actions['prepend_to_title']       = esc_html__( 'Prepend to title (Start)', 'pubcrawls-addon' );
-		$actions['remove_from_title']      = esc_html__( 'Remove from title (End)', 'pubcrawls-addon' );
-		$actions['remove_prefix_title']    = esc_html__( 'Remove from title (Start)', 'pubcrawls-addon' );
-		$actions['replace_in_title']       = esc_html__( 'Find & Replace in title', 'pubcrawls-addon' );
+		$actions['append_to_title']     = esc_html__( 'Append to title', 'pubcrawls-addon' );
+		$actions['prepend_to_title']    = esc_html__( 'Prepend to title', 'pubcrawls-addon' );
+		$actions['remove_from_title']   = esc_html__( 'Remove from title', 'pubcrawls-addon' );
+		$actions['remove_prefix_title'] = esc_html__( 'Remove prefix from title', 'pubcrawls-addon' );
+		$actions['replace_in_title']    = esc_html__( 'Find & Replace in title', 'pubcrawls-addon' );
 
 		return $actions;
 	}
@@ -150,8 +157,8 @@ class Pubcrawls_Bulk_Title_Editor {
 			}
 		}
 
-		$updated = 0;
-		$skipped = 0;
+		$updated      = 0;
+		$skipped      = 0;
 		$target_types = self::get_target_post_types();
 
 		foreach ( $post_ids as $post_id ) {
@@ -169,52 +176,42 @@ class Pubcrawls_Bulk_Title_Editor {
 			$current = $post->post_title;
 			$new     = $current;
 
-			switch ( $action ) {
-				case 'append_to_title':
-					$append_val = $add_space ? ' ' . $string : $string;
-					$new        = $current . $append_val;
-					break;
-
-				case 'prepend_to_title':
-					$prepend_val = $add_space ? $string . ' ' : $string;
-					$new         = $prepend_val . $current;
-					break;
-
-				case 'remove_from_title':
-					// Try removing with preceding space first, then without
-					if ( $add_space && self::str_ends_with( $current, ' ' . $string ) ) {
-						$new = substr( $current, 0, -strlen( ' ' . $string ) );
-					} elseif ( self::str_ends_with( $current, $string ) ) {
-						$new = substr( $current, 0, -strlen( $string ) );
-					} else {
-						$skipped++;
-						continue 2;
-					}
-					break;
-
-				case 'remove_prefix_title':
-					// Try removing with trailing space first, then without
-					if ( $add_space && self::str_starts_with( $current, $string . ' ' ) ) {
-						$new = substr( $current, strlen( $string . ' ' ) );
-					} elseif ( self::str_starts_with( $current, $string ) ) {
-						$new = substr( $current, strlen( $string ) );
-					} else {
-						$skipped++;
-						continue 2;
-					}
-					break;
-
-				case 'replace_in_title':
-					if ( false !== strpos( $current, $find ) ) {
-						$new = str_replace( $find, $replace, $current );
-					} else {
-						$skipped++;
-						continue 2;
-					}
-					break;
+			if ( 'append_to_title' === $action ) {
+				$append_val = $add_space ? ' ' . $string : $string;
+				$new        = $current . $append_val;
+			} elseif ( 'prepend_to_title' === $action ) {
+				$prepend_val = $add_space ? $string . ' ' : $string;
+				$new         = $prepend_val . $current;
+			} elseif ( 'remove_from_title' === $action ) {
+				// Try removing with preceding space first, then without
+				if ( $add_space && self::str_ends_with( $current, ' ' . $string ) ) {
+					$new = substr( $current, 0, -strlen( ' ' . $string ) );
+				} elseif ( self::str_ends_with( $current, $string ) ) {
+					$new = substr( $current, 0, -strlen( $string ) );
+				} else {
+					$skipped++;
+					continue;
+				}
+			} elseif ( 'remove_prefix_title' === $action ) {
+				// Try removing with trailing space first, then without
+				if ( $add_space && self::str_starts_with( $current, $string . ' ' ) ) {
+					$new = substr( $current, strlen( $string . ' ' ) );
+				} elseif ( self::str_starts_with( $current, $string ) ) {
+					$new = substr( $current, strlen( $string ) );
+				} else {
+					$skipped++;
+					continue;
+				}
+			} elseif ( 'replace_in_title' === $action ) {
+				if ( '' !== $find && false !== strpos( $current, $find ) ) {
+					$new = str_replace( $find, $replace, $current );
+				} else {
+					$skipped++;
+					continue;
+				}
 			}
 
-			// Avoid unnecessary update if title didn't change
+			// Avoid unnecessary database update if title didn't change
 			if ( $new === $current ) {
 				$skipped++;
 				continue;
@@ -246,7 +243,8 @@ class Pubcrawls_Bulk_Title_Editor {
 			$query_args['bat_find']    = urlencode( $find );
 			$query_args['bat_replace'] = urlencode( $replace );
 		} else {
-			$query_args['bat_string'] = urlencode( $string );
+			$append_report = $add_space ? ' ' . $string : $string;
+			$query_args['bat_string'] = urlencode( $append_report );
 		}
 
 		return add_query_arg( $query_args, $redirect_to );
@@ -265,204 +263,221 @@ class Pubcrawls_Bulk_Title_Editor {
 			#bat-panel {
 				display: none;
 				background: #ffffff;
-				border: 1px solid #2563eb;
-				border-left: 4px solid #2563eb;
-				border-radius: 6px;
+				border: 1px solid #2271b1;
+				border-left: 4px solid #2271b1;
+				border-radius: 4px;
 				padding: 14px 18px;
 				margin: 12px 0 16px;
 				align-items: center;
 				gap: 12px;
 				flex-wrap: wrap;
-				box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+				box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+				transition: all 0.2s ease;
 			}
-			#bat-panel.bat-visible { display: flex; }
-			#bat-panel.bat-danger  { border-color: #dc2626; border-left-color: #dc2626; }
+			#bat-panel.bat-visible { display: flex !important; }
+			#bat-panel.bat-remove  { border-color: #b32d2e; border-left-color: #b32d2e; }
 			#bat-panel.bat-replace { border-color: #0d9488; border-left-color: #0d9488; }
 			#bat-panel label       { font-weight: 600; font-size: 13px; color: #1e293b; white-space: nowrap; }
 			#bat-panel input[type="text"] { min-width: 220px; font-size: 13px; padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 4px; }
 			#bat-panel .bat-hint   { color: #64748b; font-size: 12px; margin-left: 4px; }
-			#bat-space-wrap, #bat-slug-wrap { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #334155; white-space: nowrap; cursor: pointer; }
+			#bat-space-wrap, #bat-slug-wrap { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: #334155; white-space: nowrap; cursor: pointer; }
 			#bat-space-wrap input, #bat-slug-wrap input { margin: 0; cursor: pointer; }
-			#bat-preview           { font-size: 12px; color: #0f172a; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 4px; padding: 4px 10px; white-space: nowrap; font-family: monospace; }
-			#bat-close-btn         { margin-left: auto; cursor: pointer; color: #64748b; font-size: 18px; line-height: 1; border: none; background: none; padding: 2px; }
-			#bat-close-btn:hover   { color: #0f172a; }
+			#bat-preview           { font-size: 12px; color: #0f172a; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 4px; padding: 4px 10px; white-space: nowrap; font-family: monospace; }
+			#bat-close-btn         { margin-left: auto; cursor: pointer; color: #64748b; font-size: 20px; line-height: 1; border: none; background: none; padding: 2px 6px; border-radius: 4px; }
+			#bat-close-btn:hover   { color: #0f172a; background: #f1f5f9; }
 		</style>
 
 		<script>
-		document.addEventListener('DOMContentLoaded', function () {
-			var form = document.getElementById('posts-filter');
-			if (!form) return;
+		jQuery(function ($) {
+			var $form = $('#posts-filter');
+			if (!$form.length) return;
 
-			// ── Build Panel HTML ──────────────────────────────────────────
-			var panel = document.createElement('div');
-			panel.id  = 'bat-panel';
-			panel.innerHTML =
-				'<label for="bat-string-input" id="bat-label">Text to append:</label>' +
-				'<input type="text" id="bat-string-input" name="bat_string" placeholder="e.g. 2027" autocomplete="off">' +
-				
-				// Find & Replace secondary input container
-				'<span id="bat-replace-wrap" style="display:none; align-items:center; gap:8px;">' +
-					'<label for="bat-replace-input" style="font-weight:600">Replace with:</label>' +
-					'<input type="text" id="bat-replace-input" name="bat_replace" placeholder="e.g. 2028" autocomplete="off">' +
-				'</span>' +
+			if ($('#bat-panel').length) return;
 
-				'<span id="bat-space-wrap">' +
-					'<input type="checkbox" id="bat-space-cb" name="bat_space" value="1" checked>' +
-					'<label for="bat-space-cb" id="bat-space-label" style="font-weight:normal; cursor:pointer;">Add space before</label>' +
-				'</span>' +
+			var panelHtml = 
+				'<div id="bat-panel">' +
+					'<span id="bat-string-wrap" style="display:inline-flex; align-items:center; gap:8px;">' +
+						'<label for="bat-string-input" id="bat-label">Text to append:</label>' +
+						'<input type="text" id="bat-string-input" name="bat_string" placeholder="e.g. 2027" autocomplete="off">' +
+					'</span>' +
+					'<span id="bat-replace-wrap" style="display:none; align-items:center; gap:8px;">' +
+						'<label for="bat-find-input" style="font-weight:600">Find:</label>' +
+						'<input type="text" id="bat-find-input" name="bat_find" placeholder="e.g. 2026" autocomplete="off">' +
+						'<label for="bat-replace-input" style="font-weight:600">Replace with:</label>' +
+						'<input type="text" id="bat-replace-input" name="bat_replace" placeholder="e.g. 2027" autocomplete="off">' +
+					'</span>' +
+					'<span id="bat-space-wrap">' +
+						'<input type="checkbox" id="bat-space-cb" name="bat_space" value="1" checked>' +
+						'<label for="bat-space-cb" id="bat-space-label" style="font-weight:normal; cursor:pointer;">Add space before</label>' +
+					'</span>' +
+					'<span id="bat-slug-wrap" title="Update the URL permalink slug to match the new title">' +
+						'<input type="checkbox" id="bat-slug-cb" name="bat_sync_slug" value="1">' +
+						'<label for="bat-slug-cb" style="font-weight:normal; cursor:pointer;">Update URL slug</label>' +
+					'</span>' +
+					'<span id="bat-preview"></span>' +
+					'<span class="bat-hint" id="bat-hint">Added to the end of selected titles.</span>' +
+					'<button type="button" id="bat-close-btn" title="Cancel bulk edit">&times;</button>' +
+				'</div>';
 
-				'<span id="bat-slug-wrap" title="Update the URL permalink slug to match the new title">' +
-					'<input type="checkbox" id="bat-slug-cb" name="bat_sync_slug" value="1">' +
-					'<label for="bat-slug-cb" style="font-weight:normal; cursor:pointer;">Update URL slug</label>' +
-				'</span>' +
-
-				'<span id="bat-preview"></span>' +
-				'<span class="bat-hint" id="bat-hint">Added to the end of selected titles.</span>' +
-				'<button type="button" id="bat-close-btn" title="Cancel bulk edit">&times;</button>';
-
-			var table = form.querySelector('.wp-list-table');
-			if (table) {
-				form.insertBefore(panel, table);
+			var $table = $form.find('.wp-list-table, table.posts').first();
+			if ($table.length) {
+				$table.before(panelHtml);
 			} else {
-				form.appendChild(panel);
+				$form.append(panelHtml);
 			}
 
-			var label       = document.getElementById('bat-label');
-			var hint        = document.getElementById('bat-hint');
-			var inp         = document.getElementById('bat-string-input');
-			var replaceWrap = document.getElementById('bat-replace-wrap');
-			var replaceInp  = document.getElementById('bat-replace-input');
-			var spaceCb     = document.getElementById('bat-space-cb');
-			var spaceLabel  = document.getElementById('bat-space-label');
-			var spaceWrap   = document.getElementById('bat-space-wrap');
-			var slugWrap    = document.getElementById('bat-slug-wrap');
-			var preview     = document.getElementById('bat-preview');
-			var closeBtn    = document.getElementById('bat-close-btn');
+			var $panel       = $('#bat-panel');
+			var $label       = $('#bat-label');
+			var $hint        = $('#bat-hint');
+			var $stringWrap  = $('#bat-string-wrap');
+			var $inp         = $('#bat-string-input');
+			var $replaceWrap = $('#bat-replace-wrap');
+			var $findInp     = $('#bat-find-input');
+			var $replaceInp  = $('#bat-replace-input');
+			var $spaceCb     = $('#bat-space-cb');
+			var $spaceLabel  = $('#bat-space-label');
+			var $spaceWrap   = $('#bat-space-wrap');
+			var $preview     = $('#bat-preview');
 
-			// ── Get Active Bulk Action ──────────────────────────────────
 			function getActiveAction() {
-				var top = document.getElementById('bulk-action-selector-top');
-				var bot = document.getElementById('bulk-action-selector-bottom');
+				var topVal = $('#bulk-action-selector-top').val();
+				var botVal = $('#bulk-action-selector-bottom').val();
 				var valid = ['append_to_title', 'prepend_to_title', 'remove_from_title', 'remove_prefix_title', 'replace_in_title'];
-				if (top && valid.indexOf(top.value) !== -1) return top.value;
-				if (bot && valid.indexOf(bot.value) !== -1) return bot.value;
+				if (topVal && valid.indexOf(topVal) !== -1) return topVal;
+				if (botVal && valid.indexOf(botVal) !== -1) return botVal;
 				return null;
 			}
 
-			// ── Live Preview Logic ──────────────────────────────────────
 			function updatePreview() {
 				var action = getActiveAction();
-				if (!action) return;
-
-				var val = inp.value;
-				if (!val && action !== 'replace_in_title') {
-					preview.textContent = '';
+				if (!action) {
+					$preview.text('');
 					return;
 				}
 
+				if (action === 'replace_in_title') {
+					var f = $findInp.val();
+					var r = $replaceInp.val();
+					if (!f) { $preview.text(''); return; }
+					$preview.text('Preview: "Event ' + f + '" → "Event ' + r + '"');
+					return;
+				}
+
+				var val = $inp.val();
+				if (!val) {
+					$preview.text('');
+					return;
+				}
+
+				var addSpace = $spaceCb.is(':checked');
 				if (action === 'append_to_title') {
-					var full = spaceCb.checked ? ' ' + val : val;
-					preview.textContent = 'Preview: "Title' + full + '"';
+					$preview.text('Preview: "Title' + (addSpace ? ' ' : '') + val + '"');
 				} else if (action === 'prepend_to_title') {
-					var full = spaceCb.checked ? val + ' ' : val;
-					preview.textContent = 'Preview: "' + full + 'Title"';
+					$preview.text('Preview: "' + val + (addSpace ? ' ' : '') + 'Title"');
 				} else if (action === 'remove_from_title') {
-					preview.textContent = 'Preview: "Title ' + val + '" → "Title"';
+					$preview.text('Preview: "Title' + (addSpace ? ' ' : '') + val + '" → "Title"');
 				} else if (action === 'remove_prefix_title') {
-					preview.textContent = 'Preview: "' + val + ' Title" → "Title"';
-				} else if (action === 'replace_in_title') {
-					var findVal = inp.value;
-					var repVal  = replaceInp.value;
-					if (!findVal) { preview.textContent = ''; return; }
-					preview.textContent = 'Preview: "Event ' + findVal + '" → "Event ' + repVal + '"';
+					$preview.text('Preview: "' + val + (addSpace ? ' ' : '') + 'Title" → "Title"');
 				}
 			}
 
-			inp.addEventListener('input', updatePreview);
-			replaceInp.addEventListener('input', updatePreview);
-			spaceCb.addEventListener('change', updatePreview);
+			$(document).on('input', '#bat-string-input, #bat-find-input, #bat-replace-input', function () {
+				$(this).css('outline', '');
+				updatePreview();
+			});
 
-			// ── Sync UI with Selected Action ─────────────────────────────
-			function syncPanel() {
+			$(document).on('change', '#bat-space-cb', updatePreview);
+
+			function syncPanel(e) {
+				var val = e ? $(this).val() : getActiveAction();
 				var action = getActiveAction();
+
+				// Sync both dropdowns
+				if (val && val !== '-1') {
+					$('#bulk-action-selector-top').val(val);
+					$('#bulk-action-selector-bottom').val(val);
+				}
+
 				if (!action) {
-					panel.classList.remove('bat-visible', 'bat-danger', 'bat-replace');
+					$panel.removeClass('bat-visible bat-remove bat-replace');
 					return;
 				}
 
-				panel.classList.add('bat-visible');
-				panel.classList.remove('bat-danger', 'bat-replace');
-				replaceWrap.style.display = 'none';
-				spaceWrap.style.display   = 'flex';
-				inp.name = 'bat_string';
+				$panel.addClass('bat-visible').removeClass('bat-remove bat-replace');
 
-				if (action === 'append_to_title') {
-					label.textContent      = 'Text to append (end):';
-					hint.textContent       = 'Added to the end of every selected title.';
-					inp.placeholder        = 'e.g. 2027';
-					spaceLabel.textContent = 'Add space before';
-				} else if (action === 'prepend_to_title') {
-					label.textContent      = 'Text to prepend (start):';
-					hint.textContent       = 'Added to the start of every selected title.';
-					inp.placeholder        = 'e.g. Official: ';
-					spaceLabel.textContent = 'Add space after';
-				} else if (action === 'remove_from_title') {
-					panel.classList.add('bat-danger');
-					label.textContent      = 'Text to remove (from end):';
-					hint.textContent       = 'Stripped from the end of selected titles. Non-matching titles skipped.';
-					inp.placeholder        = 'e.g. 2027';
-					spaceLabel.textContent = 'Remove preceding space';
-				} else if (action === 'remove_prefix_title') {
-					panel.classList.add('bat-danger');
-					label.textContent      = 'Text to remove (from start):';
-					hint.textContent       = 'Stripped from the start of selected titles. Non-matching titles skipped.';
-					inp.placeholder        = 'e.g. Official: ';
-					spaceLabel.textContent = 'Remove trailing space';
-				} else if (action === 'replace_in_title') {
-					panel.classList.add('bat-replace');
-					label.textContent         = 'Find text:';
-					hint.textContent          = 'Replaces all occurrences within selected titles.';
-					inp.placeholder           = 'e.g. 2026';
-					inp.name                  = 'bat_find';
-					replaceWrap.style.display = 'inline-flex';
-					spaceWrap.style.display   = 'none';
+				if (action === 'replace_in_title') {
+					$panel.addClass('bat-replace');
+					$stringWrap.hide();
+					$replaceWrap.css('display', 'inline-flex');
+					$spaceWrap.hide();
+					$hint.text('Replaces all occurrences within selected titles.');
+				} else {
+					$stringWrap.css('display', 'inline-flex');
+					$replaceWrap.hide();
+					$spaceWrap.css('display', 'inline-flex');
+
+					if (action === 'append_to_title') {
+						$label.text('Text to append:');
+						$hint.text('Added to the end of every selected title.');
+						$inp.attr('placeholder', 'e.g. 2027');
+						$spaceLabel.text('Add space before');
+					} else if (action === 'prepend_to_title') {
+						$label.text('Text to prepend:');
+						$hint.text('Added to the start of every selected title.');
+						$inp.attr('placeholder', 'e.g. Official: ');
+						$spaceLabel.text('Add space after');
+					} else if (action === 'remove_from_title') {
+						$panel.addClass('bat-remove');
+						$label.text('Text to remove:');
+						$hint.text('Stripped from the end of selected titles. Non-matching titles skipped.');
+						$inp.attr('placeholder', 'e.g. 2027');
+						$spaceLabel.text('Remove preceding space');
+					} else if (action === 'remove_prefix_title') {
+						$panel.addClass('bat-remove');
+						$label.text('Prefix to remove:');
+						$hint.text('Stripped from the start of selected titles. Non-matching titles skipped.');
+						$inp.attr('placeholder', 'e.g. Official: ');
+						$spaceLabel.text('Remove trailing space');
+					}
 				}
 
 				updatePreview();
 			}
 
-			['bulk-action-selector-top', 'bulk-action-selector-bottom'].forEach(function (id) {
-				var sel = document.getElementById(id);
-				if (sel) sel.addEventListener('change', syncPanel);
+			$(document).on('change', '#bulk-action-selector-top, #bulk-action-selector-bottom', syncPanel);
+
+			// Initial sync if already selected on page load
+			if (getActiveAction()) {
+				syncPanel();
+			}
+
+			// Close button
+			$(document).on('click', '#bat-close-btn', function () {
+				$('#bulk-action-selector-top, #bulk-action-selector-bottom').val('-1');
+				$panel.removeClass('bat-visible');
 			});
 
-			// ── Close / Reset ──────────────────────────────────────────
-			closeBtn.addEventListener('click', function () {
-				['bulk-action-selector-top', 'bulk-action-selector-bottom'].forEach(function (id) {
-					var sel = document.getElementById(id);
-					if (sel) sel.value = '-1';
-				});
-				panel.classList.remove('bat-visible');
-			});
+			// Validation on Apply button clicks
+			$(document).on('click', '#doaction, #doaction2, #bulk-action-submit, #bulk-action-submit-2', function (e) {
+				var action = getActiveAction();
+				if (!action) return;
 
-			// ── Submit Validation ──────────────────────────────────────
-			['bulk-action-submit', 'bulk-action-submit-2'].forEach(function (btnId) {
-				var btn = document.getElementById(btnId);
-				if (!btn) return;
-				btn.addEventListener('click', function (e) {
-					var action = getActiveAction();
-					if (!action) return;
-
-					if (inp && inp.value.trim() === '') {
+				if (action === 'replace_in_title') {
+					if (!$findInp.val().trim()) {
 						e.preventDefault();
-						inp.style.outline = '2px solid #dc2626';
-						inp.focus();
-						inp.placeholder   = 'Please enter text first';
+						$findInp.css('outline', '2px solid #b32d2e').focus();
+						$findInp.attr('placeholder', 'Enter search text');
+						$panel[0].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 					}
-				});
+				} else {
+					if (!$inp.val().trim()) {
+						e.preventDefault();
+						$inp.css('outline', '2px solid #b32d2e').focus();
+						$inp.attr('placeholder', 'Enter text first');
+						$panel[0].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+					}
+				}
 			});
-
-			inp.addEventListener('input', function () { inp.style.outline = ''; });
 		});
 		</script>
 		<?php
@@ -513,20 +528,14 @@ class Pubcrawls_Bulk_Title_Editor {
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$string = isset( $_GET['bat_string'] ) ? sanitize_text_field( urldecode( $_GET['bat_string'] ) ) : '';
 
-			$verbs = array(
-				'append_to_title'     => array( 'Appended', 'to' ),
-				'prepend_to_title'    => array( 'Prepended', 'to' ),
-				'remove_from_title'   => array( 'Removed', 'from end of' ),
-				'remove_prefix_title' => array( 'Removed', 'from start of' ),
-			);
-
-			$verb_info = isset( $verbs[ $action ] ) ? $verbs[ $action ] : array( 'Modified', 'on' );
+			$verb = ( 'remove_from_title' === $action || 'remove_prefix_title' === $action ) ? 'Removed' : ( 'prepend_to_title' === $action ? 'Prepended' : 'Appended' );
+			$prep = ( 'remove_from_title' === $action || 'remove_prefix_title' === $action ) ? 'from' : 'to';
 
 			$msg = sprintf(
-				'%s <strong>%s</strong> %s <strong>%d</strong> title%s.',
-				esc_html( $verb_info[0] ),
+				'%s <strong>%s</strong> %s <strong>%d</strong> event title%s.',
+				$verb,
 				esc_html( $string ),
-				esc_html( $verb_info[1] ),
+				$prep,
 				$updated,
 				1 === $updated ? '' : 's'
 			);
@@ -534,9 +543,9 @@ class Pubcrawls_Bulk_Title_Editor {
 
 		if ( $skipped > 0 ) {
 			$msg .= sprintf(
-				/* translators: %d: Skipped count */
-				esc_html__( ' (%d title(s) skipped — did not match criteria).', 'pubcrawls-addon' ),
-				$skipped
+				' <strong>%d</strong> title%s skipped (did not match criteria).',
+				$skipped,
+				1 === $skipped ? ' was' : 's were'
 			);
 		}
 
