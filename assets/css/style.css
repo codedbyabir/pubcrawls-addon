@@ -3,6 +3,112 @@
  * Covers: City Grid, City Cards, Event Count Badge
  */
 
+
+/* ============================================================
+   City List Popular / All
+   ============================================================ */
+
+/* Pubcrawls Popular City List */
+.pubcrawls-city-wrap .pubcrawls-popular-city-list {
+    list-style-type: none;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1rem;
+    padding: 0px !important;
+}
+
+.pubcrawls-city-wrap .pubcrawls-popular-city-list li a {
+    padding: 1em;
+    font-size: 1.125rem;
+    font-weight: 500;
+    background-color: #222631;
+    color: #FFFFFF;
+    border: 1px solid #2E3440;
+    border-radius: 1em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.3s ease-in-out;
+    text-align: center;
+}
+
+.pubcrawls-city-wrap .pubcrawls-popular-city-list li a:hover {
+    border-color: #E6B325;
+}
+
+/* Pubcrawls City List */
+.pubcrawls-city-wrap .pubcrawls-city-list {
+    display: block;
+    overflow: hidden;
+    -webkit-column-count: 5;
+    -moz-column-count: 5;
+    -o-column-count: 5;
+    column-count: 5;
+    padding: 20px 40px;
+    border-radius: 1rem;
+    background-color: #222631;
+    border: 1px solid #2E3440
+}
+
+.pubcrawls-city-wrap .pubcrawls-city-list li {
+    padding: 8px 0px;
+}
+
+.pubcrawls-city-wrap .pubcrawls-city-list li a {
+    font-size: 1.125rem;
+    font-weight: 500;
+    color: #B8BDC7;
+
+}
+
+.pubcrawls-city-wrap .pubcrawls-city-list li::marker {
+    color: #2E3440;
+    width: 8px;
+    height: 8px;
+}
+
+.pubcrawls-city-wrap .pubcrawls-city-list li a:hover,
+.pubcrawls-city-wrap .pubcrawls-city-list li:hover::marker {
+    color: #E6B325;
+}
+
+
+/* ============================================================
+   Responsive
+   ============================================================ */
+@media (max-width: 1024px) {
+    .pubcrawls-city-wrap .pubcrawls-city-list {
+        -webkit-column-count: 3;
+        -moz-column-count: 3;
+        -o-column-count: 3;
+        column-count: 3;
+        padding: 30px;
+    }
+
+    .pubcrawls-city-wrap .pubcrawls-popular-city-list {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .pubcrawls-city-wrap .pubcrawls-city-list {
+        -webkit-column-count: 2;
+        -moz-column-count: 2;
+        -o-column-count: 2;
+        column-count: 2;
+    }
+
+
+    .pubcrawls-city-wrap .pubcrawls-popular-city-list {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .pubcrawls-city-wrap .pubcrawls-popular-city-list li a {
+        font-size: 1rem;
+    }
+}
+
+
 /* ============================================================
    City Grid
    ============================================================ */
@@ -139,28 +245,6 @@
     padding: 2rem;
 }
 
-/* ============================================================
-   Booking Deadline (inline output from shortcode)
-   Wrap in a container in Elementor for styling, or use these
-   classes if you wrap the shortcode output in your template.
-   ============================================================ */
-
-/* .pc-booking-deadline {
-    display: inline-block;
-    font-size: 0.85rem;
-    font-weight: 500;
-    padding: 5px 14px;
-    border-radius: 999px;
-    background: #fff8e1;
-    color: #7a5800;
-    border: 1px solid #f0c040;
-}
-
-.pc-booking-deadline.closed {
-    background: #fdecea;
-    color: #c0392b;
-    border-color: #e74c3c;
-} */
 
 /* ============================================================
    Responsive
@@ -217,10 +301,9 @@
 
 
 .pubcrawls-faq-grid .pubcrawls-faq-question {
-    font-family: var(--e-global-typography-2adc7ec-font-family), Sans-serif;
-    font-size: var(--e-global-typography-2adc7ec-font-size);
-    font-weight: var(--e-global-typography-2adc7ec-font-weight);
-    letter-spacing: 0.03em;
+    font-family: inherit;
+    font-size: 1.25rem;
+    font-weight: 700;
     color: #ffffff;
     margin: 0 0 0.85rem;
     line-height: 1.4;
@@ -228,13 +311,11 @@
 
 
 .pubcrawls-faq-grid .pubcrawls-faq-answer {
-    font-family: var(--e-global-typography-8ac7e2d-font-family), Sans-serif;
-    font-size: var(--e-global-typography-006bc37-font-size);
-    font-weight: var(--e-global-typography-006bc37-font-weight);
-    line-height: var(--e-global-typography-8ac7e2d-line-height);
-    color: #B8BDC7;
+    font-family: inherit;
+    font-size: 1.25rem;
+    font-weight: 400;
     line-height: 1.5;
-
+    color: #B8BDC7;
 }
 
 

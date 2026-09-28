@@ -241,6 +241,7 @@ if (! class_exists('PCET_Enqueue')) {
 
 			$ticket_config = array(
 				'eventbriteConfirmationUrl' => $eb_conf_url,
+				'attributionUrl'            => esc_url_raw( rest_url( 'pubcrawls/v1/eventbrite/attribution' ) ),
 			);
 
 			wp_localize_script( 'pcet-tickets', 'pubcrawlsTicketConfig', $ticket_config );

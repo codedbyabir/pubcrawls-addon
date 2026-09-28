@@ -47,7 +47,98 @@
         if ( timeEl && time ) timeEl.textContent = time;
     }
 
-    // ── Eventbrite ─────────────────────────────────────────
+    // ── Attribution & Eventbrite ─────────────────────────
+    function getCookie( name ) {
+        var match = document.cookie.match( new RegExp( '(^|;\\s*)(' + name + ')=([^;]*)' ) );
+        return match ? decodeURIComponent( match[3] ) : '';
+    }
+
+    function collectAttribution() {
+        var gaCookie = getCookie( '_ga' );
+        var clientId = '';
+        if ( gaCookie ) {
+            var parts = gaCookie.split( '.' );
+            if ( parts.length >= 4 ) {
+                clientId = parts[2] + '.' + parts[3];
+            } else if ( parts.length >= 2 ) {
+                clientId = parts.slice( -2 ).join( '.' );
+            }
+        }
+
+        var sessionId = '';
+        var cookies = document.cookie.split( ';' );
+        for ( var i = 0; i < cookies.length; i++ ) {
+            var c = cookies[i].trim();
+            if ( c.indexOf( '_ga_' ) === 0 ) {
+                var val = c.split( '=' )[1];
+                if ( val ) {
+                    var sParts = val.split( '.' );
+                    if ( sParts.length >= 3 && sParts[2] ) {
+                        sessionId = sParts[2];
+                        break;
+                    }
+                }
+            }
+        }
+
+        var urlParams = ( typeof URLSearchParams !== 'undefined' ) ? new URLSearchParams( window.location.search ) : null;
+        var fbc = getCookie( '_fbc' );
+        if ( ! fbc && urlParams && urlParams.get( 'fbclid' ) ) {
+            fbc = 'fb.1.' + Date.now() + '.' + urlParams.get( 'fbclid' );
+        }
+
+        var ttclid = getCookie( 'ttclid' ) || ( urlParams ? urlParams.get( 'ttclid' ) : '' ) || '';
+
+        return {
+            client_id: clientId,
+            session_id: sessionId,
+            fbp: getCookie( '_fbp' ),
+            fbc: fbc,
+            ttp: getCookie( '_ttp' ),
+            ttclid: ttclid,
+            user_agent: navigator.userAgent || ''
+        };
+    }
+
+    function sendAttribution( orderId, eventId ) {
+        if ( ! orderId ) return;
+        var data = collectAttribution();
+        data.order_id = String( orderId );
+        data.event_id = String( eventId || '' );
+
+        var endpoint = ( window.pubcrawlsTicketConfig && window.pubcrawlsTicketConfig.attributionUrl )
+            ? window.pubcrawlsTicketConfig.attributionUrl
+            : '/wp-json/pubcrawls/v1/eventbrite/attribution';
+
+        if ( window.fetch ) {
+            fetch( endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify( data ),
+                keepalive: true
+            } ).catch( function () {} );
+        }
+    }
+
+    window.pubcrawlsSendAttribution = sendAttribution;
+
+    // Listen to postMessage from Eventbrite embedded checkout iframe
+    window.addEventListener( 'message', function ( event ) {
+        if ( ! event.origin || ( event.origin.indexOf( 'eventbrite.com' ) === -1 && event.origin.indexOf( 'eventbriteapi.com' ) === -1 ) ) {
+            return;
+        }
+        var msg = event.data;
+        if ( typeof msg === 'string' ) {
+            try { msg = JSON.parse( msg ); } catch ( e ) {}
+        }
+        if ( msg && typeof msg === 'object' ) {
+            var orderId = msg.orderId || msg.order_id || ( msg.data && ( msg.data.orderId || msg.data.order_id ) );
+            if ( orderId ) {
+                sendAttribution( orderId, msg.eventId || msg.event_id );
+            }
+        }
+    } );
+
     function attachFallback( triggerId, ebLink ) {
         if ( ! triggerId || ! ebLink ) return;
         var btn = document.getElementById( triggerId );
@@ -74,9 +165,13 @@
                         eventId               : ebId,
                         modal                 : true,
                         modalTriggerElementId : triggerId,
-                        onOrderComplete       : function () {
+                        onOrderComplete       : function ( response ) {
+                            var orderId = ( response && ( response.orderId || response.order_id || response.id ) ) || '';
+                            if ( orderId ) {
+                                sendAttribution( orderId, ebId );
+                            }
                             document.dispatchEvent( new CustomEvent( 'pcet:orderComplete', {
-                                detail: { ebId: ebId, uid: uid }
+                                detail: { ebId: ebId, uid: uid, orderId: orderId }
                             } ) );
                             if ( window.pubcrawlsTicketConfig && window.pubcrawlsTicketConfig.eventbriteConfirmationUrl ) {
                                 window.location.href = window.pubcrawlsTicketConfig.eventbriteConfirmationUrl;

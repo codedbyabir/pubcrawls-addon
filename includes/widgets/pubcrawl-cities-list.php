@@ -126,6 +126,26 @@ class Pubcrawls_Cities_List extends \Elementor\Widget_Base
 			]
 		);
 
+		$this->add_responsive_control(
+			'pubcrawl_cities_list_columns',
+			[
+				'label'          => esc_html__('Columns', 'pubcrawls-addon'),
+				'type'           => \Elementor\Controls_Manager::SLIDER,
+				'size_units'     => ['px'],
+				'range'          => [
+					'px' => [
+						'min'  => 1,
+						'max'  => 10,
+						'step' => 1,
+					],
+				],
+				'selectors'      => [
+					'{{WRAPPER}} .pubcrawls-city-wrap .pubcrawls-city-list'         => '-webkit-column-count: {{SIZE}}; -moz-column-count: {{SIZE}}; -o-column-count: {{SIZE}}; column-count: {{SIZE}};',
+					'{{WRAPPER}} .pubcrawls-city-wrap .pubcrawls-popular-city-list' => 'grid-template-columns: repeat({{SIZE}}, 1fr);',
+				],
+			]
+		);
+
 		$this->add_group_control(
 			\Elementor\Group_Control_Typography::get_type(),
 			[

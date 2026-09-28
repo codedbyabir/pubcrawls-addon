@@ -184,6 +184,23 @@ class Pubcrawls_Admin {
 			'enable_quick_featured_image' => '1',
 			'enable_post_url_column'      => '1',
 			'post_url_column_post_types'  => array( 'tribe_events', 'city', 'venue', 'post', 'page' ),
+			// Tracking & Webhook settings
+			'eb_api_token'                => '',
+			'eb_webhook_secret'           => '',
+			'eb_organization_id'          => '',
+			'enable_server_tracking'      => '1',
+			'enable_ga4_tracking'         => '1',
+			'enable_meta_tracking'        => '1',
+			'enable_tiktok_tracking'      => '1',
+			'ga4_measurement_id'          => '',
+			'ga4_api_secret'              => '',
+			'ga4_debug_mode'              => '0',
+			'meta_pixel_id'               => '',
+			'meta_capi_token'             => '',
+			'meta_test_code'              => '',
+			'tiktok_pixel_id'             => '',
+			'tiktok_access_token'         => '',
+			'tiktok_test_code'            => '',
 		);
 	}
 
@@ -195,13 +212,89 @@ class Pubcrawls_Admin {
 	 * @return mixed
 	 */
 	public static function get_setting( string $key, $default_value = null ) {
+		if ( 'eb_webhook_secret' === $key ) {
+			$dedicated = get_option( 'pubcrawls_eb_webhook_secret', '' );
+			if ( ! empty( $dedicated ) ) {
+				return $dedicated;
+			}
+		}
+
 		$settings = get_option( self::SETTINGS_KEY, self::get_default_settings() );
-		if ( isset( $settings[ $key ] ) ) {
+		if ( isset( $settings[ $key ] ) && '' !== $settings[ $key ] ) {
 			return $settings[ $key ];
 		}
 
 		$defaults = self::get_default_settings();
 		return isset( $defaults[ $key ] ) ? $defaults[ $key ] : $default_value;
+	}
+
+	/**
+	 * Mask a secret string for safe display in the admin interface.
+	 *
+	 * @param string $secret Secret string.
+	 * @param int    $visible_trailing Number of trailing characters to show.
+	 * @return string Masked string.
+	 */
+	public static function mask_secret( string $secret, int $visible_trailing = 4 ): string {
+		$secret = trim( $secret );
+		if ( empty( $secret ) ) {
+			return '';
+		}
+
+		$len = strlen( $secret );
+		if ( $len <= $visible_trailing ) {
+			return str_repeat( '•', $len );
+		}
+
+		return str_repeat( '•', 8 ) . substr( $secret, -$visible_trailing );
+	}
+
+	/**
+	 * Get status indicators for all tracking platforms.
+	 *
+	 * @return array Platform configuration statuses.
+	 */
+	public static function get_platform_statuses(): array {
+		$eb_const = defined( 'PUBCRAWLS_EB_API_TOKEN' ) && ! empty( PUBCRAWLS_EB_API_TOKEN );
+		$eb_token = $eb_const ? PUBCRAWLS_EB_API_TOKEN : self::get_setting( 'eb_api_token', '' );
+
+		$ga4_mid_const = defined( 'PUBCRAWLS_GA4_MEASUREMENT_ID' ) && ! empty( PUBCRAWLS_GA4_MEASUREMENT_ID );
+		$ga4_mid       = $ga4_mid_const ? PUBCRAWLS_GA4_MEASUREMENT_ID : self::get_setting( 'ga4_measurement_id', '' );
+		$ga4_sec_const = defined( 'PUBCRAWLS_GA4_API_SECRET' ) && ! empty( PUBCRAWLS_GA4_API_SECRET );
+		$ga4_sec       = $ga4_sec_const ? PUBCRAWLS_GA4_API_SECRET : self::get_setting( 'ga4_api_secret', '' );
+
+		$meta_pix_const = defined( 'PUBCRAWLS_META_PIXEL_ID' ) && ! empty( PUBCRAWLS_META_PIXEL_ID );
+		$meta_pix       = $meta_pix_const ? PUBCRAWLS_META_PIXEL_ID : self::get_setting( 'meta_pixel_id', '' );
+		$meta_tok_const = defined( 'PUBCRAWLS_META_CAPI_TOKEN' ) && ! empty( PUBCRAWLS_META_CAPI_TOKEN );
+		$meta_tok       = $meta_tok_const ? PUBCRAWLS_META_CAPI_TOKEN : self::get_setting( 'meta_capi_token', '' );
+
+		$tt_pix_const = defined( 'PUBCRAWLS_TIKTOK_PIXEL_ID' ) && ! empty( PUBCRAWLS_TIKTOK_PIXEL_ID );
+		$tt_pix       = $tt_pix_const ? PUBCRAWLS_TIKTOK_PIXEL_ID : self::get_setting( 'tiktok_pixel_id', '' );
+		$tt_tok_const = defined( 'PUBCRAWLS_TIKTOK_ACCESS_TOKEN' ) && ! empty( PUBCRAWLS_TIKTOK_ACCESS_TOKEN );
+		$tt_tok       = $tt_tok_const ? PUBCRAWLS_TIKTOK_ACCESS_TOKEN : self::get_setting( 'tiktok_access_token', '' );
+
+		return array(
+			'eventbrite' => array(
+				'label'      => 'Eventbrite API',
+				'configured' => ! empty( $eb_token ),
+				'is_const'   => $eb_const,
+			),
+			'ga4'        => array(
+				'label'      => 'GA4 Measurement Protocol',
+				'configured' => ( ! empty( $ga4_mid ) && ! empty( $ga4_sec ) ),
+				'is_const'   => ( $ga4_mid_const || $ga4_sec_const ),
+			),
+			'meta'       => array(
+				'label'      => 'Meta CAPI',
+				'configured' => ( ! empty( $meta_pix ) && ! empty( $meta_tok ) ),
+				'is_const'   => ( $meta_pix_const || $meta_tok_const ),
+			),
+			'tiktok'     => array(
+				'label'      => 'TikTok Events API',
+				'configured' => ( ! empty( $tt_pix ) && ! empty( $tt_tok ) ),
+				'is_const'   => ( $tt_pix_const || $tt_tok_const ),
+			),
+		);
 	}
 
 	/**
@@ -245,6 +338,53 @@ class Pubcrawls_Admin {
 			$clean['eventbrite_confirmation_url'] = ! empty( $input['eventbrite_confirmation_url'] )
 				? esc_url_raw( $input['eventbrite_confirmation_url'] )
 				: $defaults['eventbrite_confirmation_url'];
+		}
+
+		// Tracking & Webhook settings
+		if ( isset( $input['tracking_settings_submitted'] ) ) {
+			$clean['enable_server_tracking'] = ! empty( $input['enable_server_tracking'] ) ? '1' : '0';
+			$clean['enable_ga4_tracking']    = ! empty( $input['enable_ga4_tracking'] ) ? '1' : '0';
+			$clean['enable_meta_tracking']   = ! empty( $input['enable_meta_tracking'] ) ? '1' : '0';
+			$clean['enable_tiktok_tracking'] = ! empty( $input['enable_tiktok_tracking'] ) ? '1' : '0';
+
+			$submitted_secret = isset( $input['eb_webhook_secret'] ) ? sanitize_text_field( trim( $input['eb_webhook_secret'] ) ) : '';
+			if ( ! empty( $submitted_secret ) && false === strpos( $submitted_secret, '••••' ) ) {
+				$clean['eb_webhook_secret'] = $submitted_secret;
+				update_option( 'pubcrawls_eb_webhook_secret', $submitted_secret, false );
+			} elseif ( ! empty( $existing['eb_webhook_secret'] ) ) {
+				$clean['eb_webhook_secret'] = $existing['eb_webhook_secret'];
+				update_option( 'pubcrawls_eb_webhook_secret', $existing['eb_webhook_secret'], false );
+			} else {
+				$dedicated = get_option( 'pubcrawls_eb_webhook_secret', '' );
+				if ( ! empty( $dedicated ) ) {
+					$clean['eb_webhook_secret'] = $dedicated;
+				} else {
+					$new_sec = wp_generate_password( 32, false, false );
+					$clean['eb_webhook_secret'] = $new_sec;
+					update_option( 'pubcrawls_eb_webhook_secret', $new_sec, false );
+				}
+			}
+
+			$clean['eb_organization_id'] = isset( $input['eb_organization_id'] ) ? sanitize_text_field( trim( $input['eb_organization_id'] ) ) : '';
+			$clean['ga4_measurement_id'] = isset( $input['ga4_measurement_id'] ) ? sanitize_text_field( trim( $input['ga4_measurement_id'] ) ) : '';
+			$clean['ga4_debug_mode']     = ! empty( $input['ga4_debug_mode'] ) ? '1' : '0';
+			$clean['meta_pixel_id']      = isset( $input['meta_pixel_id'] ) ? sanitize_text_field( trim( $input['meta_pixel_id'] ) ) : '';
+			$clean['meta_test_code']     = isset( $input['meta_test_code'] ) ? sanitize_text_field( trim( $input['meta_test_code'] ) ) : '';
+			$clean['tiktok_pixel_id']    = isset( $input['tiktok_pixel_id'] ) ? sanitize_text_field( trim( $input['tiktok_pixel_id'] ) ) : '';
+			$clean['tiktok_test_code']   = isset( $input['tiktok_test_code'] ) ? sanitize_text_field( trim( $input['tiktok_test_code'] ) ) : '';
+
+			// Secret preservation: Do not overwrite with empty or masked string if existing secret exists
+			$secret_keys = array( 'eb_api_token', 'ga4_api_secret', 'meta_capi_token', 'tiktok_access_token' );
+			foreach ( $secret_keys as $sk ) {
+				if ( isset( $input[ $sk ] ) ) {
+					$val = trim( (string) $input[ $sk ] );
+					if ( empty( $val ) || false !== strpos( $val, '••••' ) ) {
+						$clean[ $sk ] = $existing[ $sk ] ?? '';
+					} else {
+						$clean[ $sk ] = sanitize_text_field( $val );
+					}
+				}
+			}
 		}
 
 		// Helper & Tool toggles
@@ -349,6 +489,15 @@ class Pubcrawls_Admin {
 			array( 'jquery' ),
 			PUBCRAWLS_ADDON_VERSION,
 			true
+		);
+
+		wp_localize_script(
+			'pubcrawls-admin-dashboard',
+			'pubcrawlsAdminData',
+			array(
+				'ajax_url' => admin_url( 'admin-ajax.php' ),
+				'nonce'    => wp_create_nonce( 'pubcrawls_admin_nonce' ),
+			)
 		);
 	}
 
