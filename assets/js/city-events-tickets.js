@@ -42,19 +42,14 @@
             }
         }
 
+        // GA4 session id from the PubCrawls property cookie (_ga_65M38WNEJH).
+        // Supports the current GS2 format (GS2.1.s<session_id>$o..$t..) and the older GS1 format.
         var sessionId = '';
-        var cookies = document.cookie.split( ';' );
-        for ( var i = 0; i < cookies.length; i++ ) {
-            var c = cookies[i].trim();
-            if ( c.indexOf( '_ga_' ) === 0 ) {
-                var val = c.split( '=' )[1];
-                if ( val ) {
-                    var sParts = val.split( '.' );
-                    if ( sParts.length >= 3 && sParts[2] ) {
-                        sessionId = sParts[2];
-                        break;
-                    }
-                }
+        var ga4Cookie = getCookie( '_ga_65M38WNEJH' );
+        if ( ga4Cookie ) {
+            var sMatch = ga4Cookie.match( /^GS2\.\d+\.s(\d+)/ ) || ga4Cookie.match( /^GS1\.\d+\.(\d+)/ );
+            if ( sMatch ) {
+                sessionId = sMatch[1];
             }
         }
 

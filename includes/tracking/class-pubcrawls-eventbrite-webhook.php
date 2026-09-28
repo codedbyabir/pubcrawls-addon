@@ -33,6 +33,13 @@ class Pubcrawls_Eventbrite_Webhook {
 	const MAX_LOGS_COUNT   = 50;
 
 	/**
+	 * How long to wait for the browser's /eventbrite/attribution beacon before
+	 * dispatching, since Eventbrite's order.placed webhook can arrive before it.
+	 */
+	const ATTRIBUTION_MAX_WAIT_SECONDS      = 90;
+	const ATTRIBUTION_POLL_INTERVAL_SECONDS = 5;
+
+	/**
 	 * Initialize webhook hooks and endpoints.
 	 */
 	public static function init(): void {
@@ -335,8 +342,9 @@ class Pubcrawls_Eventbrite_Webhook {
 
 				fastcgi_finish_request();
 
-				// Runs immediately in background without site traffic
-				self::process_order_now( $order_id, false );
+				// Runs immediately in background without site traffic. The webhook can
+				// arrive before the browser's attribution beacon, so give it a chance to land.
+				self::process_order_now( $order_id, false, true );
 				exit;
 			}
 
@@ -620,17 +628,53 @@ class Pubcrawls_Eventbrite_Webhook {
 	 * @param string $order_id Eventbrite Order ID.
 	 */
 	public static function background_process_order( string $order_id ): void {
-		self::process_order_now( $order_id, false );
+		self::process_order_now( $order_id, false, true );
+	}
+
+	/**
+	 * Poll the tracking DB for up to ATTRIBUTION_MAX_WAIT_SECONDS so the browser's
+	 * /eventbrite/attribution beacon has a chance to land before we dispatch to
+	 * GA4/Meta/TikTok. Eventbrite's order.placed webhook can arrive before that beacon,
+	 * since the two happen over independent channels (server webhook vs. browser fetch).
+	 *
+	 * Returns as soon as any attribution signal is found; never blocks the HTTP
+	 * response to Eventbrite because it only runs after fastcgi_finish_request()
+	 * or inside an already-async background job.
+	 *
+	 * @param string $order_id Eventbrite Order ID.
+	 */
+	private static function wait_for_attribution( string $order_id ): void {
+		$elapsed = 0;
+
+		while ( $elapsed < self::ATTRIBUTION_MAX_WAIT_SECONDS ) {
+			$attribution = Pubcrawls_Tracking_DB::get_attribution( $order_id );
+
+			$has_attribution = ! empty( $attribution['client_id'] )
+				|| ! empty( $attribution['fbp'] )
+				|| ! empty( $attribution['fbc'] )
+				|| ! empty( $attribution['ttp'] )
+				|| ! empty( $attribution['ttclid'] );
+
+			if ( $has_attribution ) {
+				return;
+			}
+
+			sleep( self::ATTRIBUTION_POLL_INTERVAL_SECONDS );
+			$elapsed += self::ATTRIBUTION_POLL_INTERVAL_SECONDS;
+		}
 	}
 
 	/**
 	 * Process an order immediately: fetch from Eventbrite, verify ownership, and dispatch.
 	 *
-	 * @param string $order_id    Eventbrite Order ID.
-	 * @param bool   $force_retry Whether to bypass selective retry and resend to all platforms.
+	 * @param string $order_id              Eventbrite Order ID.
+	 * @param bool   $force_retry           Whether to bypass selective retry and resend to all platforms.
+	 * @param bool   $wait_for_attribution  Whether to wait for the browser attribution beacon before
+	 *                                      dispatching. Only used for genuine first-pass webhook processing,
+	 *                                      never for synchronous test/retry calls that must return promptly.
 	 * @return array Execution results.
 	 */
-	public static function process_order_now( string $order_id, bool $force_retry = false ): array {
+	public static function process_order_now( string $order_id, bool $force_retry = false, bool $wait_for_attribution = false ): array {
 		$order_id = sanitize_text_field( trim( $order_id ) );
 		if ( empty( $order_id ) ) {
 			return array(
@@ -677,6 +721,12 @@ class Pubcrawls_Eventbrite_Webhook {
 				'order_id' => $order_id,
 				'error'    => $err,
 			);
+		}
+
+		// Step 1b: Give the browser's attribution beacon a chance to land before dispatching,
+		// since the order.placed webhook can arrive before it.
+		if ( $wait_for_attribution ) {
+			self::wait_for_attribution( $order_id );
 		}
 
 		// Step 2: Dispatch to all enabled tracking destinations with selective retry

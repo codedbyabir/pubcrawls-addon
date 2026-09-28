@@ -39,7 +39,6 @@ class Pubcrawls_Tracking_DB {
 	public static function init(): void {
 		add_action( 'admin_init', array( __CLASS__, 'check_install_tables' ) );
 		add_action( 'init', array( __CLASS__, 'check_install_tables' ) );
-		add_action( 'init', array( __CLASS__, 'cleanup_test_orders' ) );
 	}
 
 	/**
@@ -460,45 +459,6 @@ class Pubcrawls_Tracking_DB {
 		);
 
 		return $new_status;
-	}
-
-	/**
-	 * Clean up test orders (1, 2, 3) from database, queue, and diagnostic logs.
-	 *
-	 * @return int Number of rows deleted from the database table.
-	 */
-	public static function cleanup_test_orders(): int {
-		global $wpdb;
-		$table_name = self::get_table_name();
-
-		// Clean up from database table
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
-		$deleted = $wpdb->query( "DELETE FROM {$table_name} WHERE order_id IN ('1', '2', '3')" );
-
-		// Clean up logs in options
-		$logs = get_option( 'pubcrawls_eb_webhook_logs', array() );
-		if ( is_array( $logs ) ) {
-			$filtered = array_values(
-				array_filter(
-					$logs,
-					function( $entry ) {
-						$oid = (string) ( $entry['order_id'] ?? '' );
-						return ! in_array( $oid, array( '1', '2', '3' ), true );
-					}
-				)
-			);
-			update_option( 'pubcrawls_eb_webhook_logs', $filtered );
-		}
-
-		// Clear scheduled cron events
-		foreach ( array( '1', '2', '3' ) as $oid ) {
-			wp_clear_scheduled_hook( 'pubcrawls_process_eventbrite_order', array( $oid ) );
-			if ( function_exists( 'as_unschedule_all_actions' ) ) {
-				as_unschedule_all_actions( 'pubcrawls_process_eventbrite_order', array( 'order_id' => $oid ) );
-			}
-		}
-
-		return (int) $deleted;
 	}
 
 	/**
