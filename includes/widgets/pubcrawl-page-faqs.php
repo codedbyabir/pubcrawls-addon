@@ -195,6 +195,20 @@ class Pubcrawls_Page_FAQs extends \Elementor\Widget_Base
 			]
 		);
 
+		$this->add_control(
+			'pubcrawl_faq_schema',
+			[
+				'label'        => esc_html__('FAQ Schema', 'pubcrawls-addon'),
+				'type'         => \Elementor\Controls_Manager::SWITCHER,
+				'label_on'     => esc_html__('Yes', 'pubcrawls-addon'),
+				'label_off'    => esc_html__('No', 'pubcrawls-addon'),
+				'return_value' => 'yes',
+				'default'      => 'yes',
+				'separator'    => 'before',
+				'description'  => esc_html__('Enable FAQPage structured data (Schema.org) markup.', 'pubcrawls-addon'),
+			]
+		);
+
 		$this->end_controls_section();
 
 		// ── Style Section: Title ─────────────────────────────────
@@ -457,6 +471,17 @@ class Pubcrawls_Page_FAQs extends \Elementor\Widget_Base
 			]
 		);
 
+		$this->add_control(
+			'pubcrawl_question_hover_color',
+			[
+				'label'     => esc_html__('Hover Color', 'pubcrawls-addon'),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'selectors' => [
+					'{{WRAPPER}} .pubcrawls-faq-item:hover .pubcrawls-faq-question, {{WRAPPER}} .pubcrawls-faq-question:hover' => 'color: {{VALUE}};',
+				],
+			]
+		);
+
 		$this->add_responsive_control(
 			'pubcrawl_question_margin_bottom',
 			[
@@ -498,6 +523,17 @@ class Pubcrawls_Page_FAQs extends \Elementor\Widget_Base
 				'type'      => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .pubcrawls-faq-answer' => 'color: {{VALUE}};',
+				],
+			]
+		);
+
+		$this->add_control(
+			'pubcrawl_answer_hover_color',
+			[
+				'label'     => esc_html__('Hover Color', 'pubcrawls-addon'),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'selectors' => [
+					'{{WRAPPER}} .pubcrawls-faq-item:hover .pubcrawls-faq-answer, {{WRAPPER}} .pubcrawls-faq-item:hover .pubcrawls-faq-answer *, {{WRAPPER}} .pubcrawls-faq-answer:hover' => 'color: {{VALUE}};',
 				],
 			]
 		);
@@ -565,9 +601,14 @@ class Pubcrawls_Page_FAQs extends \Elementor\Widget_Base
 			return;
 		}
 
-		$show_title = ($settings['show_title'] ?? 'yes') === 'yes';
-		$title      = ! empty($settings['title']) ? $settings['title'] : esc_html__('Frequently Asked Questions (FAQs)', 'pubcrawls-addon');
-		$title_tag  = ! empty($settings['title_tag']) ? \Elementor\Utils::validate_html_tag($settings['title_tag']) : 'h2';
+		$show_title      = ($settings['show_title'] ?? 'yes') === 'yes';
+		$title           = ! empty($settings['title']) ? $settings['title'] : esc_html__('Frequently Asked Questions (FAQs)', 'pubcrawls-addon');
+		$title_tag       = ! empty($settings['title_tag']) ? \Elementor\Utils::validate_html_tag($settings['title_tag']) : 'h2';
+		$global_faq_enabled = class_exists('Pubcrawls_Admin')
+			? ('1' === (string) Pubcrawls_Admin::get_setting('enable_faq_schema_global', '1'))
+			: true;
+		$enable_schema   = $global_faq_enabled && ('yes' === ($settings['faq_schema'] ?? $settings['pubcrawl_faq_schema'] ?? 'yes'));
+		$schema_entities = [];
 ?>
 
 		<?php if ($show_title && ! empty($title)) : ?>
@@ -575,21 +616,43 @@ class Pubcrawls_Page_FAQs extends \Elementor\Widget_Base
 		<?php endif; ?>
 
 		<div class="pubcrawls-faq-grid">
-
-
 			<?php foreach ($faqs as $faq) :
 				$qsn = $faq['question'] ?? '';
 				$ans = $faq['answer'] ?? '';
 				if (empty($qsn) && empty($ans)) {
 					continue;
 				}
+				$question_text = html_entity_decode(wp_strip_all_tags($qsn), ENT_QUOTES, 'UTF-8');
+				$answer_html   = trim(wp_kses_post(wpautop($ans)));
+
+				if ($enable_schema && ! empty(trim($question_text)) && ! empty(trim(wp_strip_all_tags($answer_html)))) {
+					$schema_entities[] = [
+						'@type'          => 'Question',
+						'name'           => trim($question_text),
+						'acceptedAnswer' => [
+							'@type' => 'Answer',
+							'text'  => $answer_html,
+						],
+					];
+				}
 			?>
 				<div class="pubcrawls-faq-item">
 					<h3 class="pubcrawls-faq-question"><?php echo esc_html($qsn); ?></h3>
-					<div class="pubcrawls-faq-answer"><?php echo wp_kses_post(wpautop($ans)); ?></div>
+					<div class="pubcrawls-faq-answer"><?php echo wp_kses_post($answer_html); ?></div>
 				</div>
 			<?php endforeach; ?>
 		</div>
+		<?php if ($enable_schema && ! empty($schema_entities)) : ?>
+			<script type="application/ld+json">
+			<?php
+			echo wp_json_encode([
+				'@context'   => 'https://schema.org',
+				'@type'      => 'FAQPage',
+				'mainEntity' => $schema_entities,
+			], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+			?>
+			</script>
+		<?php endif; ?>
 <?php
 	}
 }

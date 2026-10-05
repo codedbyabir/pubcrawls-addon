@@ -89,6 +89,10 @@ if (! is_array($disabled_tax)) {
 		<a href="?page=pubcrawls-addon&tab=settings" class="nav-tab <?php echo 'settings' === $active_tab ? 'nav-tab-active' : ''; ?>" data-tab="settings">
 			<span class="dashicons dashicons-admin-settings"></span> <?php esc_html_e('Ticket Settings', 'pubcrawls-addon'); ?>
 		</a>
+		<a href="?page=pubcrawls-addon&tab=schema" class="nav-tab <?php echo 'schema' === $active_tab ? 'nav-tab-active' : ''; ?>" data-tab="schema">
+			<span class="dashicons dashicons-networking"></span> <?php esc_html_e('Schema & SEO', 'pubcrawls-addon'); ?>
+			<span class="pubcrawls-tab-count" style="background:#8b5cf6;color:#fff;">JSON-LD</span>
+		</a>
 		<a href="?page=pubcrawls-addon&tab=tracking" class="nav-tab <?php echo 'tracking' === $active_tab ? 'nav-tab-active' : ''; ?>" data-tab="tracking">
 			<span class="dashicons dashicons-rest-api"></span> <?php esc_html_e('Tracking & Webhooks', 'pubcrawls-addon'); ?>
 			<span class="pubcrawls-tab-count" style="background:#0284c7;color:#fff;">CAPI</span>
@@ -425,6 +429,39 @@ if (! is_array($disabled_tax)) {
 								</td>
 							</tr>
 
+							<!-- SquadUp User / Organizer ID -->
+							<tr>
+								<th scope="row">
+									<label for="squadup_user_id"><?php esc_html_e('SquadUp Organizer / User ID', 'pubcrawls-addon'); ?></label>
+								</th>
+								<td>
+									<input type="text" name="<?php echo esc_attr(Pubcrawls_Admin::SETTINGS_KEY); ?>[squadup_user_id]" id="squadup_user_id" value="<?php echo esc_attr($settings['squadup_user_id'] ?? '3438001'); ?>" class="regular-text code" />
+									<p class="description"><?php esc_html_e('Your SquadUp numeric user/organizer ID (e.g. 3438001). Passed to the SquadUp checkout SDK.', 'pubcrawls-addon'); ?></p>
+								</td>
+							</tr>
+
+							<!-- SquadUp Modal Logo / Header Image -->
+							<tr>
+								<th scope="row">
+									<label for="squadup_modal_image"><?php esc_html_e('SquadUp Modal Logo URL', 'pubcrawls-addon'); ?></label>
+								</th>
+								<td>
+									<input type="url" name="<?php echo esc_attr(Pubcrawls_Admin::SETTINGS_KEY); ?>[squadup_modal_image]" id="squadup_modal_image" value="<?php echo esc_attr($settings['squadup_modal_image'] ?? 'https://pubcrawls.com/wp-content/uploads/2026/03/Logo.webp'); ?>" class="large-text code" />
+									<p class="description"><?php esc_html_e('Brand logo image URL rendered in the header of the SquadUp checkout modal.', 'pubcrawls-addon'); ?></p>
+								</td>
+							</tr>
+
+							<!-- SquadUp Modal Title -->
+							<tr>
+								<th scope="row">
+									<label for="squadup_modal_title"><?php esc_html_e('SquadUp Modal Title', 'pubcrawls-addon'); ?></label>
+								</th>
+								<td>
+									<input type="text" name="<?php echo esc_attr(Pubcrawls_Admin::SETTINGS_KEY); ?>[squadup_modal_title]" id="squadup_modal_title" value="<?php echo esc_attr($settings['squadup_modal_title'] ?? 'Pubcrawls Events'); ?>" class="regular-text" />
+									<p class="description"><?php esc_html_e('Modal title passed to the SquadUp checkout configuration.', 'pubcrawls-addon'); ?></p>
+								</td>
+							</tr>
+
 							<!-- SquadUp Confirmation URL -->
 							<tr>
 								<th scope="row">
@@ -494,6 +531,275 @@ if (! is_array($disabled_tax)) {
 	</section>
 
 	<!-- ============================================================ -->
+	<!-- TAB: SCHEMA.ORG & MULTI-SITE SEO SETTINGS -->
+	<!-- ============================================================ -->
+	<section class="pubcrawls-tab-pane <?php echo 'schema' === $active_tab ? 'is-active' : ''; ?>" id="tab-schema">
+
+		<form method="post" action="options.php">
+			<?php settings_fields('pubcrawls_settings_group'); ?>
+			<input type="hidden" name="<?php echo esc_attr(Pubcrawls_Admin::SETTINGS_KEY); ?>[schema_settings_submitted]" value="1" />
+
+			<!-- Card 1: Event Schema (JSON-LD) Configuration -->
+			<div class="pubcrawls-card" style="margin-bottom: 24px;">
+				<div class="pubcrawls-card__header">
+					<h2><span class="dashicons dashicons-calendar-alt"></span> <?php esc_html_e('Schema.org Event Structured Data', 'pubcrawls-addon'); ?></h2>
+					<span class="pubcrawls-card__subtitle"><?php esc_html_e('Automatically injects Google-compliant Event JSON-LD structured data into wp_head on single event pages (tribe_events).', 'pubcrawls-addon'); ?></span>
+				</div>
+				<div class="pubcrawls-card__body">
+
+					<table class="form-table" role="presentation">
+						<tbody>
+							<!-- Master Event Schema Switch -->
+							<tr>
+								<th scope="row"><?php esc_html_e('Event Schema Output', 'pubcrawls-addon'); ?></th>
+								<td>
+									<label class="pubcrawls-switch pubcrawls-switch--standard">
+										<input type="checkbox" name="<?php echo esc_attr(Pubcrawls_Admin::SETTINGS_KEY); ?>[enable_event_schema]" value="1" <?php checked('1', $settings['enable_event_schema'] ?? '1'); ?> />
+										<span class="pubcrawls-slider"></span>
+									</label>
+									<span style="margin-left: 10px; font-weight: 600; vertical-align: middle;">
+										<?php if (('1' === (string) ($settings['enable_event_schema'] ?? '1'))) : ?>
+											<span class="pubcrawls-status-tag pubcrawls-status-tag--ok"><?php esc_html_e('Active', 'pubcrawls-addon'); ?></span>
+										<?php else : ?>
+											<span class="pubcrawls-status-tag" style="background:#f1f5f9;color:#64748b;"><?php esc_html_e('Disabled', 'pubcrawls-addon'); ?></span>
+										<?php endif; ?>
+									</span>
+									<p class="description"><?php esc_html_e('When enabled, valid Schema.org Event JSON-LD tags are automatically generated for search engines and social scrapers.', 'pubcrawls-addon'); ?></p>
+								</td>
+							</tr>
+
+							<!-- Organizer Brand Name -->
+							<tr>
+								<th scope="row">
+									<label for="schema_organizer_name"><?php esc_html_e('Organizer Brand Name', 'pubcrawls-addon'); ?></label>
+								</th>
+								<td>
+									<input type="text" name="<?php echo esc_attr(Pubcrawls_Admin::SETTINGS_KEY); ?>[schema_organizer_name]" id="schema_organizer_name" value="<?php echo esc_attr($settings['schema_organizer_name'] ?? 'PubCrawls'); ?>" placeholder="<?php echo esc_attr(get_bloginfo('name')); ?>" class="regular-text" />
+									<p class="description"><?php esc_html_e('Name of the event organizer output in organizer.name (e.g. PubCrawls, Bar Crawl Live, City Crawls). Leave empty to use site title.', 'pubcrawls-addon'); ?></p>
+								</td>
+							</tr>
+
+							<!-- Organizer Website URL -->
+							<tr>
+								<th scope="row">
+									<label for="schema_organizer_url"><?php esc_html_e('Organizer Website URL', 'pubcrawls-addon'); ?></label>
+								</th>
+								<td>
+									<input type="url" name="<?php echo esc_attr(Pubcrawls_Admin::SETTINGS_KEY); ?>[schema_organizer_url]" id="schema_organizer_url" value="<?php echo esc_attr($settings['schema_organizer_url'] ?? 'https://pubcrawls.com/'); ?>" placeholder="<?php echo esc_attr(home_url('/')); ?>" class="regular-text code" />
+									<p class="description"><?php esc_html_e('Brand or official website URL output in organizer.url. Leave empty to use the current site home URL.', 'pubcrawls-addon'); ?></p>
+								</td>
+							</tr>
+
+							<!-- Organizer Logo URL -->
+							<tr>
+								<th scope="row">
+									<label for="schema_organizer_logo"><?php esc_html_e('Organizer Logo URL', 'pubcrawls-addon'); ?></label>
+								</th>
+								<td>
+									<input type="url" name="<?php echo esc_attr(Pubcrawls_Admin::SETTINGS_KEY); ?>[schema_organizer_logo]" id="schema_organizer_logo" value="<?php echo esc_attr($settings['schema_organizer_logo'] ?? 'https://pubcrawls.com/wp-content/uploads/2026/03/Logo.webp'); ?>" placeholder="https://example.com/logo.png" class="large-text code" />
+									<p class="description"><?php esc_html_e('Full URL to brand logo image for Schema.org organizer.logo. Leave empty to omit logo.', 'pubcrawls-addon'); ?></p>
+								</td>
+							</tr>
+
+							<!-- Currency -->
+							<tr>
+								<th scope="row">
+									<label for="schema_currency"><?php esc_html_e('Ticket Price Currency', 'pubcrawls-addon'); ?></label>
+								</th>
+								<td>
+									<input type="text" name="<?php echo esc_attr(Pubcrawls_Admin::SETTINGS_KEY); ?>[schema_currency]" id="schema_currency" value="<?php echo esc_attr($settings['schema_currency'] ?? 'USD'); ?>" maxlength="3" style="width: 100px; text-transform: uppercase;" class="regular-text code" />
+									<p class="description"><?php esc_html_e('3-letter ISO 4217 currency code for ticket offers (e.g. USD, CAD, GBP, EUR, AUD).', 'pubcrawls-addon'); ?></p>
+								</td>
+							</tr>
+
+							<!-- Default / Fallback Ticket Price -->
+							<tr>
+								<th scope="row">
+									<label for="schema_default_price"><?php esc_html_e('Default Ticket Price (Optional)', 'pubcrawls-addon'); ?></label>
+								</th>
+								<td>
+									<input type="text" name="<?php echo esc_attr(Pubcrawls_Admin::SETTINGS_KEY); ?>[schema_default_price]" id="schema_default_price" value="<?php echo esc_attr($settings['schema_default_price'] ?? ''); ?>" placeholder="e.g. 20.00" class="regular-text" />
+									<p class="description">
+										<?php esc_html_e('Because ACF does not have a dedicated price field, offers.price is omitted by default per Google guidelines. Enter a fallback amount (e.g. 20.00) here if you want a default price in your schema, or leave empty to omit price.', 'pubcrawls-addon'); ?>
+									</p>
+								</td>
+							</tr>
+
+							<!-- Venue Country Code -->
+							<tr>
+								<th scope="row">
+									<label for="schema_country_code"><?php esc_html_e('Venue Country Code', 'pubcrawls-addon'); ?></label>
+								</th>
+								<td>
+									<input type="text" name="<?php echo esc_attr(Pubcrawls_Admin::SETTINGS_KEY); ?>[schema_country_code]" id="schema_country_code" value="<?php echo esc_attr($settings['schema_country_code'] ?? 'US'); ?>" maxlength="2" style="width: 80px; text-transform: uppercase;" class="regular-text code" />
+									<p class="description"><?php esc_html_e('2-letter ISO 3166-1 country code for PostalAddress.addressCountry (e.g. US, CA, GB, AU).', 'pubcrawls-addon'); ?></p>
+								</td>
+							</tr>
+
+							<!-- Default Event Status -->
+							<tr>
+								<th scope="row">
+									<label for="schema_event_status"><?php esc_html_e('Default Event Status', 'pubcrawls-addon'); ?></label>
+								</th>
+								<td>
+									<?php $curr_status = $settings['schema_event_status'] ?? 'https://schema.org/EventScheduled'; ?>
+									<select name="<?php echo esc_attr(Pubcrawls_Admin::SETTINGS_KEY); ?>[schema_event_status]" id="schema_event_status" class="regular-text">
+										<option value="https://schema.org/EventScheduled" <?php selected($curr_status, 'https://schema.org/EventScheduled'); ?>>
+											<?php esc_html_e('EventScheduled (Normal)', 'pubcrawls-addon'); ?>
+										</option>
+										<option value="https://schema.org/EventPostponed" <?php selected($curr_status, 'https://schema.org/EventPostponed'); ?>>
+											<?php esc_html_e('EventPostponed', 'pubcrawls-addon'); ?>
+										</option>
+										<option value="https://schema.org/EventCancelled" <?php selected($curr_status, 'https://schema.org/EventCancelled'); ?>>
+											<?php esc_html_e('EventCancelled', 'pubcrawls-addon'); ?>
+										</option>
+										<option value="https://schema.org/EventMovedOnline" <?php selected($curr_status, 'https://schema.org/EventMovedOnline'); ?>>
+											<?php esc_html_e('EventMovedOnline', 'pubcrawls-addon'); ?>
+										</option>
+									</select>
+									<p class="description"><?php esc_html_e('Default status value for events. Can also be overridden per-event using the pubcrawls_event_schema_status filter.', 'pubcrawls-addon'); ?></p>
+								</td>
+							</tr>
+
+							<!-- Event Attendance Mode -->
+							<tr>
+								<th scope="row">
+									<label for="schema_attendance_mode"><?php esc_html_e('Event Attendance Mode', 'pubcrawls-addon'); ?></label>
+								</th>
+								<td>
+									<?php $curr_mode = $settings['schema_attendance_mode'] ?? 'https://schema.org/OfflineEventAttendanceMode'; ?>
+									<select name="<?php echo esc_attr(Pubcrawls_Admin::SETTINGS_KEY); ?>[schema_attendance_mode]" id="schema_attendance_mode" class="regular-text">
+										<option value="https://schema.org/OfflineEventAttendanceMode" <?php selected($curr_mode, 'https://schema.org/OfflineEventAttendanceMode'); ?>>
+											<?php esc_html_e('OfflineEventAttendanceMode (In-Person)', 'pubcrawls-addon'); ?>
+										</option>
+										<option value="https://schema.org/OnlineEventAttendanceMode" <?php selected($curr_mode, 'https://schema.org/OnlineEventAttendanceMode'); ?>>
+											<?php esc_html_e('OnlineEventAttendanceMode (Virtual)', 'pubcrawls-addon'); ?>
+										</option>
+										<option value="https://schema.org/MixedEventAttendanceMode" <?php selected($curr_mode, 'https://schema.org/MixedEventAttendanceMode'); ?>>
+											<?php esc_html_e('MixedEventAttendanceMode (Hybrid)', 'pubcrawls-addon'); ?>
+										</option>
+									</select>
+									<p class="description"><?php esc_html_e('Specifies whether events take place at physical venues, online, or both.', 'pubcrawls-addon'); ?></p>
+								</td>
+							</tr>
+
+							<!-- Multi-Date Title Suffix Format -->
+							<tr>
+								<th scope="row">
+									<label for="schema_date_suffix_format"><?php esc_html_e('Multi-Date Title Suffix', 'pubcrawls-addon'); ?></label>
+								</th>
+								<td>
+									<?php $curr_suffix = $settings['schema_date_suffix_format'] ?? 'M j, Y'; ?>
+									<select name="<?php echo esc_attr(Pubcrawls_Admin::SETTINGS_KEY); ?>[schema_date_suffix_format]" id="schema_date_suffix_format" class="regular-text">
+										<option value="M j, Y" <?php selected($curr_suffix, 'M j, Y'); ?>>
+											<?php esc_html_e('Oct 24, 2026 (M j, Y)', 'pubcrawls-addon'); ?>
+										</option>
+										<option value="D, M j, Y" <?php selected($curr_suffix, 'D, M j, Y'); ?>>
+											<?php esc_html_e('Sat, Oct 24, 2026 (D, M j, Y)', 'pubcrawls-addon'); ?>
+										</option>
+										<option value="D, M j" <?php selected($curr_suffix, 'D, M j'); ?>>
+											<?php esc_html_e('Sat, Oct 24 (D, M j)', 'pubcrawls-addon'); ?>
+										</option>
+										<option value="F j, Y" <?php selected($curr_suffix, 'F j, Y'); ?>>
+											<?php esc_html_e('October 24, 2026 (F j, Y)', 'pubcrawls-addon'); ?>
+										</option>
+										<option value="none" <?php selected($curr_suffix, 'none'); ?>>
+											<?php esc_html_e('None (Do not append date to title)', 'pubcrawls-addon'); ?>
+										</option>
+									</select>
+									<p class="description"><?php esc_html_e('Date formatting applied to event names when an event has multiple date rows.', 'pubcrawls-addon'); ?></p>
+								</td>
+							</tr>
+
+						</tbody>
+					</table>
+
+				</div>
+				<div class="pubcrawls-card__footer">
+					<?php submit_button(esc_html__('Save Schema Settings', 'pubcrawls-addon'), 'primary', 'submit', false); ?>
+				</div>
+			</div>
+
+			<!-- Card 2: FAQ Schema Markup Options -->
+			<div class="pubcrawls-card" style="margin-bottom: 24px;">
+				<div class="pubcrawls-card__header">
+					<h2><span class="dashicons dashicons-editor-help"></span> <?php esc_html_e('FAQPage Schema Markup', 'pubcrawls-addon'); ?></h2>
+					<span class="pubcrawls-card__subtitle"><?php esc_html_e('Global toggle for Schema.org FAQPage JSON-LD generated by FAQ Grid and Page FAQ widgets.', 'pubcrawls-addon'); ?></span>
+				</div>
+				<div class="pubcrawls-card__body">
+
+					<table class="form-table" role="presentation">
+						<tbody>
+							<tr>
+								<th scope="row"><?php esc_html_e('Global FAQ Schema', 'pubcrawls-addon'); ?></th>
+								<td>
+									<label class="pubcrawls-switch pubcrawls-switch--standard">
+										<input type="checkbox" name="<?php echo esc_attr(Pubcrawls_Admin::SETTINGS_KEY); ?>[enable_faq_schema_global]" value="1" <?php checked('1', $settings['enable_faq_schema_global'] ?? '1'); ?> />
+										<span class="pubcrawls-slider"></span>
+									</label>
+									<span style="margin-left: 10px; font-weight: 600; vertical-align: middle;">
+										<?php if (('1' === (string) ($settings['enable_faq_schema_global'] ?? '1'))) : ?>
+											<span class="pubcrawls-status-tag pubcrawls-status-tag--ok"><?php esc_html_e('Active', 'pubcrawls-addon'); ?></span>
+										<?php else : ?>
+											<span class="pubcrawls-status-tag" style="background:#f1f5f9;color:#64748b;"><?php esc_html_e('Disabled', 'pubcrawls-addon'); ?></span>
+										<?php endif; ?>
+									</span>
+									<p class="description"><?php esc_html_e('Master switch for FAQ Schema. When turned off, suppresses FAQPage structured data across all Elementor FAQ widgets site-wide.', 'pubcrawls-addon'); ?></p>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+
+				</div>
+				<div class="pubcrawls-card__footer">
+					<?php submit_button(esc_html__('Save Schema Settings', 'pubcrawls-addon'), 'primary', 'submit', false); ?>
+				</div>
+			</div>
+
+			<!-- Card 3: Multi-site Portability & Developer Reference -->
+			<div class="pubcrawls-card">
+				<div class="pubcrawls-card__header">
+					<h2><span class="dashicons dashicons-admin-site-alt3"></span> <?php esc_html_e('Multi-Site & Migration Portability Guide', 'pubcrawls-addon'); ?></h2>
+					<span class="pubcrawls-card__subtitle"><?php esc_html_e('How this plugin adapts automatically when installed on different websites.', 'pubcrawls-addon'); ?></span>
+				</div>
+				<div class="pubcrawls-card__body">
+					<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:16px;">
+						<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:16px;">
+							<h4 style="margin:0 0 8px;font-size:14px;color:#0f172a;display:flex;align-items:center;gap:6px;">
+								<span class="dashicons dashicons-clock" style="color:#2563eb;"></span>
+								<?php esc_html_e('Automatic Timezone Matching', 'pubcrawls-addon'); ?>
+							</h4>
+							<p style="margin:0;font-size:12px;color:#475569;line-height:1.5;">
+								<?php esc_html_e('Dates and start/end times are converted to ISO 8601 using wp_timezone(). When moving to a site in another timezone (e.g. New York, London, Sydney), the schema automatically adopts the WordPress site timezone.', 'pubcrawls-addon'); ?>
+							</p>
+						</div>
+						<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:16px;">
+							<h4 style="margin:0 0 8px;font-size:14px;color:#0f172a;display:flex;align-items:center;gap:6px;">
+								<span class="dashicons dashicons-money-alt" style="color:#16a34a;"></span>
+								<?php esc_html_e('Custom Currency & Pricing Hooks', 'pubcrawls-addon'); ?>
+							</h4>
+							<p style="margin:0;font-size:12px;color:#475569;line-height:1.5;">
+								<?php esc_html_e('Developers can programmatically inject dynamic ticket prices per event or date row using: add_filter(\'pubcrawls_event_schema_price\', function($price, $event_id, $row) { return 25.00; }, 10, 3);', 'pubcrawls-addon'); ?>
+							</p>
+						</div>
+						<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:16px;">
+							<h4 style="margin:0 0 8px;font-size:14px;color:#0f172a;display:flex;align-items:center;gap:6px;">
+								<span class="dashicons dashicons-filter" style="color:#ca8a04;"></span>
+								<?php esc_html_e('Selective Override Hooks', 'pubcrawls-addon'); ?>
+							</h4>
+							<p style="margin:0;font-size:12px;color:#475569;line-height:1.5;">
+								<?php esc_html_e('Disable output selectively on specific event IDs with pubcrawls_skip_event_schema, or mutate the completed schema array before output with pubcrawls_single_event_schema.', 'pubcrawls-addon'); ?>
+							</p>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</form>
+
+	</section>
+
+	<!-- ============================================================ -->
 	<!-- TAB: TRACKING & WEBHOOKS -->
 	<!-- ============================================================ -->
 	<section class="pubcrawls-tab-pane <?php echo 'tracking' === $active_tab ? 'is-active' : ''; ?>" id="tab-tracking">
@@ -505,6 +811,8 @@ if (! is_array($disabled_tax)) {
 		$recent_orders      = class_exists( 'Pubcrawls_Tracking_DB' ) ? Pubcrawls_Tracking_DB::get_recent_orders( 50 ) : array();
 		$logs               = get_option( 'pubcrawls_eb_webhook_logs', array() );
 		$platform_statuses  = class_exists( 'Pubcrawls_Admin' ) ? Pubcrawls_Admin::get_platform_statuses() : array();
+		$queue_health       = class_exists( 'Pubcrawls_Eventbrite_Queue' ) ? Pubcrawls_Eventbrite_Queue::get_health_diagnostics() : array();
+		$queue_counts       = $queue_health['counts'] ?? array();
 		?>
 
 		<!-- Platform Health & Configuration Summary Banner -->
@@ -526,6 +834,99 @@ if (! is_array($disabled_tax)) {
 						<?php endforeach; ?>
 					</div>
 				</div>
+			</div>
+		</div>
+
+		<!-- Card: Queue Health & Diagnostics -->
+		<div class="pubcrawls-card" style="margin-bottom: 24px;border:1px solid #e2e8f0;" id="pubcrawls-queue-health-card">
+			<div class="pubcrawls-card__header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+				<div>
+					<h2 style="display:flex;align-items:center;gap:8px;">
+						<span class="dashicons dashicons-update"></span>
+						<?php esc_html_e( 'Conversion Queue & Worker Diagnostics', 'pubcrawls-addon' ); ?>
+						<?php if ( ! empty( $queue_counts['stale_locks'] ) ) : ?>
+							<span style="font-size:12px;background:#fee2e2;color:#991b1b;padding:2px 8px;border-radius:12px;font-weight:700;">
+								<?php printf( esc_html__( '%d Stale Lock(s)', 'pubcrawls-addon' ), (int) $queue_counts['stale_locks'] ); ?>
+							</span>
+						<?php elseif ( ! empty( $queue_counts['pending'] ) ) : ?>
+							<span style="font-size:12px;background:#e0f2fe;color:#0369a1;padding:2px 8px;border-radius:12px;font-weight:700;">
+								<?php printf( esc_html__( '%d Backlog Queued', 'pubcrawls-addon' ), (int) $queue_counts['pending'] ); ?>
+							</span>
+						<?php else : ?>
+							<span style="font-size:12px;background:#dcfce7;color:#166534;padding:2px 8px;border-radius:12px;font-weight:700;">
+								<?php esc_html_e( 'Healthy', 'pubcrawls-addon' ); ?>
+							</span>
+						<?php endif; ?>
+					</h2>
+					<span class="pubcrawls-card__subtitle">
+						<?php esc_html_e( 'Automated background processor with atomic locking, 10-minute stale lock recovery, and WP Engine server cron support.', 'pubcrawls-addon' ); ?>
+					</span>
+				</div>
+				<div style="display:flex;gap:8px;align-items:center;">
+					<button type="button" class="button button-primary" id="pubcrawls-process-backlog-btn" style="height:36px;display:flex;align-items:center;gap:6px;">
+						<span class="dashicons dashicons-controls-play" style="font-size:16px;width:16px;height:16px;"></span>
+						<?php esc_html_e( 'Process Backlog Now', 'pubcrawls-addon' ); ?>
+					</button>
+					<button type="button" class="button button-secondary" id="pubcrawls-release-stale-btn" style="height:36px;display:flex;align-items:center;gap:6px;">
+						<span class="dashicons dashicons-unlock" style="font-size:16px;width:16px;height:16px;"></span>
+						<?php esc_html_e( 'Release Stale Locks', 'pubcrawls-addon' ); ?>
+					</button>
+				</div>
+			</div>
+			<div class="pubcrawls-card__body">
+				<!-- Metrics Summary Tiles -->
+				<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(130px, 1fr));gap:12px;margin-bottom:20px;">
+					<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px 14px;text-align:center;">
+						<div style="font-size:22px;font-weight:700;color:#0f172a;"><?php echo (int) ( $queue_counts['pending'] ?? 0 ); ?></div>
+						<div style="font-size:11px;font-weight:600;text-transform:uppercase;color:#64748b;margin-top:2px;"><?php esc_html_e( 'Pending / Backlog', 'pubcrawls-addon' ); ?></div>
+					</div>
+					<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px 14px;text-align:center;">
+						<div style="font-size:22px;font-weight:700;color:#0284c7;"><?php echo (int) ( $queue_counts['processing_active'] ?? 0 ); ?></div>
+						<div style="font-size:11px;font-weight:600;text-transform:uppercase;color:#64748b;margin-top:2px;"><?php esc_html_e( 'Active Workers', 'pubcrawls-addon' ); ?></div>
+					</div>
+					<div style="background:<?php echo ( ! empty( $queue_counts['stale_locks'] ) ) ? '#fef2f2;border:1px solid #fecaca' : '#f8fafc;border:1px solid #e2e8f0'; ?>;border-radius:8px;padding:12px 14px;text-align:center;">
+						<div style="font-size:22px;font-weight:700;color:<?php echo ( ! empty( $queue_counts['stale_locks'] ) ) ? '#dc2626' : '#64748b'; ?>;"><?php echo (int) ( $queue_counts['stale_locks'] ?? 0 ); ?></div>
+						<div style="font-size:11px;font-weight:600;text-transform:uppercase;color:#64748b;margin-top:2px;"><?php esc_html_e( 'Stale Locks', 'pubcrawls-addon' ); ?></div>
+					</div>
+					<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px 14px;text-align:center;">
+						<div style="font-size:22px;font-weight:700;color:#16a34a;"><?php echo (int) ( $queue_counts['completed'] ?? 0 ); ?></div>
+						<div style="font-size:11px;font-weight:600;text-transform:uppercase;color:#64748b;margin-top:2px;"><?php esc_html_e( 'Completed', 'pubcrawls-addon' ); ?></div>
+					</div>
+					<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px 14px;text-align:center;">
+						<div style="font-size:22px;font-weight:700;color:#d97706;"><?php echo (int) ( $queue_counts['partial'] ?? 0 ); ?></div>
+						<div style="font-size:11px;font-weight:600;text-transform:uppercase;color:#64748b;margin-top:2px;"><?php esc_html_e( 'Partial (Retrying)', 'pubcrawls-addon' ); ?></div>
+					</div>
+					<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px 14px;text-align:center;">
+						<div style="font-size:22px;font-weight:700;color:#dc2626;"><?php echo (int) ( $queue_counts['failed'] ?? 0 ); ?></div>
+						<div style="font-size:11px;font-weight:600;text-transform:uppercase;color:#64748b;margin-top:2px;"><?php esc_html_e( 'Failed (Max)', 'pubcrawls-addon' ); ?></div>
+					</div>
+				</div>
+
+				<!-- Schedule & Runner Status Info -->
+				<div style="display:flex;gap:20px;flex-wrap:wrap;background:#f1f5f9;padding:12px 16px;border-radius:6px;font-size:12px;color:#334155;margin-bottom:16px;">
+					<div><strong><?php esc_html_e( 'Next Cron Run:', 'pubcrawls-addon' ); ?></strong> <?php echo esc_html( $queue_health['next_cron_human'] ?? 'Unknown' ); ?></div>
+					<div><strong><?php esc_html_e( 'Last Worker Run:', 'pubcrawls-addon' ); ?></strong> <?php echo esc_html( $queue_health['last_run_human'] ?? 'Never' ); ?></div>
+					<div><strong><?php esc_html_e( 'WP-Cron Disabled (DISABLE_WP_CRON):', 'pubcrawls-addon' ); ?></strong> <?php echo ! empty( $queue_health['wp_cron_disabled'] ) ? '<span style="color:#dc2626;font-weight:600;">' . esc_html__( 'Yes (Requires Server Cron below)', 'pubcrawls-addon' ) . '</span>' : '<span style="color:#16a34a;font-weight:600;">' . esc_html__( 'No (WP-Cron Active)', 'pubcrawls-addon' ) . '</span>'; ?></div>
+					<div><strong><?php esc_html_e( 'Action Scheduler:', 'pubcrawls-addon' ); ?></strong> <?php echo ! empty( $queue_health['action_scheduler_active'] ) ? '<span style="color:#16a34a;font-weight:600;">' . esc_html__( 'Active', 'pubcrawls-addon' ) . '</span>' : '<span style="color:#64748b;">' . esc_html__( 'Not Installed', 'pubcrawls-addon' ) . '</span>'; ?></div>
+				</div>
+
+				<!-- WP Engine & Server Cron Command -->
+				<div style="background:#f8fafc;border:1px solid #cbd5e1;border-radius:6px;padding:14px 16px;">
+					<label style="display:block;font-size:12px;font-weight:700;color:#1e293b;margin-bottom:6px;">
+						<?php esc_html_e( 'Real Server Cron / WP Engine Scheduled Task Command', 'pubcrawls-addon' ); ?>
+					</label>
+					<div style="display:flex;gap:10px;align-items:center;">
+						<input type="text" readonly value="<?php echo esc_attr( $queue_health['server_cron_command'] ?? '' ); ?>" class="large-text code" style="background:#ffffff;font-size:12px;padding:7px 10px;" />
+						<button type="button" class="button button-secondary pubcrawls-copy-btn" data-copy="<?php echo esc_attr( $queue_health['server_cron_command'] ?? '' ); ?>" style="white-space:nowrap;">
+							<span class="dashicons dashicons-clipboard" style="vertical-align:text-bottom;"></span> <?php esc_html_e( 'Copy Cron Command', 'pubcrawls-addon' ); ?>
+						</button>
+					</div>
+					<p class="description" style="margin-top:6px;font-size:11px;">
+						<?php esc_html_e( 'Configure this cron task in WP Engine or Linux crontab. It securely executes the background queue runner every 2 minutes without relying on website visitor traffic.', 'pubcrawls-addon' ); ?>
+					</p>
+				</div>
+
+				<div id="pubcrawls-queue-action-result" style="display:none;margin-top:14px;"></div>
 			</div>
 		</div>
 
@@ -716,7 +1117,10 @@ if (! is_array($disabled_tax)) {
 					<h2>
 						<span class="dashicons dashicons-facebook-alt"></span> <?php esc_html_e( 'Meta Conversions API (CAPI)', 'pubcrawls-addon' ); ?>
 						<?php if ( ! empty( $settings['meta_test_code'] ) ) : ?>
-							<span style="margin-left:12px;font-size:11px;font-weight:700;background:#fef3c7;color:#92400e;padding:3px 8px;border-radius:4px;border:1px solid #fde68a;">⚠️ <?php printf( esc_html__( 'TEST MODE ACTIVE (Code: %s)', 'pubcrawls-addon' ), esc_html( $settings['meta_test_code'] ) ); ?></span>
+							<span style="margin-left:12px;font-size:11px;font-weight:700;background:#fef3c7;color:#92400e;padding:3px 8px;border-radius:4px;border:1px solid #fde68a;">⚠️ <?php
+								/* translators: %s: Meta test event code */
+								printf( esc_html__( 'TEST MODE ACTIVE (Code: %s)', 'pubcrawls-addon' ), esc_html( $settings['meta_test_code'] ) );
+							?></span>
 						<?php endif; ?>
 					</h2>
 					<span class="pubcrawls-card__subtitle"><?php esc_html_e( 'Dispatches server-side Purchase events with SHA-256 hashed customer parameters for ad attribution.', 'pubcrawls-addon' ); ?></span>
@@ -781,7 +1185,10 @@ if (! is_array($disabled_tax)) {
 					<h2>
 						<span class="dashicons dashicons-video-alt3"></span> <?php esc_html_e( 'TikTok Events API', 'pubcrawls-addon' ); ?>
 						<?php if ( ! empty( $settings['tiktok_test_code'] ) ) : ?>
-							<span style="margin-left:12px;font-size:11px;font-weight:700;background:#fef3c7;color:#92400e;padding:3px 8px;border-radius:4px;border:1px solid #fde68a;">⚠️ <?php printf( esc_html__( 'TEST MODE ACTIVE (Code: %s)', 'pubcrawls-addon' ), esc_html( $settings['tiktok_test_code'] ) ); ?></span>
+							<span style="margin-left:12px;font-size:11px;font-weight:700;background:#fef3c7;color:#92400e;padding:3px 8px;border-radius:4px;border:1px solid #fde68a;">⚠️ <?php
+								/* translators: %s: TikTok test event code */
+								printf( esc_html__( 'TEST MODE ACTIVE (Code: %s)', 'pubcrawls-addon' ), esc_html( $settings['tiktok_test_code'] ) );
+							?></span>
 						<?php endif; ?>
 					</h2>
 					<span class="pubcrawls-card__subtitle"><?php esc_html_e( 'Sends server-side CompletePayment events with SHA-256 hashed customer parameters.', 'pubcrawls-addon' ); ?></span>
@@ -902,6 +1309,11 @@ if (! is_array($disabled_tax)) {
 										<td><small><?php echo esc_html( $ord->created_at ); ?></small></td>
 										<td>
 											<code><?php echo esc_html( $ord->order_id ); ?></code>
+											<?php if ( ! empty( $ord->client_id ) ) : ?>
+												<br><span style="display:inline-flex;align-items:center;gap:3px;font-size:10px;background:#e0f2fe;color:#0369a1;padding:1px 5px;border-radius:4px;font-weight:600;" title="<?php esc_attr_e( 'Browser attribution captured: client_id and session attached', 'pubcrawls-addon' ); ?>">
+													<span class="dashicons dashicons-visibility" style="font-size:12px;width:12px;height:12px;line-height:12px;"></span> <?php esc_html_e( 'Attributed', 'pubcrawls-addon' ); ?>
+												</span>
+											<?php endif; ?>
 											<?php if ( ! empty( $ord->last_error ) ) : ?>
 												<br><small style="color:#ef4444;" title="<?php echo esc_attr( $ord->last_error ); ?>"><?php echo esc_html( substr( $ord->last_error, 0, 50 ) ); ?>...</small>
 											<?php endif; ?>
@@ -915,6 +1327,15 @@ if (! is_array($disabled_tax)) {
 											if ( 'completed' === $st ) :
 											?>
 												<span class="pubcrawls-status-tag pubcrawls-status-tag--ok"><?php esc_html_e( 'Completed', 'pubcrawls-addon' ); ?></span>
+											<?php elseif ( 'processing' === $st ) :
+												$lock_time = ! empty( $ord->locked_at ) ? strtotime( (string) $ord->locked_at ) : ( ! empty( $ord->updated_at ) ? strtotime( (string) $ord->updated_at ) : 0 );
+												$is_stale  = ( time() - $lock_time ) > 600;
+											?>
+												<?php if ( $is_stale ) : ?>
+													<span class="pubcrawls-status-tag" style="background:#fee2e2;color:#991b1b;border:1px solid #fecaca;" title="<?php esc_attr_e( 'Worker lock has expired (> 10m). Will auto-release on next queue run.', 'pubcrawls-addon' ); ?>">⚠️ <?php esc_html_e( 'Stale Lock', 'pubcrawls-addon' ); ?></span>
+												<?php else : ?>
+													<span class="pubcrawls-status-tag" style="background:#fef3c7;color:#92400e;border:1px solid #fde68a;">⚙️ <?php esc_html_e( 'Processing', 'pubcrawls-addon' ); ?></span>
+												<?php endif; ?>
 											<?php elseif ( 'partial' === $st ) : ?>
 												<span class="pubcrawls-status-tag" style="background:#fef3c7;color:#92400e;border:1px solid #fde68a;"><?php esc_html_e( 'Partial', 'pubcrawls-addon' ); ?></span>
 											<?php elseif ( 'rejected' === $st ) : ?>
@@ -1036,6 +1457,23 @@ if (! is_array($disabled_tax)) {
 											<?php endif; ?>
 											<?php if ( isset( $log['revenue'] ) ) : ?>
 												<br><small style="color:#166534;font-weight:600;"><?php echo esc_html( $log['currency'] ?? 'USD' ); ?> <?php echo esc_html( number_format( (float) $log['revenue'], 2 ) ); ?></small>
+											<?php endif; ?>
+											<?php if ( ! empty( $log['attribution'] ) && is_array( $log['attribution'] ) ) : ?>
+												<br><small style="color:#0284c7;font-weight:600;">
+													<?php
+													printf(
+														/* translators: 1: Attribution status, 2: Client ID, 3: Session ID, 4: FBP, 5: FBC, 6: IP, 7: UA */
+														esc_html__( 'Attribution: %1$s (Client ID: %2$s, Session: %3$s, FBP: %4$s, FBC: %5$s, IP: %6$s, UA: %7$s)', 'pubcrawls-addon' ),
+														esc_html( ucfirst( $log['attribution']['status'] ?? 'N/A' ) ),
+														esc_html( $log['attribution']['client_id'] ?? 'absent' ),
+														esc_html( $log['attribution']['session_id'] ?? 'absent' ),
+														esc_html( $log['attribution']['fbp'] ?? 'absent' ),
+														esc_html( $log['attribution']['fbc'] ?? 'absent' ),
+														esc_html( $log['attribution']['buyer_ip'] ?? 'absent' ),
+														esc_html( $log['attribution']['buyer_ua'] ?? 'absent' )
+													);
+													?>
+												</small>
 											<?php endif; ?>
 										</td>
 										<td>

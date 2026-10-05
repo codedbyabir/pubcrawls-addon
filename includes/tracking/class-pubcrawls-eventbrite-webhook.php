@@ -35,9 +35,10 @@ class Pubcrawls_Eventbrite_Webhook {
 	/**
 	 * How long to wait for the browser's /eventbrite/attribution beacon before
 	 * dispatching, since Eventbrite's order.placed webhook can arrive before it.
+	 * Kept to 2s max to completely avoid WP Engine / PHP-FPM execution timeouts.
 	 */
-	const ATTRIBUTION_MAX_WAIT_SECONDS      = 90;
-	const ATTRIBUTION_POLL_INTERVAL_SECONDS = 5;
+	const ATTRIBUTION_MAX_WAIT_SECONDS      = 5;
+	const ATTRIBUTION_POLL_INTERVAL_SECONDS = 1;
 
 	/**
 	 * Initialize webhook hooks and endpoints.
@@ -405,15 +406,32 @@ class Pubcrawls_Eventbrite_Webhook {
 			);
 		}
 
-		if ( 'pending' === $status ) {
-			return new WP_REST_Response(
+		// Check lock staleness if status is 'pending' or 'processing'
+		if ( 'pending' === $status || 'processing' === $status ) {
+			$lock_time = ! empty( $existing->locked_at ) ? strtotime( (string) $existing->locked_at ) : ( ! empty( $existing->updated_at ) ? strtotime( (string) $existing->updated_at ) : 0 );
+			$lock_age  = $lock_time > 0 ? ( current_time( 'timestamp' ) - $lock_time ) : 9999;
+
+			// If locked less than 10 minutes (600s), respect active worker
+			if ( $lock_age < 600 && $lock_time > 0 ) {
+				return new WP_REST_Response(
+					array(
+						'success'     => true,
+						'in_progress' => true,
+						'order_id'    => $order_id,
+						'message'     => 'Order is currently being processed by another worker.',
+					),
+					200
+				);
+			}
+
+			// Stale lock detected (> 10 minutes): release stale lock and resume processing
+			Pubcrawls_Tracking_DB::release_stale_locks( 600 );
+			self::add_log_entry(
 				array(
-					'success'     => true,
-					'in_progress' => true,
-					'order_id'    => $order_id,
-					'message'     => 'Order is currently being processed by another worker.',
-				),
-				200
+					'order_id' => $order_id,
+					'status'   => 'queued',
+					'message'  => sprintf( 'Stale worker lock (%d seconds old) released; resuming processing.', $lock_age ),
+				)
 			);
 		}
 
@@ -559,7 +577,7 @@ class Pubcrawls_Eventbrite_Webhook {
 			}
 		}
 
-		return '127.0.0.1';
+		return '';
 	}
 
 	/**
@@ -674,7 +692,7 @@ class Pubcrawls_Eventbrite_Webhook {
 	 *                                      never for synchronous test/retry calls that must return promptly.
 	 * @return array Execution results.
 	 */
-	public static function process_order_now( string $order_id, bool $force_retry = false, bool $wait_for_attribution = false ): array {
+	public static function process_order_now( string $order_id, bool $force_retry = false, bool $wait_for_attribution = false, ?string $existing_worker_id = null ): array {
 		$order_id = sanitize_text_field( trim( $order_id ) );
 		if ( empty( $order_id ) ) {
 			return array(
@@ -686,75 +704,130 @@ class Pubcrawls_Eventbrite_Webhook {
 		// Ensure order exists in tracking DB
 		Pubcrawls_Tracking_DB::atomic_lock_order( $order_id );
 
-		// Step 1: Fetch, verify ownership, and normalize full order from Eventbrite REST API
-		$normalized = Pubcrawls_Eventbrite_API::fetch_and_normalize_order( $order_id );
-		if ( is_wp_error( $normalized ) ) {
-			$err  = $normalized->get_error_message();
-			$code = $normalized->get_error_code();
+		// Check if already completed
+		if ( ! $force_retry ) {
+			$existing_order = Pubcrawls_Tracking_DB::get_order( $order_id );
+			if ( $existing_order && 'completed' === $existing_order->status ) {
+				return array(
+					'success'        => true,
+					'overall_status' => 'completed',
+					'order_id'       => $order_id,
+					'message'        => 'Order was already completed.',
+				);
+			}
+		}
 
-			$is_rejection = ( 'eb_order_not_completed' === $code || 'eb_order_org_mismatch' === $code );
-			$final_status = $is_rejection ? 'rejected' : 'failed';
+		// Acquire atomic processing lock so only one worker processes at any given moment
+		if ( ! empty( $existing_worker_id ) ) {
+			$worker_id = $existing_worker_id;
+		} else {
+			$worker_id = 'proc_' . wp_generate_password( 8, false ) . '_' . ( function_exists( 'getmypid' ) ? (string) getmypid() : '0' );
+			$locked    = Pubcrawls_Tracking_DB::acquire_processing_lock( $order_id, $worker_id, 600 );
+			if ( ! $locked ) {
+				return array(
+					'success'  => false,
+					'order_id' => $order_id,
+					'error'    => 'Order is currently being processed by another worker.',
+					'locked'   => true,
+				);
+			}
+		}
 
-			Pubcrawls_Tracking_DB::update_order_data(
-				$order_id,
-				array(
-					'status' => $final_status,
-				)
-			);
+		try {
+			// Step 1: Fetch, verify ownership, and normalize full order from Eventbrite REST API
+			$normalized = Pubcrawls_Eventbrite_API::fetch_and_normalize_order( $order_id );
+			if ( is_wp_error( $normalized ) ) {
+				$err  = $normalized->get_error_message();
+				$code = $normalized->get_error_code();
 
-			if ( $is_rejection ) {
-				Pubcrawls_Tracking_DB::update_platform_status( $order_id, 'ga4', 'skipped', 'Order rejected: ' . $err );
-				Pubcrawls_Tracking_DB::update_platform_status( $order_id, 'meta', 'skipped', 'Order rejected: ' . $err );
-				Pubcrawls_Tracking_DB::update_platform_status( $order_id, 'tiktok', 'skipped', 'Order rejected: ' . $err );
+				$is_rejection = ( 'eb_order_not_completed' === $code || 'eb_order_org_mismatch' === $code );
+				$final_status = $is_rejection ? 'rejected' : 'failed';
+
+				Pubcrawls_Tracking_DB::update_order_data(
+					$order_id,
+					array(
+						'status'     => $final_status,
+						'last_error' => $err,
+					)
+				);
+				Pubcrawls_Tracking_DB::release_order_lock( $order_id, $worker_id, $final_status );
+
+				if ( $is_rejection ) {
+					Pubcrawls_Tracking_DB::update_platform_status( $order_id, 'ga4', 'skipped', 'Order rejected: ' . $err );
+					Pubcrawls_Tracking_DB::update_platform_status( $order_id, 'meta', 'skipped', 'Order rejected: ' . $err );
+					Pubcrawls_Tracking_DB::update_platform_status( $order_id, 'tiktok', 'skipped', 'Order rejected: ' . $err );
+				}
+
+				self::add_log_entry(
+					array(
+						'order_id' => $order_id,
+						'status'   => $final_status,
+						'message'  => 'Eventbrite order verification: ' . $err,
+					)
+				);
+
+				return array(
+					'success'  => false,
+					'order_id' => $order_id,
+					'error'    => $err,
+				);
 			}
 
+			// Step 1b: Give the browser's attribution beacon a chance to land before dispatching,
+			// since the order.placed webhook can arrive before it.
+			if ( $wait_for_attribution ) {
+				self::wait_for_attribution( $order_id );
+			}
+
+			// Step 2: Dispatch to all enabled tracking destinations with selective retry
+			$dispatch_result = Pubcrawls_Tracking_Dispatcher::dispatch( $normalized, $force_retry );
+
+			// Step 3: Record Activity Log (without raw email or phone or private identifiers)
 			self::add_log_entry(
 				array(
-					'order_id' => $order_id,
-					'status'   => $final_status,
-					'message'  => 'Eventbrite order verification: ' . $err,
+					'order_id'    => $order_id,
+					'event_name'  => $normalized['event_name'] ?? 'Pub Crawl',
+					'revenue'     => $normalized['value'] ?? 0.0,
+					'currency'    => $normalized['currency'] ?? 'USD',
+					'status'      => $dispatch_result['overall_status'] ?? 'unknown',
+					'ga4'         => $dispatch_result['platforms']['ga4'] ?? null,
+					'meta'        => $dispatch_result['platforms']['meta'] ?? null,
+					'tiktok'      => $dispatch_result['platforms']['tiktok'] ?? null,
+					'attribution' => $dispatch_result['attribution'] ?? null,
 				)
 			);
 
 			return array(
+				'success'        => $dispatch_result['success'],
+				'overall_status' => $dispatch_result['overall_status'],
+				'order_id'       => $order_id,
+				'revenue'        => $normalized['value'],
+				'currency'       => $normalized['currency'],
+				'event_name'     => $normalized['event_name'],
+				'platforms'      => $dispatch_result['platforms'],
+			);
+		} catch ( \Throwable $e ) {
+			Pubcrawls_Tracking_DB::release_order_lock( $order_id, $worker_id, 'failed' );
+			Pubcrawls_Tracking_DB::update_order_data(
+				$order_id,
+				array(
+					'status'     => 'failed',
+					'last_error' => 'Processing exception: ' . $e->getMessage(),
+				)
+			);
+			self::add_log_entry(
+				array(
+					'order_id' => $order_id,
+					'status'   => 'failed',
+					'message'  => 'Exception during processing: ' . $e->getMessage(),
+				)
+			);
+			return array(
 				'success'  => false,
 				'order_id' => $order_id,
-				'error'    => $err,
+				'error'    => $e->getMessage(),
 			);
 		}
-
-		// Step 1b: Give the browser's attribution beacon a chance to land before dispatching,
-		// since the order.placed webhook can arrive before it.
-		if ( $wait_for_attribution ) {
-			self::wait_for_attribution( $order_id );
-		}
-
-		// Step 2: Dispatch to all enabled tracking destinations with selective retry
-		$dispatch_result = Pubcrawls_Tracking_Dispatcher::dispatch( $normalized, $force_retry );
-
-		// Step 3: Record Activity Log (without raw email or phone)
-		self::add_log_entry(
-			array(
-				'order_id'   => $order_id,
-				'event_name' => $normalized['event_name'] ?? 'Pub Crawl',
-				'revenue'    => $normalized['value'] ?? 0.0,
-				'currency'   => $normalized['currency'] ?? 'USD',
-				'status'     => $dispatch_result['overall_status'] ?? 'unknown',
-				'ga4'        => $dispatch_result['platforms']['ga4'] ?? null,
-				'meta'       => $dispatch_result['platforms']['meta'] ?? null,
-				'tiktok'     => $dispatch_result['platforms']['tiktok'] ?? null,
-			)
-		);
-
-		return array(
-			'success'        => $dispatch_result['success'],
-			'overall_status' => $dispatch_result['overall_status'],
-			'order_id'       => $order_id,
-			'revenue'        => $normalized['value'],
-			'currency'       => $normalized['currency'],
-			'event_name'     => $normalized['event_name'],
-			'platforms'      => $dispatch_result['platforms'],
-		);
 	}
 
 	/**
@@ -798,7 +871,7 @@ class Pubcrawls_Eventbrite_Webhook {
 			wp_send_json_error( array( 'message' => 'Invalid or non-numeric Eventbrite Order ID.' ) );
 		}
 
-		$result = self::process_order_now( $order_id, true );
+		$result = self::process_order_now( $order_id, false );
 		if ( $result['success'] ) {
 			wp_send_json_success( $result );
 		} else {

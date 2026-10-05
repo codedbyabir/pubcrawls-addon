@@ -10,6 +10,26 @@
 		var $tabs = $('#pubcrawls-tab-nav a');
 		var $panes = $('.pubcrawls-tab-pane');
 
+		function updateRefererTabs(tab) {
+			$('input[name="_wp_http_referer"]').each(function () {
+				try {
+					var raw = $(this).val();
+					if (!raw) return;
+					var u = new URL(raw, window.location.origin);
+					u.searchParams.set('tab', tab);
+					$(this).val(u.pathname + u.search);
+				} catch (e) {
+					var val = $(this).val();
+					if (val.indexOf('tab=') > -1) {
+						val = val.replace(/tab=[^&]*/, 'tab=' + tab);
+					} else {
+						val += (val.indexOf('?') > -1 ? '&' : '?') + 'tab=' + tab;
+					}
+					$(this).val(val);
+				}
+			});
+		}
+
 		$tabs.on('click', function (e) {
 			var tab = $(this).data('tab');
 			if (!tab) return;
@@ -23,6 +43,9 @@
 			// Update panes
 			$panes.removeClass('is-active');
 			$('#tab-' + tab).addClass('is-active');
+
+			// Keep hidden _wp_http_referer in sync with current active tab
+			updateRefererTabs(tab);
 
 			// Update URL state without page reload
 			if (window.history && window.history.replaceState) {
@@ -226,6 +249,80 @@
 				error: function (xhr) {
 					alert('AJAX Error: HTTP ' + xhr.status);
 					$btn.prop('disabled', false).text('Retry');
+				}
+			});
+		});
+
+		// ── Process Backlog Action ─────────────────────────────
+		$('#pubcrawls-process-backlog-btn').on('click', function (e) {
+			e.preventDefault();
+			if (typeof pubcrawlsAdminData === 'undefined') return;
+
+			var $btn = $(this);
+			var $resBox = $('#pubcrawls-queue-action-result');
+
+			$btn.prop('disabled', true).text('Processing Backlog...');
+			$resBox.show().html('<div style="padding:12px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:6px;color:#0369a1;">Processing queued orders and dispatching server-side events...</div>');
+
+			$.ajax({
+				url: pubcrawlsAdminData.ajax_url,
+				method: 'POST',
+				data: {
+					action: 'pubcrawls_process_eb_backlog',
+					limit: 50,
+					nonce: pubcrawlsAdminData.nonce
+				},
+				success: function (res) {
+					$btn.prop('disabled', false).html('<span class="dashicons dashicons-controls-play" style="font-size:16px;width:16px;height:16px;"></span> Process Backlog Now');
+					if (res.success && res.data) {
+						var d = res.data;
+						var html = '<div style="background:#f0fdf4;border:1px solid #86efac;border-radius:6px;padding:16px;">';
+						html += '<h4 style="margin:0 0 8px;color:#166534;"><span class="dashicons dashicons-yes-alt" style="color:#16a34a;"></span> Queue Batch Completed (' + d.duration_ms + 'ms)</h4>';
+						html += '<p style="margin:0 0 6px;color:#15803d;font-size:13px;">Found: <strong>' + d.total_found + '</strong> | Processed: <strong>' + d.processed + '</strong> | Completed: <strong>' + d.completed + '</strong> | Partial: <strong>' + d.partial + '</strong> | Failed: <strong>' + d.failed + '</strong></p>';
+						html += '<p style="margin:0 0 6px;color:#15803d;font-size:13px;">Events Dispatched: GA4: <strong>' + d.ga4_sent + '</strong> | Meta: <strong>' + d.meta_sent + '</strong> | TikTok: <strong>' + d.tiktok_sent + '</strong></p>';
+						html += '<button type="button" class="button button-small" onclick="window.location.reload();" style="margin-top:6px;">Refresh Table</button>';
+						html += '</div>';
+						$resBox.html(html);
+					} else {
+						var err = (res.data && res.data.message) ? res.data.message : 'Unknown error during queue processing.';
+						$resBox.html('<div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:6px;padding:12px;color:#991b1b;">Error: ' + err + '</div>');
+					}
+				},
+				error: function (xhr) {
+					$btn.prop('disabled', false).html('<span class="dashicons dashicons-controls-play" style="font-size:16px;width:16px;height:16px;"></span> Process Backlog Now');
+					$resBox.html('<div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:6px;padding:12px;color:#991b1b;">AJAX Error: HTTP ' + xhr.status + '</div>');
+				}
+			});
+		});
+
+		// ── Release Stale Locks Action ─────────────────────────
+		$('#pubcrawls-release-stale-btn').on('click', function (e) {
+			e.preventDefault();
+			if (typeof pubcrawlsAdminData === 'undefined') return;
+
+			var $btn = $(this);
+			$btn.prop('disabled', true).text('Releasing...');
+
+			$.ajax({
+				url: pubcrawlsAdminData.ajax_url,
+				method: 'POST',
+				data: {
+					action: 'pubcrawls_release_stale_locks',
+					nonce: pubcrawlsAdminData.nonce,
+					force: 1
+				},
+				success: function (res) {
+					$btn.prop('disabled', false).html('<span class="dashicons dashicons-unlock" style="font-size:16px;width:16px;height:16px;"></span> Release Stale Locks');
+					if (res.success && res.data) {
+						alert(res.data.message || 'Stale locks released.');
+						window.location.reload();
+					} else {
+						alert('Failed to release stale locks.');
+					}
+				},
+				error: function (xhr) {
+					$btn.prop('disabled', false).html('<span class="dashicons dashicons-unlock" style="font-size:16px;width:16px;height:16px;"></span> Release Stale Locks');
+					alert('AJAX Error: HTTP ' + xhr.status);
 				}
 			});
 		});

@@ -42,12 +42,20 @@
             }
         }
 
-        // GA4 session id from the PubCrawls property cookie (_ga_65M38WNEJH).
+        // GA4 session id: Support dynamic measurement cookie matching (_ga_<MEASUREMENT_ID>)
         // Supports the current GS2 format (GS2.1.s<session_id>$o..$t..) and the older GS1 format.
         var sessionId = '';
-        var ga4Cookie = getCookie( '_ga_65M38WNEJH' );
+        var configuredMid = ( window.pubcrawlsTicketConfig && window.pubcrawlsTicketConfig.ga4MeasurementId )
+            ? window.pubcrawlsTicketConfig.ga4MeasurementId.replace( /^G-/, '' )
+            : '';
+        var targetCookieName = configuredMid ? ( '_ga_' + configuredMid ) : '';
+        var ga4Cookie = targetCookieName ? getCookie( targetCookieName ) : '';
+        if ( ! ga4Cookie ) {
+            var ga4Match = document.cookie.match( /(?:^|;\s*)(_ga_[A-Z0-9]+)=([^;]*)/ );
+            ga4Cookie = ga4Match ? decodeURIComponent( ga4Match[2] ) : getCookie( '_ga_65M38WNEJH' );
+        }
         if ( ga4Cookie ) {
-            var sMatch = ga4Cookie.match( /^GS2\.\d+\.s(\d+)/ ) || ga4Cookie.match( /^GS1\.\d+\.(\d+)/ );
+            var sMatch = ga4Cookie.match( /^GS[12]\.\d+\.(?:s)?(\d+)/ ) || ga4Cookie.match( /(?:^|[$~|])s?(\d{9,12})/ );
             if ( sMatch ) {
                 sessionId = sMatch[1];
             }
@@ -176,10 +184,11 @@
 
         // 1. Ensure baseline squadup object exists
         if (!window.squadup) {
+            var cfg = (typeof pubcrawlsTicketConfig !== 'undefined') ? pubcrawlsTicketConfig : {};
             window.squadup = {
-                title: 'Pubcrawls Events',
+                title: cfg.squadupTitle || 'Pubcrawls Events',
                 root: 'squadup-checkout',
-                userId: [3438001],
+                userId: [cfg.squadupUserId || 3438001],
                 onDomReady: false,
                 shoppingCartEnabled: true,
                 ticketGuardianEnabled: false,
@@ -188,8 +197,8 @@
                 descriptionEnabled: false,
                 brandingPosition: 'none',
                 autoScrollElementId: 'squadup-checkout',
-                confirmationUrl: 'https://pubcrawls.com/purchase-confirmation/',
-                orderQuestions: [{
+                confirmationUrl: cfg.squadupConfirmationUrl || 'https://pubcrawls.com/purchase-confirmation/',
+                orderQuestions: cfg.squadupOrderQuestions || [{
                     question: 'Phone Number for SMS Updates related to your event(s).',
                     type: 'text',
                     required: false

@@ -4,7 +4,7 @@
  * Plugin Name:       Pubcrawls
  * Plugin URI:        https://pubcrawls.com/
  * Description:       Complete standalone solution for PubCrawls — provides Custom Post Types (Cities, Events, Venues, FAQs, Press, City Maps), Taxonomies, Shortcodes, Ticket Integrations (SquadUp & Eventbrite), and 17 native Elementor Widgets with rich content & style controls.
- * Version:           2.0.0
+ * Version:           3.0.0
  * Author:            Nexiby LLC
  * Author URI:        https://nexiby.com/
  * License:           GPL-2.0+
@@ -21,7 +21,7 @@ if (! defined('ABSPATH')) {
 }
 
 // ── Plugin Constants ──────────────────────────────────────────────────────────
-define('PUBCRAWLS_ADDON_VERSION', '2.0.0');
+define('PUBCRAWLS_ADDON_VERSION', '3.0.0');
 define('PUBCRAWLS_ADDON_DIR',     plugin_dir_path(__FILE__));
 define('PUBCRAWLS_ADDON_URL',     plugin_dir_url(__FILE__));
 define('PUBCRAWLS_ADDON_FILE',    __FILE__);
@@ -56,14 +56,18 @@ require_once PUBCRAWLS_ADDON_DIR . 'includes/shortcodes.php';
 require_once PUBCRAWLS_ADDON_DIR . 'includes/elementor-queries.php';
 require_once PUBCRAWLS_ADDON_DIR . 'includes/tickets-helpers.php';
 require_once PUBCRAWLS_ADDON_DIR . 'includes/ai-links-helpers.php';
+require_once PUBCRAWLS_ADDON_DIR . 'includes/class-pubcrawls-event-schema.php';
+Pubcrawls_Event_Schema::init();
 
 // ── Load Server-Side Tracking & Eventbrite Webhook ────────────────────────────
 require_once PUBCRAWLS_ADDON_DIR . 'includes/tracking/class-pubcrawls-tracking-db.php';
 require_once PUBCRAWLS_ADDON_DIR . 'includes/tracking/class-pubcrawls-eventbrite-api.php';
 require_once PUBCRAWLS_ADDON_DIR . 'includes/tracking/class-pubcrawls-tracking-dispatcher.php';
 require_once PUBCRAWLS_ADDON_DIR . 'includes/tracking/class-pubcrawls-eventbrite-webhook.php';
+require_once PUBCRAWLS_ADDON_DIR . 'includes/tracking/class-pubcrawls-eventbrite-queue.php';
 Pubcrawls_Tracking_DB::init();
 Pubcrawls_Eventbrite_Webhook::init();
+Pubcrawls_Eventbrite_Queue::init();
 
 // ── Load Admin Dashboard ──────────────────────────────────────────────────────
 require_once PUBCRAWLS_ADDON_DIR . 'includes/admin/class-pubcrawls-admin.php';

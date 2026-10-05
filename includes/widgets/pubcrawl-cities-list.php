@@ -118,16 +118,23 @@ class Pubcrawls_Cities_List extends \Elementor\Widget_Base
 		$this->end_controls_section();
 
 
+		// ========================================================
+		// Style Section: Popular Cities
+		// ========================================================
 		$this->start_controls_section(
-			'section_style_list',
+			'section_style_popular',
 			[
-				'label' => __('List', 'pubcrawls-addon'),
-				'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
+				'label'     => esc_html__('Popular Cities', 'pubcrawls-addon'),
+				'tab'       => \Elementor\Controls_Manager::TAB_STYLE,
+				'condition' => [
+					'pubcrawl_default_view' => 'popular',
+				],
 			]
 		);
 
+		// Grid & Columns
 		$this->add_responsive_control(
-			'pubcrawl_cities_list_columns',
+			'pubcrawl_popular_columns',
 			[
 				'label'          => esc_html__('Columns', 'pubcrawls-addon'),
 				'type'           => \Elementor\Controls_Manager::SLIDER,
@@ -139,54 +146,512 @@ class Pubcrawls_Cities_List extends \Elementor\Widget_Base
 						'step' => 1,
 					],
 				],
+				'default'        => [
+					'unit' => 'px',
+					'size' => 5,
+				],
+				'tablet_default' => [
+					'unit' => 'px',
+					'size' => 3,
+				],
+				'mobile_default' => [
+					'unit' => 'px',
+					'size' => 2,
+				],
 				'selectors'      => [
-					'{{WRAPPER}} .pubcrawls-city-wrap .pubcrawls-city-list'         => '-webkit-column-count: {{SIZE}}; -moz-column-count: {{SIZE}}; -o-column-count: {{SIZE}}; column-count: {{SIZE}};',
 					'{{WRAPPER}} .pubcrawls-city-wrap .pubcrawls-popular-city-list' => 'grid-template-columns: repeat({{SIZE}}, 1fr);',
 				],
+			]
+		);
+
+		// Gaps
+		$this->add_responsive_control(
+			'pubcrawl_popular_gap',
+			[
+				'label'      => esc_html__('Gap', 'pubcrawls-addon'),
+				'type'       => \Elementor\Controls_Manager::SLIDER,
+				'size_units' => ['px', 'em', 'rem'],
+				'range'      => [
+					'px'  => ['min' => 0, 'max' => 100],
+					'rem' => ['min' => 0, 'max' => 10, 'step' => 0.1],
+				],
+				'selectors'  => [
+					'{{WRAPPER}} .pubcrawls-city-wrap .pubcrawls-popular-city-list' => 'gap: {{SIZE}}{{UNIT}};',
+				],
+			]
+		);
+
+		$this->add_responsive_control(
+			'pubcrawl_popular_row_gap',
+			[
+				'label'      => esc_html__('Row Gap', 'pubcrawls-addon'),
+				'type'       => \Elementor\Controls_Manager::SLIDER,
+				'size_units' => ['px', 'em', 'rem'],
+				'range'      => [
+					'px'  => ['min' => 0, 'max' => 100],
+					'rem' => ['min' => 0, 'max' => 10, 'step' => 0.1],
+				],
+				'selectors'  => [
+					'{{WRAPPER}} .pubcrawls-city-wrap .pubcrawls-popular-city-list' => 'row-gap: {{SIZE}}{{UNIT}};',
+				],
+			]
+		);
+
+		$this->add_responsive_control(
+			'pubcrawl_popular_column_gap',
+			[
+				'label'      => esc_html__('Column Gap', 'pubcrawls-addon'),
+				'type'       => \Elementor\Controls_Manager::SLIDER,
+				'size_units' => ['px', 'em', 'rem'],
+				'range'      => [
+					'px'  => ['min' => 0, 'max' => 100],
+					'rem' => ['min' => 0, 'max' => 10, 'step' => 0.1],
+				],
+				'selectors'  => [
+					'{{WRAPPER}} .pubcrawls-city-wrap .pubcrawls-popular-city-list' => 'column-gap: {{SIZE}}{{UNIT}};',
+				],
+			]
+		);
+
+		// Items Heading
+		$this->add_control(
+			'pubcrawl_popular_items_heading',
+			[
+				'label'     => esc_html__('Item', 'pubcrawls-addon'),
+				'type'      => \Elementor\Controls_Manager::HEADING,
+				'separator' => 'before',
 			]
 		);
 
 		$this->add_group_control(
 			\Elementor\Group_Control_Typography::get_type(),
 			[
-				'name'     => 'pubcrawl_list_typography',
-				'selector' => '{{WRAPPER}} .pubcrawls-city-list a, {{WRAPPER}} .pubcrawls-popular-city-list a',
+				'name'     => 'pubcrawl_popular_typography',
+				'selector' => '{{WRAPPER}} .pubcrawls-city-wrap .pubcrawls-popular-city-list li a',
 			]
 		);
 
-		$this->add_control(
-			'pubcrawl_list_color',
+		$this->add_responsive_control(
+			'pubcrawl_popular_padding',
 			[
-				'label'     => __('Color', 'pubcrawls-addon'),
-				'type'      => \Elementor\Controls_Manager::COLOR,
-				'selectors' => [
-					'{{WRAPPER}} .pubcrawls-city-list a, {{WRAPPER}} .pubcrawls-popular-city-list a' => 'color: {{VALUE}};',
-				],
-			]
-		);
-
-		$this->add_control(
-			'pubcrawl_list_hover_color',
-			[
-				'label'     => __('Hover Color', 'pubcrawls-addon'),
-				'type'      => \Elementor\Controls_Manager::COLOR,
-				'selectors' => [
-					'{{WRAPPER}} .pubcrawls-city-list a:hover, {{WRAPPER}} .pubcrawls-popular-city-list a:hover' => 'color: {{VALUE}};',
+				'label'      => esc_html__('Padding', 'pubcrawls-addon'),
+				'type'       => \Elementor\Controls_Manager::DIMENSIONS,
+				'size_units' => ['px', 'em', 'rem', '%'],
+				'selectors'  => [
+					'{{WRAPPER}} .pubcrawls-city-wrap .pubcrawls-popular-city-list li a' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
 				],
 			]
 		);
 
 		$this->add_responsive_control(
-			'pubcrawl_list_item_spacing',
+			'pubcrawl_popular_border_radius',
 			[
-				'label'      => __('Item Spacing', 'pubcrawls-addon'),
+				'label'      => esc_html__('Border Radius', 'pubcrawls-addon'),
+				'type'       => \Elementor\Controls_Manager::DIMENSIONS,
+				'size_units' => ['px', '%', 'em', 'rem'],
+				'selectors'  => [
+					'{{WRAPPER}} .pubcrawls-city-wrap .pubcrawls-popular-city-list li a' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				],
+			]
+		);
+
+		// Popular Item Tabs (Normal / Hover)
+		$this->start_controls_tabs('tabs_popular_item_style');
+
+		// Normal Tab
+		$this->start_controls_tab(
+			'tab_popular_item_normal',
+			[
+				'label' => esc_html__('Normal', 'pubcrawls-addon'),
+			]
+		);
+
+		$this->add_control(
+			'pubcrawl_popular_color',
+			[
+				'label'     => esc_html__('Color', 'pubcrawls-addon'),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'selectors' => [
+					'{{WRAPPER}} .pubcrawls-city-wrap .pubcrawls-popular-city-list li a' => 'color: {{VALUE}};',
+				],
+			]
+		);
+
+		$this->add_control(
+			'pubcrawl_popular_bg_color',
+			[
+				'label'     => esc_html__('Background Color', 'pubcrawls-addon'),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'selectors' => [
+					'{{WRAPPER}} .pubcrawls-city-wrap .pubcrawls-popular-city-list li a' => 'background-color: {{VALUE}};',
+				],
+			]
+		);
+
+		$this->add_group_control(
+			\Elementor\Group_Control_Border::get_type(),
+			[
+				'name'     => 'pubcrawl_popular_border',
+				'selector' => '{{WRAPPER}} .pubcrawls-city-wrap .pubcrawls-popular-city-list li a',
+			]
+		);
+
+		$this->add_group_control(
+			\Elementor\Group_Control_Box_Shadow::get_type(),
+			[
+				'name'     => 'pubcrawl_popular_box_shadow',
+				'selector' => '{{WRAPPER}} .pubcrawls-city-wrap .pubcrawls-popular-city-list li a',
+			]
+		);
+
+		$this->end_controls_tab();
+
+		// Hover Tab
+		$this->start_controls_tab(
+			'tab_popular_item_hover',
+			[
+				'label' => esc_html__('Hover', 'pubcrawls-addon'),
+			]
+		);
+
+		$this->add_control(
+			'pubcrawl_popular_hover_color',
+			[
+				'label'     => esc_html__('Color', 'pubcrawls-addon'),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'selectors' => [
+					'{{WRAPPER}} .pubcrawls-city-wrap .pubcrawls-popular-city-list li a:hover' => 'color: {{VALUE}};',
+				],
+			]
+		);
+
+		$this->add_control(
+			'pubcrawl_popular_hover_bg_color',
+			[
+				'label'     => esc_html__('Background Color', 'pubcrawls-addon'),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'selectors' => [
+					'{{WRAPPER}} .pubcrawls-city-wrap .pubcrawls-popular-city-list li a:hover' => 'background-color: {{VALUE}};',
+				],
+			]
+		);
+
+		$this->add_control(
+			'pubcrawl_popular_hover_border_color',
+			[
+				'label'     => esc_html__('Border Color', 'pubcrawls-addon'),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'selectors' => [
+					'{{WRAPPER}} .pubcrawls-city-wrap .pubcrawls-popular-city-list li a:hover' => 'border-color: {{VALUE}};',
+				],
+			]
+		);
+
+		$this->add_group_control(
+			\Elementor\Group_Control_Box_Shadow::get_type(),
+			[
+				'name'     => 'pubcrawl_popular_hover_box_shadow',
+				'selector' => '{{WRAPPER}} .pubcrawls-city-wrap .pubcrawls-popular-city-list li a:hover',
+			]
+		);
+
+		$this->end_controls_tab();
+
+		$this->end_controls_tabs();
+
+		$this->add_control(
+			'pubcrawl_popular_transition',
+			[
+				'label'      => esc_html__('Transition Duration (s)', 'pubcrawls-addon'),
+				'type'       => \Elementor\Controls_Manager::SLIDER,
+				'size_units' => ['s'],
+				'range'      => [
+					's' => [
+						'min'  => 0.1,
+						'max'  => 2,
+						'step' => 0.05,
+					],
+				],
+				'selectors'  => [
+					'{{WRAPPER}} .pubcrawls-city-wrap .pubcrawls-popular-city-list li a' => 'transition: all {{SIZE}}s ease-in-out;',
+				],
+			]
+		);
+
+		$this->end_controls_section();
+
+
+		// ========================================================
+		// Style Section: All Cities
+		// ========================================================
+		$this->start_controls_section(
+			'section_style_all',
+			[
+				'label'     => esc_html__('All Cities', 'pubcrawls-addon'),
+				'tab'       => \Elementor\Controls_Manager::TAB_STYLE,
+				'condition' => [
+					'pubcrawl_default_view' => 'all',
+				],
+			]
+		);
+
+		// Container Controls (pubcrawls-city-list)
+		$this->add_control(
+			'pubcrawl_all_container_heading',
+			[
+				'label' => esc_html__('Container', 'pubcrawls-addon'),
+				'type'  => \Elementor\Controls_Manager::HEADING,
+			]
+		);
+
+		$this->add_responsive_control(
+			'pubcrawl_all_columns',
+			[
+				'label'          => esc_html__('Columns', 'pubcrawls-addon'),
+				'type'           => \Elementor\Controls_Manager::SLIDER,
+				'size_units'     => ['px'],
+				'range'          => [
+					'px' => [
+						'min'  => 1,
+						'max'  => 10,
+						'step' => 1,
+					],
+				],
+				'default'        => [
+					'unit' => 'px',
+					'size' => 5,
+				],
+				'tablet_default' => [
+					'unit' => 'px',
+					'size' => 3,
+				],
+				'mobile_default' => [
+					'unit' => 'px',
+					'size' => 2,
+				],
+				'selectors'      => [
+					'{{WRAPPER}} .pubcrawls-city-wrap .pubcrawls-city-list' => '-webkit-column-count: {{SIZE}}; -moz-column-count: {{SIZE}}; -o-column-count: {{SIZE}}; column-count: {{SIZE}};',
+				],
+			]
+		);
+
+		$this->add_responsive_control(
+			'pubcrawl_all_column_gap',
+			[
+				'label'      => esc_html__('Column Gap', 'pubcrawls-addon'),
 				'type'       => \Elementor\Controls_Manager::SLIDER,
 				'size_units' => ['px', 'em', 'rem'],
 				'range'      => [
-					'px' => ['min' => 0, 'max' => 100],
+					'px'  => ['min' => 0, 'max' => 100],
+					'rem' => ['min' => 0, 'max' => 10, 'step' => 0.1],
 				],
 				'selectors'  => [
-					'{{WRAPPER}} .pubcrawls-city-list li, {{WRAPPER}} .pubcrawls-popular-city-list li' => 'margin-bottom: {{SIZE}}{{UNIT}};',
+					'{{WRAPPER}} .pubcrawls-city-wrap .pubcrawls-city-list' => '-webkit-column-gap: {{SIZE}}{{UNIT}}; -moz-column-gap: {{SIZE}}{{UNIT}}; column-gap: {{SIZE}}{{UNIT}};',
+				],
+			]
+		);
+
+		$this->add_control(
+			'pubcrawl_all_bg_color',
+			[
+				'label'     => esc_html__('Background Color', 'pubcrawls-addon'),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'selectors' => [
+					'{{WRAPPER}} .pubcrawls-city-wrap .pubcrawls-city-list' => 'background-color: {{VALUE}};',
+				],
+			]
+		);
+
+		$this->add_responsive_control(
+			'pubcrawl_all_padding',
+			[
+				'label'      => esc_html__('Padding', 'pubcrawls-addon'),
+				'type'       => \Elementor\Controls_Manager::DIMENSIONS,
+				'size_units' => ['px', 'em', 'rem', '%'],
+				'selectors'  => [
+					'{{WRAPPER}} .pubcrawls-city-wrap .pubcrawls-city-list' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				],
+			]
+		);
+
+		$this->add_group_control(
+			\Elementor\Group_Control_Border::get_type(),
+			[
+				'name'     => 'pubcrawl_all_border',
+				'selector' => '{{WRAPPER}} .pubcrawls-city-wrap .pubcrawls-city-list',
+			]
+		);
+
+		$this->add_responsive_control(
+			'pubcrawl_all_border_radius',
+			[
+				'label'      => esc_html__('Border Radius', 'pubcrawls-addon'),
+				'type'       => \Elementor\Controls_Manager::DIMENSIONS,
+				'size_units' => ['px', '%', 'em', 'rem'],
+				'selectors'  => [
+					'{{WRAPPER}} .pubcrawls-city-wrap .pubcrawls-city-list' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				],
+			]
+		);
+
+		$this->add_group_control(
+			\Elementor\Group_Control_Box_Shadow::get_type(),
+			[
+				'name'     => 'pubcrawl_all_box_shadow',
+				'selector' => '{{WRAPPER}} .pubcrawls-city-wrap .pubcrawls-city-list',
+			]
+		);
+
+		// List Items Controls (pubcrawls-city-list li & a)
+		$this->add_control(
+			'pubcrawl_all_items_heading',
+			[
+				'label'     => esc_html__('List Items', 'pubcrawls-addon'),
+				'type'      => \Elementor\Controls_Manager::HEADING,
+				'separator' => 'before',
+			]
+		);
+
+		$this->add_group_control(
+			\Elementor\Group_Control_Typography::get_type(),
+			[
+				'name'     => 'pubcrawl_all_item_typography',
+				'selector' => '{{WRAPPER}} .pubcrawls-city-wrap .pubcrawls-city-list li, {{WRAPPER}} .pubcrawls-city-wrap .pubcrawls-city-list li a',
+			]
+		);
+
+		$this->add_responsive_control(
+			'pubcrawl_all_item_padding',
+			[
+				'label'      => esc_html__('Padding (li)', 'pubcrawls-addon'),
+				'type'       => \Elementor\Controls_Manager::DIMENSIONS,
+				'size_units' => ['px', 'em', 'rem'],
+				'selectors'  => [
+					'{{WRAPPER}} .pubcrawls-city-wrap .pubcrawls-city-list li' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				],
+			]
+		);
+
+		$this->add_responsive_control(
+			'pubcrawl_all_item_spacing',
+			[
+				'label'      => esc_html__('Item Spacing', 'pubcrawls-addon'),
+				'type'       => \Elementor\Controls_Manager::SLIDER,
+				'size_units' => ['px', 'em', 'rem'],
+				'range'      => [
+					'px'  => ['min' => 0, 'max' => 100],
+					'rem' => ['min' => 0, 'max' => 10, 'step' => 0.1],
+				],
+				'selectors'  => [
+					'{{WRAPPER}} .pubcrawls-city-wrap .pubcrawls-city-list li' => 'margin-bottom: {{SIZE}}{{UNIT}};',
+				],
+			]
+		);
+
+		$this->add_control(
+			'pubcrawl_all_list_style_type',
+			[
+				'label'     => esc_html__('List Style Type', 'pubcrawls-addon'),
+				'type'      => \Elementor\Controls_Manager::SELECT,
+				'default'   => '',
+				'options'   => [
+					''        => esc_html__('Default', 'pubcrawls-addon'),
+					'disc'    => esc_html__('Disc', 'pubcrawls-addon'),
+					'circle'  => esc_html__('Circle', 'pubcrawls-addon'),
+					'square'  => esc_html__('Square', 'pubcrawls-addon'),
+					'decimal' => esc_html__('Decimal', 'pubcrawls-addon'),
+					'none'    => esc_html__('None', 'pubcrawls-addon'),
+				],
+				'selectors' => [
+					'{{WRAPPER}} .pubcrawls-city-wrap .pubcrawls-city-list' => 'list-style-type: {{VALUE}};',
+				],
+			]
+		);
+
+		// Item Colors Tabs (Normal / Hover)
+		$this->start_controls_tabs('tabs_all_item_style');
+
+		// Normal Tab
+		$this->start_controls_tab(
+			'tab_all_item_normal',
+			[
+				'label' => esc_html__('Normal', 'pubcrawls-addon'),
+			]
+		);
+
+		$this->add_control(
+			'pubcrawl_all_item_color',
+			[
+				'label'     => esc_html__('Color', 'pubcrawls-addon'),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'selectors' => [
+					'{{WRAPPER}} .pubcrawls-city-wrap .pubcrawls-city-list li a' => 'color: {{VALUE}};',
+				],
+			]
+		);
+
+		$this->add_control(
+			'pubcrawl_all_marker_color',
+			[
+				'label'     => esc_html__('Marker Color', 'pubcrawls-addon'),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'selectors' => [
+					'{{WRAPPER}} .pubcrawls-city-wrap .pubcrawls-city-list li::marker' => 'color: {{VALUE}};',
+				],
+			]
+		);
+
+		$this->end_controls_tab();
+
+		// Hover Tab
+		$this->start_controls_tab(
+			'tab_all_item_hover',
+			[
+				'label' => esc_html__('Hover', 'pubcrawls-addon'),
+			]
+		);
+
+		$this->add_control(
+			'pubcrawl_all_item_hover_color',
+			[
+				'label'     => esc_html__('Hover Color', 'pubcrawls-addon'),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'selectors' => [
+					'{{WRAPPER}} .pubcrawls-city-wrap .pubcrawls-city-list li a:hover, {{WRAPPER}} .pubcrawls-city-wrap .pubcrawls-city-list li:hover > a' => 'color: {{VALUE}};',
+				],
+			]
+		);
+
+		$this->add_control(
+			'pubcrawl_all_marker_hover_color',
+			[
+				'label'     => esc_html__('Hover Marker Color', 'pubcrawls-addon'),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'selectors' => [
+					'{{WRAPPER}} .pubcrawls-city-wrap .pubcrawls-city-list li a:hover::marker, {{WRAPPER}} .pubcrawls-city-wrap .pubcrawls-city-list li:hover::marker' => 'color: {{VALUE}};',
+				],
+			]
+		);
+
+		$this->end_controls_tab();
+
+		$this->end_controls_tabs();
+
+		$this->add_control(
+			'pubcrawl_all_transition',
+			[
+				'label'      => esc_html__('Transition Duration (s)', 'pubcrawls-addon'),
+				'type'       => \Elementor\Controls_Manager::SLIDER,
+				'size_units' => ['s'],
+				'range'      => [
+					's' => [
+						'min'  => 0.1,
+						'max'  => 2,
+						'step' => 0.05,
+					],
+				],
+				'selectors'  => [
+					'{{WRAPPER}} .pubcrawls-city-wrap .pubcrawls-city-list li a, {{WRAPPER}} .pubcrawls-city-wrap .pubcrawls-city-list li::marker' => 'transition: color {{SIZE}}s ease-in-out;',
 				],
 			]
 		);

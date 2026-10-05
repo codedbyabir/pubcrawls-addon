@@ -73,7 +73,7 @@ class Pubcrawls_City_Venues extends \Elementor\Widget_Base
 		$this->start_controls_section(
 			'section_content',
 			[
-				'label' => __('Content', 'pubcrawls-addon'),
+				'label' => esc_html__('Content', 'pubcrawls-addon'),
 			]
 		);
 
@@ -92,7 +92,7 @@ class Pubcrawls_City_Venues extends \Elementor\Widget_Base
 		$this->start_controls_section(
 			'section_style_grid',
 			[
-				'label' => __('Grid', 'pubcrawls-addon'),
+				'label' => esc_html__('Grid', 'pubcrawls-addon'),
 				'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
 			]
 		);
@@ -100,7 +100,7 @@ class Pubcrawls_City_Venues extends \Elementor\Widget_Base
 		$this->add_responsive_control(
 			'pubcrawl_grid_columns',
 			[
-				'label'   => __('Columns', 'pubcrawls-addon'),
+				'label'   => esc_html__('Columns', 'pubcrawls-addon'),
 				'type'    => \Elementor\Controls_Manager::NUMBER,
 				'min'     => 1,
 				'max'     => 4,
@@ -114,7 +114,7 @@ class Pubcrawls_City_Venues extends \Elementor\Widget_Base
 		$this->add_responsive_control(
 			'pubcrawl_grid_gap',
 			[
-				'label'      => __('Gap', 'pubcrawls-addon'),
+				'label'      => esc_html__('Gap', 'pubcrawls-addon'),
 				'type'       => \Elementor\Controls_Manager::SLIDER,
 				'size_units' => ['px', 'em', 'rem'],
 				'range'      => [
@@ -131,7 +131,7 @@ class Pubcrawls_City_Venues extends \Elementor\Widget_Base
 		$this->start_controls_section(
 			'section_style_card',
 			[
-				'label' => __('Card', 'pubcrawls-addon'),
+				'label' => esc_html__('Card', 'pubcrawls-addon'),
 				'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
 			]
 		);
@@ -139,7 +139,7 @@ class Pubcrawls_City_Venues extends \Elementor\Widget_Base
 		$this->add_control(
 			'pubcrawl_card_bg_color',
 			[
-				'label'     => __('Background Color', 'pubcrawls-addon'),
+				'label'     => esc_html__('Background Color', 'pubcrawls-addon'),
 				'type'      => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .pubcrawl-city-venues .pubcrawl-venue-item' => 'background-color: {{VALUE}};',
@@ -155,10 +155,21 @@ class Pubcrawls_City_Venues extends \Elementor\Widget_Base
 			]
 		);
 
+		$this->add_control(
+			'pubcrawl_card_hover_border_color',
+			[
+				'label'     => esc_html__('Hover Border Color', 'pubcrawls-addon'),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'selectors' => [
+					'{{WRAPPER}} .pubcrawl-city-venues .pubcrawl-venue-item:hover' => 'border-color: {{VALUE}};',
+				],
+			]
+		);
+
 		$this->add_responsive_control(
 			'pubcrawl_card_border_radius',
 			[
-				'label'      => __('Border Radius', 'pubcrawls-addon'),
+				'label'      => esc_html__('Border Radius', 'pubcrawls-addon'),
 				'type'       => \Elementor\Controls_Manager::DIMENSIONS,
 				'size_units' => ['px', '%'],
 				'selectors'  => [
@@ -172,7 +183,7 @@ class Pubcrawls_City_Venues extends \Elementor\Widget_Base
 		$this->start_controls_section(
 			'section_style_image',
 			[
-				'label' => __('Image', 'pubcrawls-addon'),
+				'label' => esc_html__('Image', 'pubcrawls-addon'),
 				'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
 			]
 		);
@@ -180,7 +191,7 @@ class Pubcrawls_City_Venues extends \Elementor\Widget_Base
 		$this->add_responsive_control(
 			'pubcrawl_image_height',
 			[
-				'label'      => __('Height', 'pubcrawls-addon'),
+				'label'      => esc_html__('Height', 'pubcrawls-addon'),
 				'type'       => \Elementor\Controls_Manager::SLIDER,
 				'size_units' => ['px', 'vh'],
 				'range'      => [
@@ -201,7 +212,7 @@ class Pubcrawls_City_Venues extends \Elementor\Widget_Base
 		$this->start_controls_section(
 			'section_style_title',
 			[
-				'label' => __('Title', 'pubcrawls-addon'),
+				'label' => esc_html__('Title', 'pubcrawls-addon'),
 				'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
 			]
 		);
@@ -217,7 +228,7 @@ class Pubcrawls_City_Venues extends \Elementor\Widget_Base
 		$this->add_control(
 			'pubcrawl_title_color',
 			[
-				'label'     => __('Color', 'pubcrawls-addon'),
+				'label'     => esc_html__('Color', 'pubcrawls-addon'),
 				'type'      => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .pubcrawl-city-venues .pubcrawl-venue-title a' => 'color: {{VALUE}};',
@@ -228,7 +239,7 @@ class Pubcrawls_City_Venues extends \Elementor\Widget_Base
 		$this->add_control(
 			'pubcrawl_title_hover_color',
 			[
-				'label'     => __('Hover Color', 'pubcrawls-addon'),
+				'label'     => esc_html__('Hover Color', 'pubcrawls-addon'),
 				'type'      => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .pubcrawl-city-venues .pubcrawl-venue-title a:hover' => 'color: {{VALUE}};',
@@ -241,7 +252,7 @@ class Pubcrawls_City_Venues extends \Elementor\Widget_Base
 		$this->start_controls_section(
 			'section_style_location',
 			[
-				'label' => __('Location', 'pubcrawls-addon'),
+				'label' => esc_html__('Location', 'pubcrawls-addon'),
 				'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
 			]
 		);
@@ -257,10 +268,22 @@ class Pubcrawls_City_Venues extends \Elementor\Widget_Base
 		$this->add_control(
 			'pubcrawl_location_color',
 			[
-				'label'     => __('Color', 'pubcrawls-addon'),
+				'label'     => esc_html__('Color', 'pubcrawls-addon'),
 				'type'      => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .pubcrawl-city-venues .pubcrawl-venue-location' => 'color: {{VALUE}};',
+				],
+			]
+		);
+
+		$this->add_control(
+			'pubcrawl_location_icon_color',
+			[
+				'label'     => esc_html__('Icon Color', 'pubcrawls-addon'),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'selectors' => [
+					'{{WRAPPER}} .pubcrawl-city-venues .pubcrawl-venue-location svg'      => 'fill: {{VALUE}}; color: {{VALUE}};',
+					'{{WRAPPER}} .pubcrawl-city-venues .pubcrawl-venue-location svg path' => 'fill: {{VALUE}};',
 				],
 			]
 		);
@@ -270,7 +293,7 @@ class Pubcrawls_City_Venues extends \Elementor\Widget_Base
 		$this->start_controls_section(
 			'section_style_directions_btn',
 			[
-				'label' => __('Directions Button', 'pubcrawls-addon'),
+				'label' => esc_html__('Directions Button', 'pubcrawls-addon'),
 				'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
 			]
 		);
@@ -288,17 +311,18 @@ class Pubcrawls_City_Venues extends \Elementor\Widget_Base
 		$this->start_controls_tab(
 			'tab_directions_btn_normal',
 			[
-				'label' => __('Normal', 'pubcrawls-addon'),
+				'label' => esc_html__('Normal', 'pubcrawls-addon'),
 			]
 		);
 
 		$this->add_control(
 			'pubcrawl_directions_btn_text_color',
 			[
-				'label'     => __('Text Color', 'pubcrawls-addon'),
+				'label'     => esc_html__('Text Color', 'pubcrawls-addon'),
 				'type'      => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
-					'{{WRAPPER}} .pubcrawl-city-venues .pubcrawl-venue-destination' => 'color: {{VALUE}};',
+					'{{WRAPPER}} .pubcrawl-city-venues .pubcrawl-venue-destination, {{WRAPPER}} .pubcrawl-city-venues .pubcrawl-venue-item .pubcrawl-venue-destination' => 'color: {{VALUE}};',
+					'{{WRAPPER}} .pubcrawl-city-venues .pubcrawl-venue-destination svg' => 'fill: {{VALUE}}; color: {{VALUE}};',
 				],
 			]
 		);
@@ -306,7 +330,7 @@ class Pubcrawls_City_Venues extends \Elementor\Widget_Base
 		$this->add_control(
 			'pubcrawl_directions_btn_bg_color',
 			[
-				'label'     => __('Background Color', 'pubcrawls-addon'),
+				'label'     => esc_html__('Background Color', 'pubcrawls-addon'),
 				'type'      => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .pubcrawl-city-venues .pubcrawl-venue-destination' => 'background-color: {{VALUE}};',
@@ -319,17 +343,18 @@ class Pubcrawls_City_Venues extends \Elementor\Widget_Base
 		$this->start_controls_tab(
 			'tab_directions_btn_hover',
 			[
-				'label' => __('Hover', 'pubcrawls-addon'),
+				'label' => esc_html__('Hover', 'pubcrawls-addon'),
 			]
 		);
 
 		$this->add_control(
 			'pubcrawl_directions_btn_hover_text_color',
 			[
-				'label'     => __('Text Color', 'pubcrawls-addon'),
+				'label'     => esc_html__('Text Color', 'pubcrawls-addon'),
 				'type'      => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
-					'{{WRAPPER}} .pubcrawl-city-venues .pubcrawl-venue-destination:hover' => 'color: {{VALUE}};',
+					'{{WRAPPER}} .pubcrawl-city-venues .pubcrawl-venue-destination:hover, {{WRAPPER}} .pubcrawl-city-venues .pubcrawl-venue-item .pubcrawl-venue-destination:hover, {{WRAPPER}} .pubcrawl-city-venues .pubcrawl-venue-destination:hover span' => 'color: {{VALUE}} !important;',
+					'{{WRAPPER}} .pubcrawl-city-venues .pubcrawl-venue-destination:hover svg' => 'fill: {{VALUE}} !important; color: {{VALUE}} !important;',
 				],
 			]
 		);
@@ -337,7 +362,7 @@ class Pubcrawls_City_Venues extends \Elementor\Widget_Base
 		$this->add_control(
 			'pubcrawl_directions_btn_hover_bg_color',
 			[
-				'label'     => __('Background Color', 'pubcrawls-addon'),
+				'label'     => esc_html__('Background Color', 'pubcrawls-addon'),
 				'type'      => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .pubcrawl-city-venues .pubcrawl-venue-destination:hover' => 'background-color: {{VALUE}};',
@@ -348,7 +373,7 @@ class Pubcrawls_City_Venues extends \Elementor\Widget_Base
 		$this->add_control(
 			'pubcrawl_directions_btn_hover_border_color',
 			[
-				'label'     => __('Border Color', 'pubcrawls-addon'),
+				'label'     => esc_html__('Border Color', 'pubcrawls-addon'),
 				'type'      => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .pubcrawl-city-venues .pubcrawl-venue-destination:hover' => 'border-color: {{VALUE}};',
@@ -372,11 +397,23 @@ class Pubcrawls_City_Venues extends \Elementor\Widget_Base
 		$this->add_responsive_control(
 			'pubcrawl_directions_btn_border_radius',
 			[
-				'label'      => __('Border Radius', 'pubcrawls-addon'),
+				'label'      => esc_html__('Border Radius', 'pubcrawls-addon'),
 				'type'       => \Elementor\Controls_Manager::DIMENSIONS,
 				'size_units' => ['px', '%'],
 				'selectors'  => [
 					'{{WRAPPER}} .pubcrawl-city-venues .pubcrawl-venue-destination' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				],
+			]
+		);
+
+		$this->add_responsive_control(
+			'pubcrawl_directions_btn_padding',
+			[
+				'label'      => esc_html__('Padding', 'pubcrawls-addon'),
+				'type'       => \Elementor\Controls_Manager::DIMENSIONS,
+				'size_units' => ['px', 'em', '%', 'rem'],
+				'selectors'  => [
+					'{{WRAPPER}} .pubcrawl-city-venues .pubcrawl-venue-destination, {{WRAPPER}} .pubcrawl-city-venues .pubcrawl-venue-item .pubcrawl-venue-destination' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
 				],
 			]
 		);

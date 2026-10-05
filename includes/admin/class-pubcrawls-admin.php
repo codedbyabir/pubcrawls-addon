@@ -174,6 +174,9 @@ class Pubcrawls_Admin {
 	public static function get_default_settings(): array {
 		return array(
 			'default_ticket_provider'     => 'squadup',
+			'squadup_user_id'             => '3438001',
+			'squadup_modal_image'         => 'https://pubcrawls.com/wp-content/uploads/2026/03/Logo.webp',
+			'squadup_modal_title'         => 'Pubcrawls Events',
 			'squadup_confirmation_url'    => 'https://pubcrawls.com/purchase-confirmation/',
 			'squadup_sms_question'        => 'Phone Number for SMS Updates related to your event(s).',
 			'squadup_enable_sms'          => '1',
@@ -201,6 +204,18 @@ class Pubcrawls_Admin {
 			'tiktok_pixel_id'             => '',
 			'tiktok_access_token'         => '',
 			'tiktok_test_code'            => '',
+			// Schema.org Structured Data settings
+			'enable_event_schema'         => '1',
+			'schema_organizer_name'       => 'PubCrawls',
+			'schema_organizer_url'        => 'https://pubcrawls.com/',
+			'schema_organizer_logo'       => 'https://pubcrawls.com/wp-content/uploads/2026/03/Logo.webp',
+			'schema_currency'             => 'USD',
+			'schema_default_price'        => '',
+			'schema_country_code'         => 'US',
+			'schema_event_status'         => 'https://schema.org/EventScheduled',
+			'schema_attendance_mode'      => 'https://schema.org/OfflineEventAttendanceMode',
+			'schema_date_suffix_format'   => 'M j, Y',
+			'enable_faq_schema_global'    => '1',
 		);
 	}
 
@@ -317,6 +332,22 @@ class Pubcrawls_Admin {
 			$clean['default_ticket_provider'] = ( 'eventbrite' === $input['default_ticket_provider'] ) ? 'eventbrite' : 'squadup';
 		}
 
+		if ( isset( $input['squadup_user_id'] ) ) {
+			$clean['squadup_user_id'] = sanitize_text_field( trim( (string) $input['squadup_user_id'] ) );
+		}
+
+		if ( isset( $input['squadup_modal_image'] ) ) {
+			$clean['squadup_modal_image'] = ! empty( $input['squadup_modal_image'] )
+				? esc_url_raw( trim( (string) $input['squadup_modal_image'] ) )
+				: $defaults['squadup_modal_image'];
+		}
+
+		if ( isset( $input['squadup_modal_title'] ) ) {
+			$clean['squadup_modal_title'] = ! empty( $input['squadup_modal_title'] )
+				? sanitize_text_field( $input['squadup_modal_title'] )
+				: $defaults['squadup_modal_title'];
+		}
+
 		if ( isset( $input['squadup_confirmation_url'] ) ) {
 			$clean['squadup_confirmation_url'] = ! empty( $input['squadup_confirmation_url'] )
 				? esc_url_raw( $input['squadup_confirmation_url'] )
@@ -415,6 +446,55 @@ class Pubcrawls_Admin {
 			}
 			if ( isset( $input['post_url_column_post_types'] ) && is_array( $input['post_url_column_post_types'] ) ) {
 				$clean['post_url_column_post_types'] = array_values( array_map( 'sanitize_key', $input['post_url_column_post_types'] ) );
+			}
+		}
+
+		// Schema & SEO settings
+		if ( isset( $input['schema_settings_submitted'] ) ) {
+			$clean['enable_event_schema']       = ! empty( $input['enable_event_schema'] ) ? '1' : '0';
+			$clean['schema_organizer_name']     = isset( $input['schema_organizer_name'] ) ? sanitize_text_field( $input['schema_organizer_name'] ) : '';
+			$clean['schema_organizer_url']      = isset( $input['schema_organizer_url'] ) ? esc_url_raw( $input['schema_organizer_url'] ) : '';
+			$clean['schema_organizer_logo']     = isset( $input['schema_organizer_logo'] ) ? esc_url_raw( $input['schema_organizer_logo'] ) : '';
+			$clean['schema_currency']           = ! empty( $input['schema_currency'] ) ? strtoupper( sanitize_text_field( $input['schema_currency'] ) ) : 'USD';
+			$clean['schema_default_price']      = isset( $input['schema_default_price'] ) && '' !== trim( (string) $input['schema_default_price'] ) ? sanitize_text_field( trim( (string) $input['schema_default_price'] ) ) : '';
+			$clean['schema_country_code']       = ! empty( $input['schema_country_code'] ) ? strtoupper( sanitize_text_field( trim( (string) $input['schema_country_code'] ) ) ) : 'US';
+			$clean['schema_event_status']       = ! empty( $input['schema_event_status'] ) ? esc_url_raw( $input['schema_event_status'] ) : 'https://schema.org/EventScheduled';
+			$clean['schema_attendance_mode']    = ! empty( $input['schema_attendance_mode'] ) ? esc_url_raw( $input['schema_attendance_mode'] ) : 'https://schema.org/OfflineEventAttendanceMode';
+			$clean['schema_date_suffix_format'] = isset( $input['schema_date_suffix_format'] ) ? sanitize_text_field( $input['schema_date_suffix_format'] ) : 'M j, Y';
+			$clean['enable_faq_schema_global']  = ! empty( $input['enable_faq_schema_global'] ) ? '1' : '0';
+		} else {
+			if ( isset( $input['enable_event_schema'] ) ) {
+				$clean['enable_event_schema'] = ! empty( $input['enable_event_schema'] ) ? '1' : '0';
+			}
+			if ( isset( $input['schema_organizer_name'] ) ) {
+				$clean['schema_organizer_name'] = sanitize_text_field( $input['schema_organizer_name'] );
+			}
+			if ( isset( $input['schema_organizer_url'] ) ) {
+				$clean['schema_organizer_url'] = esc_url_raw( $input['schema_organizer_url'] );
+			}
+			if ( isset( $input['schema_organizer_logo'] ) ) {
+				$clean['schema_organizer_logo'] = esc_url_raw( $input['schema_organizer_logo'] );
+			}
+			if ( isset( $input['schema_currency'] ) ) {
+				$clean['schema_currency'] = strtoupper( sanitize_text_field( $input['schema_currency'] ) );
+			}
+			if ( isset( $input['schema_default_price'] ) ) {
+				$clean['schema_default_price'] = sanitize_text_field( trim( (string) $input['schema_default_price'] ) );
+			}
+			if ( isset( $input['schema_country_code'] ) ) {
+				$clean['schema_country_code'] = strtoupper( sanitize_text_field( trim( (string) $input['schema_country_code'] ) ) );
+			}
+			if ( isset( $input['schema_event_status'] ) ) {
+				$clean['schema_event_status'] = esc_url_raw( $input['schema_event_status'] );
+			}
+			if ( isset( $input['schema_attendance_mode'] ) ) {
+				$clean['schema_attendance_mode'] = esc_url_raw( $input['schema_attendance_mode'] );
+			}
+			if ( isset( $input['schema_date_suffix_format'] ) ) {
+				$clean['schema_date_suffix_format'] = sanitize_text_field( $input['schema_date_suffix_format'] );
+			}
+			if ( isset( $input['enable_faq_schema_global'] ) ) {
+				$clean['enable_faq_schema_global'] = ! empty( $input['enable_faq_schema_global'] ) ? '1' : '0';
 			}
 		}
 

@@ -206,7 +206,7 @@ class Pubcrawls_AI_Quick_Links extends \Elementor\Widget_Base {
 			array(
 				'label'       => esc_html__( 'ChatGPT Button Label', 'pubcrawls-addon' ),
 				'type'        => \Elementor\Controls_Manager::TEXT,
-				'default'     => esc_html__( 'Ask ChatGPT', 'pubcrawls-addon' ),
+				'default'     => esc_html__( 'ChatGPT', 'pubcrawls-addon' ),
 				'condition'   => array(
 					'pubcrawl_show_chatgpt' => 'yes',
 				),
@@ -231,7 +231,7 @@ class Pubcrawls_AI_Quick_Links extends \Elementor\Widget_Base {
 			array(
 				'label'       => esc_html__( 'Perplexity Button Label', 'pubcrawls-addon' ),
 				'type'        => \Elementor\Controls_Manager::TEXT,
-				'default'     => esc_html__( 'Ask Perplexity', 'pubcrawls-addon' ),
+				'default'     => esc_html__( 'Perplexity', 'pubcrawls-addon' ),
 				'condition'   => array(
 					'pubcrawl_show_perplexity' => 'yes',
 				),
@@ -256,7 +256,7 @@ class Pubcrawls_AI_Quick_Links extends \Elementor\Widget_Base {
 			array(
 				'label'       => esc_html__( 'Google AI Button Label', 'pubcrawls-addon' ),
 				'type'        => \Elementor\Controls_Manager::TEXT,
-				'default'     => esc_html__( 'Ask Google AI', 'pubcrawls-addon' ),
+				'default'     => esc_html__( 'Google AI', 'pubcrawls-addon' ),
 				'condition'   => array(
 					'pubcrawl_show_google_ai' => 'yes',
 				),
@@ -281,7 +281,7 @@ class Pubcrawls_AI_Quick_Links extends \Elementor\Widget_Base {
 			array(
 				'label'       => esc_html__( 'Copilot Button Label', 'pubcrawls-addon' ),
 				'type'        => \Elementor\Controls_Manager::TEXT,
-				'default'     => esc_html__( 'Ask Copilot', 'pubcrawls-addon' ),
+				'default'     => esc_html__( 'Copilot', 'pubcrawls-addon' ),
 				'condition'   => array(
 					'pubcrawl_show_copilot' => 'yes',
 				),
@@ -548,10 +548,10 @@ class Pubcrawls_AI_Quick_Links extends \Elementor\Widget_Base {
 				'size_units' => array( 'px', 'em', 'rem' ),
 				'default'    => array(
 					'top'      => 10,
-					'right'    => 18,
+					'right'    => 15,
 					'bottom'   => 10,
-					'left'     => 18,
-					'isLinked' => false,
+					'left'     => 15,
+					'isLinked' => true,
 				),
 				'selectors'  => array(
 					'{{WRAPPER}} .pc-ai-link-btn' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',

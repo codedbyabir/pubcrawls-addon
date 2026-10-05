@@ -160,7 +160,6 @@ final class Pubcrawls_Addon
 	public function get_widget_classes()
 	{
 		$widget_map = [
-			'pc-cities-card'     => 'Pubcrawls_Cities_Card',
 			'pc-cities-list'     => 'Pubcrawls_Cities_List',
 			'pc-city-archive'    => 'Pubcrawls_City_Archive',
 			'pc-city-events'     => 'Pubcrawls_City_Events',

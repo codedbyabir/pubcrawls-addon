@@ -159,15 +159,6 @@ class Pubcrawls_Next_Event_Date extends \Elementor\Widget_Base
             ]
         );
 
-        $this->start_controls_tabs('tabs_icon_colors');
-
-        $this->start_controls_tab(
-            'tab_icon_normal',
-            [
-                'label' => esc_html__('Normal', 'pubcrawls-addon'),
-            ]
-        );
-
         $this->add_control(
             'pubcrawl_icon_color',
             [
@@ -176,97 +167,6 @@ class Pubcrawls_Next_Event_Date extends \Elementor\Widget_Base
                 'selectors' => [
                     '{{WRAPPER}} .pc-next-date-icon'     => 'color: {{VALUE}};',
                     '{{WRAPPER}} .pc-next-date-icon svg' => 'fill: {{VALUE}};',
-                ],
-            ]
-        );
-
-        $this->add_control(
-            'pubcrawl_icon_bg_color',
-            [
-                'label'     => esc_html__('Background Color', 'pubcrawls-addon'),
-                'type'      => \Elementor\Controls_Manager::COLOR,
-                'selectors' => [
-                    '{{WRAPPER}} .pc-next-date-icon' => 'background-color: {{VALUE}};',
-                ],
-            ]
-        );
-
-        $this->add_group_control(
-            \Elementor\Group_Control_Border::get_type(),
-            [
-                'name'     => 'pubcrawl_icon_border',
-                'selector' => '{{WRAPPER}} .pc-next-date-icon',
-            ]
-        );
-
-        $this->end_controls_tab();
-
-        $this->start_controls_tab(
-            'tab_icon_hover',
-            [
-                'label' => esc_html__('Hover', 'pubcrawls-addon'),
-            ]
-        );
-
-        $this->add_control(
-            'pubcrawl_icon_hover_color',
-            [
-                'label'     => esc_html__('Color', 'pubcrawls-addon'),
-                'type'      => \Elementor\Controls_Manager::COLOR,
-                'selectors' => [
-                    '{{WRAPPER}}:hover .pc-next-date-icon'     => 'color: {{VALUE}};',
-                    '{{WRAPPER}}:hover .pc-next-date-icon svg' => 'fill: {{VALUE}};',
-                ],
-            ]
-        );
-
-        $this->add_control(
-            'pubcrawl_icon_hover_bg_color',
-            [
-                'label'     => esc_html__('Background Color', 'pubcrawls-addon'),
-                'type'      => \Elementor\Controls_Manager::COLOR,
-                'selectors' => [
-                    '{{WRAPPER}}:hover .pc-next-date-icon' => 'background-color: {{VALUE}};',
-                ],
-            ]
-        );
-
-        $this->add_control(
-            'pubcrawl_icon_hover_border_color',
-            [
-                'label'     => esc_html__('Border Color', 'pubcrawls-addon'),
-                'type'      => \Elementor\Controls_Manager::COLOR,
-                'selectors' => [
-                    '{{WRAPPER}}:hover .pc-next-date-icon' => 'border-color: {{VALUE}};',
-                ],
-            ]
-        );
-
-        $this->end_controls_tab();
-
-        $this->end_controls_tabs();
-
-        $this->add_responsive_control(
-            'pubcrawl_icon_padding',
-            [
-                'label'      => esc_html__('Padding', 'pubcrawls-addon'),
-                'type'       => \Elementor\Controls_Manager::DIMENSIONS,
-                'size_units' => ['px', 'em', '%'],
-                'selectors'  => [
-                    '{{WRAPPER}} .pc-next-date-icon' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
-                ],
-                'separator'  => 'before',
-            ]
-        );
-
-        $this->add_responsive_control(
-            'pubcrawl_icon_border_radius',
-            [
-                'label'      => esc_html__('Border Radius', 'pubcrawls-addon'),
-                'type'       => \Elementor\Controls_Manager::DIMENSIONS,
-                'size_units' => ['px', '%', 'em'],
-                'selectors'  => [
-                    '{{WRAPPER}} .pc-next-date-icon' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
                 ],
             ]
         );

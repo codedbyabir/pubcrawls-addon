@@ -47,7 +47,8 @@
     padding: 20px 40px;
     border-radius: 1rem;
     background-color: #222631;
-    border: 1px solid #2E3440
+    border: 1px solid #2E3440;
+    margin: 0;
 }
 
 .pubcrawls-city-wrap .pubcrawls-city-list li {
@@ -110,172 +111,6 @@
 
 
 /* ============================================================
-   City Grid
-   ============================================================ */
-
-.pubcrawls-city-card-grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 1.5rem;
-    padding: 1rem 0;
-}
-
-/* ============================================================
-   City Card
-   ============================================================ */
-
-.pubcrawls-city-card-grid .pubcrawls-city-item {
-    position: relative;
-    border-radius: 12px;
-    overflow: hidden;
-    background: #1a1a1a;
-    transition: transform 0.25s ease-in-out;
-}
-
-.pubcrawls-city-card-grid .pubcrawls-city-item:hover {}
-
-/* ── Thumbnail ── */
-
-.pubcrawls-city-card-grid .pubcrawls-city-item img {
-    display: block;
-    width: 100%;
-    height: 220px;
-    object-fit: cover;
-    transition: transform 0.4s ease;
-}
-
-.pubcrawls-city-card-grid .pubcrawls-city-item:hover img {
-    transform: scale(1.06);
-}
-
-/* ── Overlay gradient ── */
-
-.pubcrawls-city-card-grid .pubcrawls-city-item::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(0deg, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.3) 50%, rgba(0, 0, 0, 0) 100%);
-
-    pointer-events: none;
-}
-
-/* ── Content area ── */
-
-.pubcrawls-city-card-grid .pubcrawls-city-content {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    padding: 10px 20px;
-    z-index: 1;
-}
-
-/* ── City name ── */
-
-.pubcrawls-city-card-grid .pubcrawls-city-name {
-    font-family: var(--e-global-typography-2adc7ec-font-family), Sans-serif;
-    font-size: 20px;
-    font-weight: 700;
-    line-height: 1.2;
-    color: #ffffff;
-
-    transform: translateY(0px);
-    transition: transform 0.3s ease-in-out;
-}
-
-.pubcrawls-city-card-grid .pubcrawls-city-name a {
-    color: #fff;
-    text-decoration: none;
-    transition: opacity 0.2s;
-
-
-}
-
-.pubcrawls-city-card-grid .pubcrawls-city-name a:hover {
-    /*     opacity: 0.85; */
-    color: #fff;
-}
-
-
-.pubcrawls-city-card-grid .pubcrawls-city-item:hover .pubcrawls-city-name {
-    transform: translateY(-8px);
-
-}
-
-
-
-/* ── Event count badge ── */
-
-.pubcrawls-city-card-grid .pubcrawls-city-count {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    color: #E6B325;
-    font-size: 0.78rem;
-    font-weight: 500;
-    letter-spacing: 0.04em;
-
-    opacity: 0;
-    transform: translateY(8px);
-    transition: opacity 0.35s ease, transform 0.35s ease;
-}
-
-.pubcrawls-city-card-grid .pubcrawls-city-item:hover .pubcrawls-city-count {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-
-
-.pubcrawls-city-card-grid .pubcrawls-city-count svg {
-    width: 14px;
-    height: 14px;
-}
-
-.pubcrawls-city-card-grid .pubcrawls-city-count svg path {
-    fill: #E6B325;
-}
-
-/* ── No cities fallback ── */
-
-.pubcrawls-no-cities {
-    color: #888;
-    font-size: 0.9rem;
-    text-align: center;
-    padding: 2rem;
-}
-
-
-/* ============================================================
-   Responsive
-   ============================================================ */
-@media (max-width: 1024px) {
-    .pubcrawls-city-card-grid {
-        grid-template-columns: repeat(4, 1fr);
-        gap: 1rem;
-    }
-}
-
-@media (max-width: 768px) {
-    .pubcrawls-city-card-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .pubcrawls-city-card-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .pubcrawls-city-item img {
-        height: 220px;
-    }
-}
-
-
-
-/* ============================================================
    FAQ Grid
    ============================================================ */
 
@@ -292,7 +127,7 @@
     border-radius: 16px;
     padding: 24px;
     border: 1px solid #2E3440;
-    transition: border 0.3s ease;
+    transition: background 0.3s ease, border-color 0.3s ease;
 }
 
 .pubcrawls-faq-grid .pubcrawls-faq-item:hover {
@@ -307,15 +142,18 @@
     color: #ffffff;
     margin: 0 0 0.85rem;
     line-height: 1.4;
+    transition: color 0.3s ease;
 }
 
 
-.pubcrawls-faq-grid .pubcrawls-faq-answer {
+.pubcrawls-faq-grid .pubcrawls-faq-answer,
+.pubcrawls-faq-grid .pubcrawls-faq-answer * {
     font-family: inherit;
     font-size: 1.25rem;
     font-weight: 400;
     line-height: 1.5;
     color: #B8BDC7;
+    transition: color 0.3s ease;
 }
 
 
@@ -1176,7 +1014,7 @@
 .pubcrawl-city-venues .pubcrawl-venue-item .pubcrawl-venue-destination:hover {
     background: #E6B325;
     border-color: #E6B325;
-    color: #1A1D24 !important;
+    color: #1A1D24;
     text-decoration: none;
 }
 

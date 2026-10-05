@@ -55,30 +55,27 @@ class Pubcrawls_Tracking_Dispatcher {
 		$active_platforms = array();
 
 		// ── 1. Google Analytics 4 (GA4) ──────────────────────────────────────────
-		$ga4_enabled = self::is_platform_enabled( 'ga4' );
-		if ( $ga4_enabled ) {
+		$prev_ga4_status = $db_record ? ( $db_record->ga4_status ?? 'pending' ) : 'pending';
+		if ( 'success' === $prev_ga4_status ) {
 			$active_platforms[] = 'ga4';
-			$prev_ga4_status    = $db_record ? ( $db_record->ga4_status ?? 'pending' ) : 'pending';
-
-			if ( ! $force_retry && 'success' === $prev_ga4_status ) {
-				$results['ga4'] = array(
-					'enabled' => true,
-					'success' => true,
-					'skipped' => true,
-					'code'    => (int) ( $db_record->ga4_code ?? 200 ),
-					'message' => 'GA4 delivery previously succeeded; skipped resending.',
-				);
-			} else {
-				$res = self::send_ga4( $normalized_order, $attribution );
-				$results['ga4'] = $res;
-				Pubcrawls_Tracking_DB::update_platform_status(
-					$order_id,
-					'ga4',
-					$res['success'] ? 'success' : 'failed',
-					! empty( $res['error'] ) ? $res['error'] : null,
-					$res['code'] ?? null
-				);
-			}
+			$results['ga4']     = array(
+				'enabled' => true,
+				'success' => true,
+				'skipped' => true,
+				'code'    => (int) ( $db_record->ga4_code ?? 200 ),
+				'message' => 'GA4 delivery previously succeeded; skipped resending.',
+			);
+		} elseif ( self::is_platform_enabled( 'ga4' ) ) {
+			$active_platforms[] = 'ga4';
+			$res                = self::send_ga4( $normalized_order, $attribution );
+			$results['ga4']     = $res;
+			Pubcrawls_Tracking_DB::update_platform_status(
+				$order_id,
+				'ga4',
+				$res['success'] ? 'success' : 'failed',
+				! empty( $res['error'] ) ? $res['error'] : null,
+				$res['code'] ?? null
+			);
 		} else {
 			$results['ga4'] = array(
 				'enabled' => false,
@@ -88,30 +85,27 @@ class Pubcrawls_Tracking_Dispatcher {
 		}
 
 		// ── 2. Meta Conversions API (CAPI) ──────────────────────────────────────
-		$meta_enabled = self::is_platform_enabled( 'meta' );
-		if ( $meta_enabled ) {
+		$prev_meta_status = $db_record ? ( $db_record->meta_status ?? 'pending' ) : 'pending';
+		if ( 'success' === $prev_meta_status ) {
 			$active_platforms[] = 'meta';
-			$prev_meta_status   = $db_record ? ( $db_record->meta_status ?? 'pending' ) : 'pending';
-
-			if ( ! $force_retry && 'success' === $prev_meta_status ) {
-				$results['meta'] = array(
-					'enabled' => true,
-					'success' => true,
-					'skipped' => true,
-					'code'    => (int) ( $db_record->meta_code ?? 200 ),
-					'message' => 'Meta CAPI delivery previously succeeded; skipped resending.',
-				);
-			} else {
-				$res = self::send_meta( $normalized_order, $attribution );
-				$results['meta'] = $res;
-				Pubcrawls_Tracking_DB::update_platform_status(
-					$order_id,
-					'meta',
-					$res['success'] ? 'success' : 'failed',
-					! empty( $res['error'] ) ? $res['error'] : null,
-					$res['code'] ?? null
-				);
-			}
+			$results['meta']    = array(
+				'enabled' => true,
+				'success' => true,
+				'skipped' => true,
+				'code'    => (int) ( $db_record->meta_code ?? 200 ),
+				'message' => 'Meta CAPI delivery previously succeeded; skipped resending.',
+			);
+		} elseif ( self::is_platform_enabled( 'meta' ) ) {
+			$active_platforms[] = 'meta';
+			$res                = self::send_meta( $normalized_order, $attribution );
+			$results['meta']    = $res;
+			Pubcrawls_Tracking_DB::update_platform_status(
+				$order_id,
+				'meta',
+				$res['success'] ? 'success' : 'failed',
+				! empty( $res['error'] ) ? $res['error'] : null,
+				$res['code'] ?? null
+			);
 		} else {
 			$results['meta'] = array(
 				'enabled' => false,
@@ -121,30 +115,27 @@ class Pubcrawls_Tracking_Dispatcher {
 		}
 
 		// ── 3. TikTok Events API ────────────────────────────────────────────────
-		$tiktok_enabled = self::is_platform_enabled( 'tiktok' );
-		if ( $tiktok_enabled ) {
+		$prev_tiktok_status = $db_record ? ( $db_record->tiktok_status ?? 'pending' ) : 'pending';
+		if ( 'success' === $prev_tiktok_status ) {
 			$active_platforms[] = 'tiktok';
-			$prev_tiktok_status = $db_record ? ( $db_record->tiktok_status ?? 'pending' ) : 'pending';
-
-			if ( ! $force_retry && 'success' === $prev_tiktok_status ) {
-				$results['tiktok'] = array(
-					'enabled' => true,
-					'success' => true,
-					'skipped' => true,
-					'code'    => (int) ( $db_record->tiktok_code ?? 200 ),
-					'message' => 'TikTok delivery previously succeeded; skipped resending.',
-				);
-			} else {
-				$res = self::send_tiktok( $normalized_order, $attribution );
-				$results['tiktok'] = $res;
-				Pubcrawls_Tracking_DB::update_platform_status(
-					$order_id,
-					'tiktok',
-					$res['success'] ? 'success' : 'failed',
-					! empty( $res['error'] ) ? $res['error'] : null,
-					$res['code'] ?? null
-				);
-			}
+			$results['tiktok']  = array(
+				'enabled' => true,
+				'success' => true,
+				'skipped' => true,
+				'code'    => (int) ( $db_record->tiktok_code ?? 200 ),
+				'message' => 'TikTok delivery previously succeeded; skipped resending.',
+			);
+		} elseif ( self::is_platform_enabled( 'tiktok' ) ) {
+			$active_platforms[] = 'tiktok';
+			$res                = self::send_tiktok( $normalized_order, $attribution );
+			$results['tiktok']  = $res;
+			Pubcrawls_Tracking_DB::update_platform_status(
+				$order_id,
+				'tiktok',
+				$res['success'] ? 'success' : 'failed',
+				! empty( $res['error'] ) ? $res['error'] : null,
+				$res['code'] ?? null
+			);
 		} else {
 			$results['tiktok'] = array(
 				'enabled' => false,
@@ -156,11 +147,24 @@ class Pubcrawls_Tracking_Dispatcher {
 		// Finalize overall order status in database
 		$overall_status = Pubcrawls_Tracking_DB::finalize_order_status( $order_id, $active_platforms );
 
+		// Compile safe attribution diagnostics (Phase 13)
+		$attribution_diag = array(
+			'record'     => ( ! empty( $attribution['client_id'] ) || ! empty( $attribution['fbp'] ) || ! empty( $attribution['fbc'] ) ) ? 'found' : 'none',
+			'status'     => $results['ga4']['attribution'] ?? 'fallback',
+			'client_id'  => ! empty( $attribution['client_id'] ) ? 'present' : 'absent',
+			'session_id' => ! empty( $attribution['session_id'] ) ? 'present' : 'absent',
+			'fbp'        => ! empty( $attribution['fbp'] ) ? 'present' : 'absent',
+			'fbc'        => ! empty( $attribution['fbc'] ) ? 'present' : 'absent',
+			'buyer_ip'   => ! empty( $attribution['ip'] ) ? 'present' : 'absent',
+			'buyer_ua'   => ! empty( $attribution['user_agent'] ) ? 'present' : 'absent',
+		);
+
 		return array(
 			'success'        => ( 'completed' === $overall_status || 'partial' === $overall_status ),
 			'overall_status' => $overall_status,
 			'order_id'       => $order_id,
 			'platforms'      => $results,
+			'attribution'    => $attribution_diag,
 		);
 	}
 
@@ -287,16 +291,23 @@ class Pubcrawls_Tracking_Dispatcher {
 
 		// Client ID & Session ID: prefer captured browser attribution
 		$client_id               = '';
-		$session_id              = '';
-		$has_browser_attribution = false;
+		$session_id              = null;
+		$has_browser_client_id   = false;
+		$has_browser_session_id  = false;
 
 		if ( ! empty( $attribution['client_id'] ) ) {
-			$client_id               = sanitize_text_field( $attribution['client_id'] );
-			if ( preg_match( '/^GA\d+\.\d+\.(.+)$/i', $client_id, $m ) ) {
+			$raw_client_id = sanitize_text_field( $attribution['client_id'] );
+			if ( preg_match( '/^GA\d+\.\d+\.(.+)$/i', $raw_client_id, $m ) ) {
 				$client_id = $m[1];
+			} else {
+				$client_id = $raw_client_id;
 			}
-			$has_browser_attribution = true;
-		} else {
+			if ( ! empty( $client_id ) ) {
+				$has_browser_client_id = true;
+			}
+		}
+
+		if ( ! $has_browser_client_id ) {
 			// Deterministic fallback derived from order & buyer email
 			$buyer_email = $order['buyer']['email'] ?? '';
 			$client_id   = ! empty( $buyer_email )
@@ -305,7 +316,25 @@ class Pubcrawls_Tracking_Dispatcher {
 		}
 
 		if ( ! empty( $attribution['session_id'] ) ) {
-			$session_id = sanitize_text_field( $attribution['session_id'] );
+			$raw_session_id = trim( (string) $attribution['session_id'] );
+			if ( preg_match( '/(?:^|s)(\d{9,12})/', $raw_session_id, $sm ) ) {
+				$session_id             = (int) $sm[1];
+				$has_browser_session_id = true;
+			} elseif ( is_numeric( $raw_session_id ) ) {
+				$session_id             = (int) $raw_session_id;
+				$has_browser_session_id = true;
+			}
+		}
+
+		// Categorize attribution status (Phase 4)
+		if ( $has_browser_client_id && $has_browser_session_id ) {
+			$attribution_status = 'matched';
+		} elseif ( $has_browser_client_id ) {
+			$attribution_status = 'partial';
+		} elseif ( empty( $order['buyer']['email'] ) && empty( $attribution['client_id'] ) ) {
+			$attribution_status = 'missing';
+		} else {
+			$attribution_status = 'fallback';
 		}
 
 		$event_params = array(
@@ -315,8 +344,13 @@ class Pubcrawls_Tracking_Dispatcher {
 			'items'          => $ga4_items,
 		);
 
-		if ( ! empty( $session_id ) ) {
+		if ( $has_browser_session_id && null !== $session_id ) {
 			$event_params['session_id'] = $session_id;
+		}
+
+		// When using matched or partial browser attribution, include engagement_time_msec
+		if ( $has_browser_client_id ) {
+			$event_params['engagement_time_msec'] = 100;
 		}
 
 		if ( $debug_mode ) {
@@ -332,6 +366,17 @@ class Pubcrawls_Tracking_Dispatcher {
 				),
 			),
 		);
+
+		// Historical timestamp handling: use Eventbrite order creation time if valid
+		$order_created_raw  = $order['created_at'] ?? '';
+		$order_created_time = ! empty( $order_created_raw ) ? strtotime( (string) $order_created_raw ) : false;
+		if ( $order_created_time && $order_created_time > 0 ) {
+			$age_seconds = time() - $order_created_time;
+			// GA4 Measurement Protocol accepts timestamp_micros for events up to 72 hours (259,200 seconds) in the past
+			if ( $age_seconds >= 0 && $age_seconds <= 259200 ) {
+				$payload['timestamp_micros'] = ( (int) $order_created_time ) * 1000000;
+			}
+		}
 
 		if ( ! empty( $order['buyer']['email'] ) ) {
 			$payload['user_id'] = hash( 'sha256', strtolower( trim( $order['buyer']['email'] ) ) );
@@ -353,7 +398,7 @@ class Pubcrawls_Tracking_Dispatcher {
 			return array(
 				'enabled'     => true,
 				'success'     => false,
-				'attribution' => $has_browser_attribution ? 'browser' : 'fallback',
+				'attribution' => $attribution_status,
 				'error'       => $response->get_error_message(),
 			);
 		}
@@ -367,7 +412,7 @@ class Pubcrawls_Tracking_Dispatcher {
 			'enabled'     => true,
 			'success'     => $success,
 			'code'        => $code,
-			'attribution' => $has_browser_attribution ? 'browser' : 'fallback',
+			'attribution' => $attribution_status,
 			'debug'       => $debug_mode ? json_decode( $body, true ) : null,
 			'error'       => ! $success ? sprintf( 'GA4 HTTP %d: %s', $code, substr( wp_strip_all_tags( $body ), 0, 200 ) ) : null,
 		);
@@ -421,12 +466,18 @@ class Pubcrawls_Tracking_Dispatcher {
 			$user_data['fbc'] = sanitize_text_field( $attribution['fbc'] );
 		}
 		if ( ! empty( $attribution['ip'] ) ) {
-			$user_data['client_ip_address'] = sanitize_text_field( $attribution['ip'] );
+			$raw_ip = trim( (string) $attribution['ip'] );
+			// Only send if valid public IP (reject private/reserved/loopback IPs)
+			if ( filter_var( $raw_ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE ) ) {
+				$user_data['client_ip_address'] = $raw_ip;
+			}
 		}
 		if ( ! empty( $attribution['user_agent'] ) ) {
-			$user_data['client_user_agent'] = sanitize_text_field( $attribution['user_agent'] );
-		} else {
-			$user_data['client_user_agent'] = 'PubCrawls-Server/2.0';
+			$ua = trim( (string) $attribution['user_agent'] );
+			// Only send real browser user agents (reject server/bot user agents)
+			if ( ! empty( $ua ) && ! preg_match( '/^(PubCrawls-Server|WordPress|curl|Wget|GuzzleHttp|Postman|Eventbrite)/i', $ua ) ) {
+				$user_data['client_user_agent'] = sanitize_text_field( $ua );
+			}
 		}
 
 		$contents = array();
@@ -438,9 +489,16 @@ class Pubcrawls_Tracking_Dispatcher {
 			);
 		}
 
+		// Historical timestamp handling: use Eventbrite order creation time if within 7 days (604,800s)
+		$order_created_raw  = $order['created_at'] ?? '';
+		$order_created_time = ! empty( $order_created_raw ) ? strtotime( (string) $order_created_raw ) : false;
+		$meta_event_time    = ( $order_created_time && $order_created_time > 0 && ( time() - $order_created_time ) <= 604800 && ( time() - $order_created_time ) >= 0 )
+			? (int) $order_created_time
+			: time();
+
 		$event_payload = array(
 			'event_name'       => 'Purchase',
-			'event_time'       => time(),
+			'event_time'       => $meta_event_time,
 			'event_id'         => (string) $order['order_id'], // Deduplication key
 			'action_source'    => 'website',
 			'event_source_url' => $order['event_url'] ?: home_url( '/purchase-confirmation/' ),
@@ -555,10 +613,17 @@ class Pubcrawls_Tracking_Dispatcher {
 			);
 		}
 
+		// Historical timestamp handling: use Eventbrite order creation time if within 7 days (604,800s)
+		$order_created_raw  = $order['created_at'] ?? '';
+		$order_created_time = ! empty( $order_created_raw ) ? strtotime( (string) $order_created_raw ) : false;
+		$tiktok_event_time  = ( $order_created_time && $order_created_time > 0 && ( time() - $order_created_time ) <= 604800 && ( time() - $order_created_time ) >= 0 )
+			? (int) $order_created_time
+			: time();
+
 		$data_event = array(
 			'event'      => 'CompletePayment',
 			'event_id'   => (string) $order['order_id'], // Deduplication key
-			'event_time' => time(),
+			'event_time' => $tiktok_event_time,
 			'user'       => $user_data,
 			'properties' => array(
 				'currency' => (string) $order['currency'],

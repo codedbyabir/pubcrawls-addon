@@ -8,7 +8,7 @@
  * @package Pubcrawl_Addon
  */
 
-if (! defined('ABSPATH')) {
+if (!defined('ABSPATH')) {
 	exit; // Exit if accessed directly.
 }
 

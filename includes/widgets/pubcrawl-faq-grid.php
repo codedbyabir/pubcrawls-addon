@@ -124,12 +124,26 @@ class Pubcrawls_FAQ_Grid extends \Elementor\Widget_Base
 			]
 		);
 
+		$this->add_control(
+			'pubcrawl_faq_schema',
+			[
+				'label'        => esc_html__('FAQ Schema', 'pubcrawls-addon'),
+				'type'         => \Elementor\Controls_Manager::SWITCHER,
+				'label_on'     => esc_html__('Yes', 'pubcrawls-addon'),
+				'label_off'    => esc_html__('No', 'pubcrawls-addon'),
+				'return_value' => 'yes',
+				'default'      => 'yes',
+				'separator'    => 'before',
+				'description'  => esc_html__('Enable FAQPage structured data (Schema.org) markup.', 'pubcrawls-addon'),
+			]
+		);
+
 		$this->end_controls_section();
 
 		$this->start_controls_section(
 			'section_style_grid',
 			[
-				'label' => __('Grid', 'pubcrawls-addon'),
+				'label' => esc_html__('Grid', 'pubcrawls-addon'),
 				'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
 			]
 		);
@@ -137,7 +151,7 @@ class Pubcrawls_FAQ_Grid extends \Elementor\Widget_Base
 		$this->add_responsive_control(
 			'pubcrawl_grid_columns',
 			[
-				'label'   => __('Columns', 'pubcrawls-addon'),
+				'label'   => esc_html__('Columns', 'pubcrawls-addon'),
 				'type'    => \Elementor\Controls_Manager::NUMBER,
 				'min'     => 1,
 				'max'     => 4,
@@ -153,7 +167,7 @@ class Pubcrawls_FAQ_Grid extends \Elementor\Widget_Base
 		$this->add_responsive_control(
 			'pubcrawl_grid_gap',
 			[
-				'label'      => __('Gap', 'pubcrawls-addon'),
+				'label'      => esc_html__('Gap', 'pubcrawls-addon'),
 				'type'       => \Elementor\Controls_Manager::SLIDER,
 				'size_units' => ['px', 'em', 'rem'],
 				'range'      => [
@@ -170,15 +184,25 @@ class Pubcrawls_FAQ_Grid extends \Elementor\Widget_Base
 		$this->start_controls_section(
 			'section_style_card',
 			[
-				'label' => __('Card', 'pubcrawls-addon'),
+				'label' => esc_html__('Card', 'pubcrawls-addon'),
 				'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
+			]
+		);
+
+		$this->start_controls_tabs('tabs_card_style');
+
+		// Normal Tab
+		$this->start_controls_tab(
+			'tab_card_normal',
+			[
+				'label' => esc_html__('Normal', 'pubcrawls-addon'),
 			]
 		);
 
 		$this->add_control(
 			'pubcrawl_card_bg_color',
 			[
-				'label'     => __('Background Color', 'pubcrawls-addon'),
+				'label'     => esc_html__('Background Color', 'pubcrawls-addon'),
 				'type'      => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .pubcrawls-faq-item' => 'background-color: {{VALUE}};',
@@ -186,18 +210,55 @@ class Pubcrawls_FAQ_Grid extends \Elementor\Widget_Base
 			]
 		);
 
+		$this->end_controls_tab();
+
+		// Hover Tab
+		$this->start_controls_tab(
+			'tab_card_hover',
+			[
+				'label' => esc_html__('Hover', 'pubcrawls-addon'),
+			]
+		);
+
+		$this->add_control(
+			'pubcrawl_card_bg_color_hover',
+			[
+				'label'     => esc_html__('Background Color', 'pubcrawls-addon'),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'selectors' => [
+					'{{WRAPPER}} .pubcrawls-faq-item:hover, {{WRAPPER}} .pubcrawls-faq-grid .pubcrawls-faq-item:hover' => 'background-color: {{VALUE}};',
+				],
+			]
+		);
+
+		$this->add_control(
+			'pubcrawl_card_hover_border_color',
+			[
+				'label'     => esc_html__('Border Color', 'pubcrawls-addon'),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'selectors' => [
+					'{{WRAPPER}} .pubcrawls-faq-item:hover, {{WRAPPER}} .pubcrawls-faq-grid .pubcrawls-faq-item:hover' => 'border-color: {{VALUE}};',
+				],
+			]
+		);
+
+		$this->end_controls_tab();
+
+		$this->end_controls_tabs();
+
 		$this->add_group_control(
 			\Elementor\Group_Control_Border::get_type(),
 			[
-				'name'     => 'pubcrawl_card_border',
-				'selector' => '{{WRAPPER}} .pubcrawls-faq-item',
+				'name'      => 'pubcrawl_card_border',
+				'selector'  => '{{WRAPPER}} .pubcrawls-faq-item',
+				'separator' => 'before',
 			]
 		);
 
 		$this->add_responsive_control(
 			'pubcrawl_card_border_radius',
 			[
-				'label'      => __('Border Radius', 'pubcrawls-addon'),
+				'label'      => esc_html__('Border Radius', 'pubcrawls-addon'),
 				'type'       => \Elementor\Controls_Manager::DIMENSIONS,
 				'size_units' => ['px', '%'],
 				'selectors'  => [
@@ -209,7 +270,7 @@ class Pubcrawls_FAQ_Grid extends \Elementor\Widget_Base
 		$this->add_responsive_control(
 			'pubcrawl_card_padding',
 			[
-				'label'      => __('Padding', 'pubcrawls-addon'),
+				'label'      => esc_html__('Padding', 'pubcrawls-addon'),
 				'type'       => \Elementor\Controls_Manager::DIMENSIONS,
 				'size_units' => ['px', 'em', '%'],
 				'selectors'  => [
@@ -223,7 +284,7 @@ class Pubcrawls_FAQ_Grid extends \Elementor\Widget_Base
 		$this->start_controls_section(
 			'section_style_question',
 			[
-				'label' => __('Question', 'pubcrawls-addon'),
+				'label' => esc_html__('Question', 'pubcrawls-addon'),
 				'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
 			]
 		);
@@ -239,7 +300,7 @@ class Pubcrawls_FAQ_Grid extends \Elementor\Widget_Base
 		$this->add_control(
 			'pubcrawl_question_color',
 			[
-				'label'     => __('Color', 'pubcrawls-addon'),
+				'label'     => esc_html__('Color', 'pubcrawls-addon'),
 				'type'      => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .pubcrawls-faq-question' => 'color: {{VALUE}};',
@@ -247,10 +308,21 @@ class Pubcrawls_FAQ_Grid extends \Elementor\Widget_Base
 			]
 		);
 
+		$this->add_control(
+			'pubcrawl_question_hover_color',
+			[
+				'label'     => esc_html__('Hover Color', 'pubcrawls-addon'),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'selectors' => [
+					'{{WRAPPER}} .pubcrawls-faq-item:hover .pubcrawls-faq-question, {{WRAPPER}} .pubcrawls-faq-question:hover' => 'color: {{VALUE}};',
+				],
+			]
+		);
+
 		$this->add_responsive_control(
 			'pubcrawl_question_margin_bottom',
 			[
-				'label'      => __('Margin Bottom', 'pubcrawls-addon'),
+				'label'      => esc_html__('Margin Bottom', 'pubcrawls-addon'),
 				'type'       => \Elementor\Controls_Manager::SLIDER,
 				'size_units' => ['px', 'em'],
 				'range'      => [
@@ -267,7 +339,7 @@ class Pubcrawls_FAQ_Grid extends \Elementor\Widget_Base
 		$this->start_controls_section(
 			'section_style_answer',
 			[
-				'label' => __('Answer', 'pubcrawls-addon'),
+				'label' => esc_html__('Answer', 'pubcrawls-addon'),
 				'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
 			]
 		);
@@ -283,10 +355,21 @@ class Pubcrawls_FAQ_Grid extends \Elementor\Widget_Base
 		$this->add_control(
 			'pubcrawl_answer_color',
 			[
-				'label'     => __('Color', 'pubcrawls-addon'),
+				'label'     => esc_html__('Color', 'pubcrawls-addon'),
 				'type'      => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .pubcrawls-faq-answer' => 'color: {{VALUE}};',
+				],
+			]
+		);
+
+		$this->add_control(
+			'pubcrawl_answer_hover_color',
+			[
+				'label'     => esc_html__('Hover Color', 'pubcrawls-addon'),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'selectors' => [
+					'{{WRAPPER}} .pubcrawls-faq-item:hover .pubcrawls-faq-answer, {{WRAPPER}} .pubcrawls-faq-item:hover .pubcrawls-faq-answer *, {{WRAPPER}} .pubcrawls-faq-answer:hover' => 'color: {{VALUE}};',
 				],
 			]
 		);
@@ -350,19 +433,49 @@ class Pubcrawls_FAQ_Grid extends \Elementor\Widget_Base
 			}
 			return;
 		}
+		$global_faq_enabled = class_exists('Pubcrawls_Admin')
+			? ('1' === (string) Pubcrawls_Admin::get_setting('enable_faq_schema_global', '1'))
+			: true;
+		$enable_schema   = $global_faq_enabled && ('yes' === ($settings['faq_schema'] ?? $settings['pubcrawl_faq_schema'] ?? 'yes'));
+		$schema_entities = [];
 ?>
 		<div class="pubcrawls-faq-grid">
-			<?php foreach ($faqs->posts as $faq) : ?>
+			<?php foreach ($faqs->posts as $faq) :
+				$question_text = html_entity_decode(wp_strip_all_tags($faq->post_title), ENT_QUOTES, 'UTF-8');
+				$answer_html   = trim(wp_kses_post(apply_filters('the_content', $faq->post_content)));
+
+				if ($enable_schema && ! empty(trim($question_text)) && ! empty(trim(wp_strip_all_tags($answer_html)))) {
+					$schema_entities[] = [
+						'@type'          => 'Question',
+						'name'           => trim($question_text),
+						'acceptedAnswer' => [
+							'@type' => 'Answer',
+							'text'  => $answer_html,
+						],
+					];
+				}
+			?>
 				<div class="pubcrawls-faq-item">
 					<h3 class="pubcrawls-faq-question">
 						<?php echo esc_html($faq->post_title); ?>
 					</h3>
 					<div class="pubcrawls-faq-answer">
-						<?php echo wp_kses_post(apply_filters('the_content', $faq->post_content)); ?>
+						<?php echo wp_kses_post($answer_html); ?>
 					</div>
 				</div>
 			<?php endforeach; ?>
 		</div>
+		<?php if ($enable_schema && ! empty($schema_entities)) : ?>
+			<script type="application/ld+json">
+			<?php
+			echo wp_json_encode([
+				'@context'   => 'https://schema.org',
+				'@type'      => 'FAQPage',
+				'mainEntity' => $schema_entities,
+			], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+			?>
+			</script>
+		<?php endif; ?>
 <?php
 	}
 }

@@ -25,7 +25,7 @@ class Pubcrawls_Tracking_DB {
 	/**
 	 * Database schema version.
 	 */
-	const DB_VERSION = '2.0.0';
+	const DB_VERSION = '2.1.0';
 	const DB_VERSION_OPTION = 'pubcrawls_eb_orders_db_version';
 
 	/**
@@ -96,10 +96,14 @@ class Pubcrawls_Tracking_DB {
 			created_at datetime NOT NULL,
 			updated_at datetime NOT NULL,
 			processed_at datetime DEFAULT NULL,
+			locked_at datetime DEFAULT NULL,
+			worker_id varchar(64) DEFAULT NULL,
 			PRIMARY KEY  (id),
 			UNIQUE KEY order_id (order_id),
 			KEY status (status),
-			KEY created_at (created_at)
+			KEY created_at (created_at),
+			KEY locked_at (locked_at),
+			KEY status_locked (status, locked_at)
 		) {$charset_collate};";
 
 		if ( file_exists( ABSPATH . 'wp-admin/includes/upgrade.php' ) ) {
@@ -107,6 +111,20 @@ class Pubcrawls_Tracking_DB {
 		}
 		if ( function_exists( 'dbDelta' ) ) {
 			dbDelta( $sql );
+		}
+
+		// Ensure columns exist on upgraded installations where dbDelta might skip ALTER
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		$columns = $wpdb->get_col( "DESCRIBE {$table_name}" );
+		if ( is_array( $columns ) && ! empty( $columns ) ) {
+			if ( ! in_array( 'locked_at', $columns, true ) ) {
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+				$wpdb->query( "ALTER TABLE {$table_name} ADD COLUMN locked_at datetime DEFAULT NULL AFTER processed_at" );
+			}
+			if ( ! in_array( 'worker_id', $columns, true ) ) {
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+				$wpdb->query( "ALTER TABLE {$table_name} ADD COLUMN worker_id varchar(64) DEFAULT NULL AFTER locked_at" );
+			}
 		}
 
 		update_option( self::DB_VERSION_OPTION, self::DB_VERSION, false );
@@ -447,6 +465,8 @@ class Pubcrawls_Tracking_DB {
 
 		$fields = array(
 			'status'       => $new_status,
+			'worker_id'    => null,
+			'locked_at'    => null,
 			'updated_at'   => current_time( 'mysql' ),
 			'processed_at' => current_time( 'mysql' ),
 		);
@@ -459,6 +479,247 @@ class Pubcrawls_Tracking_DB {
 		);
 
 		return $new_status;
+	}
+
+	/**
+	 * Atomically acquire a processing lock on an order.
+	 *
+	 * Uses compare-and-swap SQL UPDATE so only one worker can process the order.
+	 * Reclaims stale locks older than $stale_timeout_seconds (default 600s = 10 min).
+	 *
+	 * @param string $order_id              Eventbrite Order ID.
+	 * @param string $worker_id             Unique worker identifier.
+	 * @param int    $stale_timeout_seconds Lock expiration in seconds (default 600).
+	 * @return bool True if lock acquired, false if held by another active worker or finalized.
+	 */
+	public static function acquire_processing_lock( string $order_id, string $worker_id, int $stale_timeout_seconds = 600 ): bool {
+		global $wpdb;
+		$table_name = self::get_table_name();
+		$order_id   = sanitize_text_field( trim( $order_id ) );
+		$worker_id  = sanitize_text_field( trim( $worker_id ) );
+		$now        = current_time( 'mysql' );
+		$threshold  = date( 'Y-m-d H:i:s', current_time( 'timestamp' ) - $stale_timeout_seconds );
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$affected = $wpdb->query(
+			$wpdb->prepare(
+				"UPDATE {$table_name}
+				SET status = 'processing',
+					worker_id = %s,
+					locked_at = %s,
+					updated_at = %s
+				WHERE order_id = %s
+				  AND (
+					  status IN ('pending', 'failed', 'partial', 'queued')
+					  OR (
+						  status = 'processing'
+						  AND (
+							  (locked_at IS NOT NULL AND locked_at < %s)
+							  OR (locked_at IS NULL AND updated_at < %s)
+						  )
+					  )
+				  )",
+				$worker_id,
+				$now,
+				$now,
+				$order_id,
+				$threshold,
+				$threshold
+			)
+		);
+
+		return 1 === $affected;
+	}
+
+	/**
+	 * Safely release an order's lock without changing its failed/partial status.
+	 *
+	 * @param string      $order_id  Eventbrite Order ID.
+	 * @param string|null $worker_id Optional worker ID to verify ownership.
+	 * @param string      $status    Status to reset to ('pending', 'failed', 'partial').
+	 * @return bool
+	 */
+	public static function release_order_lock( string $order_id, ?string $worker_id = null, string $status = 'pending' ): bool {
+		global $wpdb;
+		$table_name = self::get_table_name();
+		$order_id   = sanitize_text_field( trim( $order_id ) );
+		$now        = current_time( 'mysql' );
+
+		if ( $worker_id ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			$res = $wpdb->query(
+				$wpdb->prepare(
+					"UPDATE {$table_name}
+					SET status = %s, worker_id = NULL, locked_at = NULL, updated_at = %s
+					WHERE order_id = %s AND worker_id = %s",
+					$status,
+					$now,
+					$order_id,
+					$worker_id
+				)
+			);
+		} else {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			$res = $wpdb->query(
+				$wpdb->prepare(
+					"UPDATE {$table_name}
+					SET status = %s, worker_id = NULL, locked_at = NULL, updated_at = %s
+					WHERE order_id = %s",
+					$status,
+					$now,
+					$order_id
+				)
+			);
+		}
+
+		return false !== $res;
+	}
+
+	/**
+	 * Find and safely release stale processing locks.
+	 *
+	 * Resets orders locked longer than $stale_timeout_seconds back to 'pending'.
+	 *
+	 * @param int  $stale_timeout_seconds Maximum allowed lock duration in seconds (default 600 = 10 min).
+	 * @param bool $force_all             If true, unconditionally releases all orders marked processing.
+	 * @return int Number of stale locks released.
+	 */
+	public static function release_stale_locks( int $stale_timeout_seconds = 600, bool $force_all = false ): int {
+		global $wpdb;
+		$table_name = self::get_table_name();
+		$now        = current_time( 'mysql' );
+		$threshold  = date( 'Y-m-d H:i:s', current_time( 'timestamp' ) - $stale_timeout_seconds );
+
+		if ( $force_all ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			$affected = $wpdb->query(
+				$wpdb->prepare(
+					"UPDATE {$table_name}
+					SET status = 'pending',
+						worker_id = NULL,
+						locked_at = NULL,
+						updated_at = %s
+					WHERE status = 'processing'",
+					$now
+				)
+			);
+		} else {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			$affected = $wpdb->query(
+				$wpdb->prepare(
+					"UPDATE {$table_name}
+					SET status = 'pending',
+						worker_id = NULL,
+						locked_at = NULL,
+						updated_at = %s
+					WHERE status = 'processing'
+					  AND (
+						  (locked_at IS NOT NULL AND locked_at < %s)
+						  OR (locked_at IS NULL AND updated_at < %s)
+					  )",
+					$now,
+					$threshold,
+					$threshold
+				)
+			);
+		}
+
+		return (int) $affected;
+	}
+
+	/**
+	 * Retrieve queued, pending, or retryable orders for background processing.
+	 *
+	 * @param int $limit Maximum orders to retrieve.
+	 * @param int $stale_timeout_seconds Stale lock threshold in seconds.
+	 * @return array List of order row objects.
+	 */
+	public static function get_queued_orders( int $limit = 20, int $stale_timeout_seconds = 600 ): array {
+		global $wpdb;
+		$table_name = self::get_table_name();
+		$threshold  = date( 'Y-m-d H:i:s', current_time( 'timestamp' ) - $stale_timeout_seconds );
+		$max        = self::MAX_ATTEMPTS;
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT * FROM {$table_name}
+				WHERE (
+					status IN ('pending', 'queued')
+					OR (
+						status IN ('failed', 'partial')
+						AND (ga4_attempts < %d OR meta_attempts < %d OR tiktok_attempts < %d)
+					)
+					OR (
+						status = 'processing'
+						AND (
+							(locked_at IS NOT NULL AND locked_at < %s)
+							OR (locked_at IS NULL AND updated_at < %s)
+						)
+					)
+				)
+				ORDER BY id ASC
+				LIMIT %d",
+				$max,
+				$max,
+				$max,
+				$threshold,
+				$threshold,
+				$limit
+			)
+		);
+
+		return $rows ?: array();
+	}
+
+	/**
+	 * Get aggregated queue and health metrics.
+	 *
+	 * @param int $stale_timeout_seconds Stale lock threshold in seconds.
+	 * @return array Aggregated counts.
+	 */
+	public static function get_queue_counts( int $stale_timeout_seconds = 600 ): array {
+		global $wpdb;
+		$table_name = self::get_table_name();
+		$threshold  = date( 'Y-m-d H:i:s', current_time( 'timestamp' ) - $stale_timeout_seconds );
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$row = $wpdb->get_row(
+			$wpdb->prepare(
+				"SELECT
+					COUNT(*) AS total,
+					SUM(CASE WHEN status IN ('pending', 'queued') THEN 1 ELSE 0 END) AS pending,
+					SUM(CASE WHEN status = 'processing' AND ((locked_at IS NOT NULL AND locked_at >= %s) OR (locked_at IS NULL AND updated_at >= %s)) THEN 1 ELSE 0 END) AS processing_active,
+					SUM(CASE WHEN status = 'processing' AND ((locked_at IS NOT NULL AND locked_at < %s) OR (locked_at IS NULL AND updated_at < %s)) THEN 1 ELSE 0 END) AS stale_locks,
+					SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) AS completed,
+					SUM(CASE WHEN status = 'partial' THEN 1 ELSE 0 END) AS partial,
+					SUM(CASE WHEN status = 'failed' THEN 1 ELSE 0 END) AS failed,
+					SUM(CASE WHEN status = 'rejected' THEN 1 ELSE 0 END) AS rejected,
+					SUM(CASE WHEN ga4_status = 'success' THEN 1 ELSE 0 END) AS ga4_success,
+					SUM(CASE WHEN meta_status = 'success' THEN 1 ELSE 0 END) AS meta_success,
+					SUM(CASE WHEN tiktok_status = 'success' THEN 1 ELSE 0 END) AS tiktok_success
+				FROM {$table_name}",
+				$threshold,
+				$threshold,
+				$threshold,
+				$threshold
+			),
+			ARRAY_A
+		);
+
+		return array_map( 'intval', $row ?: array(
+			'total'             => 0,
+			'pending'           => 0,
+			'processing_active' => 0,
+			'stale_locks'       => 0,
+			'completed'         => 0,
+			'partial'           => 0,
+			'failed'            => 0,
+			'rejected'          => 0,
+			'ga4_success'       => 0,
+			'meta_success'      => 0,
+			'tiktok_success'    => 0,
+		) );
 	}
 
 	/**
@@ -480,5 +741,46 @@ class Pubcrawls_Tracking_DB {
 		);
 
 		return $rows ?: array();
+	}
+
+	/**
+	 * Helper for test suites to clean up test order IDs.
+	 *
+	 * @param array $order_ids List of order IDs to remove.
+	 * @return int Number of deleted rows.
+	 */
+	public static function cleanup_test_orders( array $order_ids = array() ): int {
+		global $wpdb;
+		$table_name = self::get_table_name();
+		if ( empty( $order_ids ) ) {
+			$order_ids = array( '1', '2', '3' );
+		}
+
+		$placeholders = implode( ',', array_fill( 0, count( $order_ids ), '%s' ) );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$deleted = $wpdb->query(
+			$wpdb->prepare(
+				"DELETE FROM {$table_name} WHERE order_id IN ($placeholders)",
+				...$order_ids
+			)
+		);
+
+		// Also clean corresponding test entries from webhook logs
+		$logs_key = 'pubcrawls_eb_webhook_logs';
+		$logs     = get_option( $logs_key, array() );
+		if ( is_array( $logs ) && ! empty( $logs ) ) {
+			$filtered = array_values(
+				array_filter(
+					$logs,
+					function( $item ) use ( $order_ids ) {
+						$oid = (string) ( $item['order_id'] ?? '' );
+						return ! in_array( $oid, $order_ids, true );
+					}
+				)
+			);
+			update_option( $logs_key, $filtered, false );
+		}
+
+		return (int) $deleted;
 	}
 }

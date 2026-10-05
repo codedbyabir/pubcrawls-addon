@@ -56,6 +56,29 @@ class Pubcrawls_City_Events extends \Elementor\Widget_Base
 		return ['squadup-embed-css'];
 	}
 
+	/**
+	 * Get Event Categories for select2 control options.
+	 *
+	 * @return array
+	 */
+	protected function get_event_categories()
+	{
+		$options = [];
+
+		$terms = get_terms([
+			'taxonomy'   => 'tribe_events_cat',
+			'hide_empty' => false,
+		]);
+
+		if (! empty($terms) && ! is_wp_error($terms)) {
+			foreach ($terms as $term) {
+				$options[$term->slug] = html_entity_decode($term->name, ENT_QUOTES, 'UTF-8');
+			}
+		}
+
+		return $options;
+	}
+
 	protected function register_controls()
 	{
 
@@ -81,9 +104,43 @@ class Pubcrawls_City_Events extends \Elementor\Widget_Base
 			'pubcrawl_category',
 			[
 				'label'       => esc_html__('Category', 'pubcrawls-addon'),
-				'type'        => \Elementor\Controls_Manager::TEXT,
+				'type'        => \Elementor\Controls_Manager::SELECT2,
+				'label_block' => true,
+				'options'     => [
+					'' => esc_html__('Auto-Detect (Taxonomy Archive)', 'pubcrawls-addon'),
+				] + $this->get_event_categories(),
 				'default'     => '',
 				'description' => esc_html__('Event category slug (optional, auto-detects from crawl_cat or taxonomy archive)', 'pubcrawls-addon'),
+			]
+		);
+
+		$this->add_control(
+			'pubcrawl_select_date_heading',
+			[
+				'label'     => esc_html__('Date Selector Settings', 'pubcrawls-addon'),
+				'type'      => \Elementor\Controls_Manager::HEADING,
+				'separator' => 'before',
+			]
+		);
+
+		$this->add_control(
+			'pubcrawl_select_date_text',
+			[
+				'label'       => esc_html__('Select Date Text', 'pubcrawls-addon'),
+				'type'        => \Elementor\Controls_Manager::TEXT,
+				'default'     => esc_html__('Select Your Date :', 'pubcrawls-addon'),
+				'placeholder' => esc_html__('Select Your Date :', 'pubcrawls-addon'),
+				'description' => esc_html__('Custom text to overwrite "Select Your Date :"', 'pubcrawls-addon'),
+			]
+		);
+
+		$this->add_control(
+			'pubcrawl_select_date_icon',
+			[
+				'label'       => esc_html__('Select Date Icon', 'pubcrawls-addon'),
+				'type'        => \Elementor\Controls_Manager::ICONS,
+				'default'     => [],
+				'description' => esc_html__('Choose an icon to overwrite the default calendar icon.', 'pubcrawls-addon'),
 			]
 		);
 
@@ -93,7 +150,7 @@ class Pubcrawls_City_Events extends \Elementor\Widget_Base
 		$this->start_controls_section(
 			'section_style_grid',
 			[
-				'label' => __('Grid', 'pubcrawls-addon'),
+				'label' => esc_html__('Grid', 'pubcrawls-addon'),
 				'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
 			]
 		);
@@ -101,7 +158,7 @@ class Pubcrawls_City_Events extends \Elementor\Widget_Base
 		$this->add_responsive_control(
 			'pubcrawl_grid_columns',
 			[
-				'label'     => __('Columns', 'pubcrawls-addon'),
+				'label'     => esc_html__('Columns', 'pubcrawls-addon'),
 				'type'      => \Elementor\Controls_Manager::NUMBER,
 				'min'       => 1,
 				'max'       => 4,
@@ -117,7 +174,7 @@ class Pubcrawls_City_Events extends \Elementor\Widget_Base
 		$this->add_responsive_control(
 			'pubcrawl_grid_gap',
 			[
-				'label'      => __('Gap', 'pubcrawls-addon'),
+				'label'      => esc_html__('Gap', 'pubcrawls-addon'),
 				'type'       => \Elementor\Controls_Manager::SLIDER,
 				'size_units' => ['px', 'em', 'rem'],
 				'range'      => [
@@ -135,7 +192,7 @@ class Pubcrawls_City_Events extends \Elementor\Widget_Base
 		$this->start_controls_section(
 			'section_style_card',
 			[
-				'label' => __('Card', 'pubcrawls-addon'),
+				'label' => esc_html__('Card', 'pubcrawls-addon'),
 				'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
 			]
 		);
@@ -143,7 +200,7 @@ class Pubcrawls_City_Events extends \Elementor\Widget_Base
 		$this->add_control(
 			'pubcrawl_card_bg_color',
 			[
-				'label'     => __('Background Color', 'pubcrawls-addon'),
+				'label'     => esc_html__('Background Color', 'pubcrawls-addon'),
 				'type'      => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .pc-event-card' => 'background-color: {{VALUE}};',
@@ -162,7 +219,7 @@ class Pubcrawls_City_Events extends \Elementor\Widget_Base
 		$this->add_responsive_control(
 			'pubcrawl_card_border_radius',
 			[
-				'label'      => __('Border Radius', 'pubcrawls-addon'),
+				'label'      => esc_html__('Border Radius', 'pubcrawls-addon'),
 				'type'       => \Elementor\Controls_Manager::DIMENSIONS,
 				'size_units' => ['px', '%'],
 				'selectors'  => [
@@ -174,7 +231,7 @@ class Pubcrawls_City_Events extends \Elementor\Widget_Base
 		$this->add_responsive_control(
 			'pubcrawl_card_padding',
 			[
-				'label'      => __('Padding', 'pubcrawls-addon'),
+				'label'      => esc_html__('Padding', 'pubcrawls-addon'),
 				'type'       => \Elementor\Controls_Manager::DIMENSIONS,
 				'size_units' => ['px', 'em', '%'],
 				'selectors'  => [
@@ -197,7 +254,7 @@ class Pubcrawls_City_Events extends \Elementor\Widget_Base
 		$this->start_controls_section(
 			'section_style_image',
 			[
-				'label' => __('Image', 'pubcrawls-addon'),
+				'label' => esc_html__('Image', 'pubcrawls-addon'),
 				'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
 			]
 		);
@@ -205,7 +262,7 @@ class Pubcrawls_City_Events extends \Elementor\Widget_Base
 		$this->add_responsive_control(
 			'pubcrawl_image_height',
 			[
-				'label'      => __('Height', 'pubcrawls-addon'),
+				'label'      => esc_html__('Height', 'pubcrawls-addon'),
 				'type'       => \Elementor\Controls_Manager::SLIDER,
 				'size_units' => ['px', 'vh'],
 				'range'      => [
@@ -220,7 +277,7 @@ class Pubcrawls_City_Events extends \Elementor\Widget_Base
 		$this->add_responsive_control(
 			'pubcrawl_image_border_radius',
 			[
-				'label'      => __('Border Radius', 'pubcrawls-addon'),
+				'label'      => esc_html__('Border Radius', 'pubcrawls-addon'),
 				'type'       => \Elementor\Controls_Manager::DIMENSIONS,
 				'size_units' => ['px', '%'],
 				'selectors'  => [
@@ -235,15 +292,51 @@ class Pubcrawls_City_Events extends \Elementor\Widget_Base
 		$this->start_controls_section(
 			'section_style_date_badge',
 			[
-				'label' => __('Date Badge', 'pubcrawls-addon'),
+				'label' => esc_html__('Date Badge', 'pubcrawls-addon'),
 				'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
+			]
+		);
+
+		$this->add_responsive_control(
+			'pubcrawl_date_badge_max_width',
+			[
+				'label'      => esc_html__('Max Width', 'pubcrawls-addon'),
+				'type'       => \Elementor\Controls_Manager::SLIDER,
+				'size_units' => ['px', '%', 'em', 'rem'],
+				'range'      => [
+					'px' => ['min' => 20, 'max' => 300],
+					'%'  => ['min' => 10, 'max' => 100],
+				],
+				'selectors'  => [
+					'{{WRAPPER}} .pc-events-grid .pc-event-date-badge, {{WRAPPER}} .pc-event-date-badge' => 'max-width: {{SIZE}}{{UNIT}};',
+				],
+			]
+		);
+
+		$this->add_responsive_control(
+			'pubcrawl_date_badge_padding',
+			[
+				'label'      => esc_html__('Padding', 'pubcrawls-addon'),
+				'type'       => \Elementor\Controls_Manager::DIMENSIONS,
+				'size_units' => ['px', 'em', 'rem', '%'],
+				'selectors'  => [
+					'{{WRAPPER}} .pc-events-grid .pc-event-date-badge, {{WRAPPER}} .pc-event-date-badge' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				],
+			]
+		);
+
+		$this->add_group_control(
+			\Elementor\Group_Control_Border::get_type(),
+			[
+				'name'     => 'pubcrawl_date_badge_border',
+				'selector' => '{{WRAPPER}} .pc-events-grid .pc-event-date-badge, {{WRAPPER}} .pc-event-date-badge',
 			]
 		);
 
 		$this->add_control(
 			'pubcrawl_date_badge_bg_color',
 			[
-				'label'     => __('Background Color', 'pubcrawls-addon'),
+				'label'     => esc_html__('Background Color', 'pubcrawls-addon'),
 				'type'      => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .pc-event-date-badge' => 'background-color: {{VALUE}};',
@@ -254,9 +347,9 @@ class Pubcrawls_City_Events extends \Elementor\Widget_Base
 		$this->add_responsive_control(
 			'pubcrawl_date_badge_border_radius',
 			[
-				'label'      => __('Border Radius', 'pubcrawls-addon'),
+				'label'      => esc_html__('Border Radius', 'pubcrawls-addon'),
 				'type'       => \Elementor\Controls_Manager::DIMENSIONS,
-				'size_units' => ['px', '%'],
+				'size_units' => ['px', '%', 'em', 'rem'],
 				'selectors'  => [
 					'{{WRAPPER}} .pc-event-date-badge' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
 				],
@@ -266,7 +359,7 @@ class Pubcrawls_City_Events extends \Elementor\Widget_Base
 		$this->add_control(
 			'pubcrawl_date_badge_day_color',
 			[
-				'label'     => __('Day Color', 'pubcrawls-addon'),
+				'label'     => esc_html__('Day Color', 'pubcrawls-addon'),
 				'type'      => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .pc-event-day' => 'color: {{VALUE}};',
@@ -278,7 +371,7 @@ class Pubcrawls_City_Events extends \Elementor\Widget_Base
 			\Elementor\Group_Control_Typography::get_type(),
 			[
 				'name'     => 'pubcrawl_date_badge_day_typography',
-				'label'    => __('Day Typography', 'pubcrawls-addon'),
+				'label'    => esc_html__('Day Typography', 'pubcrawls-addon'),
 				'selector' => '{{WRAPPER}} .pc-event-day',
 			]
 		);
@@ -286,7 +379,7 @@ class Pubcrawls_City_Events extends \Elementor\Widget_Base
 		$this->add_control(
 			'pubcrawl_date_badge_month_color',
 			[
-				'label'     => __('Month Color', 'pubcrawls-addon'),
+				'label'     => esc_html__('Month Color', 'pubcrawls-addon'),
 				'type'      => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .pc-event-month' => 'color: {{VALUE}};',
@@ -298,7 +391,7 @@ class Pubcrawls_City_Events extends \Elementor\Widget_Base
 			\Elementor\Group_Control_Typography::get_type(),
 			[
 				'name'     => 'pubcrawl_date_badge_month_typography',
-				'label'    => __('Month Typography', 'pubcrawls-addon'),
+				'label'    => esc_html__('Month Typography', 'pubcrawls-addon'),
 				'selector' => '{{WRAPPER}} .pc-event-month',
 			]
 		);
@@ -306,7 +399,7 @@ class Pubcrawls_City_Events extends \Elementor\Widget_Base
 		$this->add_control(
 			'pubcrawl_date_badge_year_color',
 			[
-				'label'     => __('Year Color', 'pubcrawls-addon'),
+				'label'     => esc_html__('Year Color', 'pubcrawls-addon'),
 				'type'      => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .pc-event-year' => 'color: {{VALUE}};',
@@ -318,7 +411,7 @@ class Pubcrawls_City_Events extends \Elementor\Widget_Base
 			\Elementor\Group_Control_Typography::get_type(),
 			[
 				'name'     => 'pubcrawl_date_badge_year_typography',
-				'label'    => __('Year Typography', 'pubcrawls-addon'),
+				'label'    => esc_html__('Year Typography', 'pubcrawls-addon'),
 				'selector' => '{{WRAPPER}} .pc-event-year',
 			]
 		);
@@ -329,7 +422,7 @@ class Pubcrawls_City_Events extends \Elementor\Widget_Base
 		$this->start_controls_section(
 			'section_style_title',
 			[
-				'label' => __('Title', 'pubcrawls-addon'),
+				'label' => esc_html__('Title', 'pubcrawls-addon'),
 				'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
 			]
 		);
@@ -345,7 +438,7 @@ class Pubcrawls_City_Events extends \Elementor\Widget_Base
 		$this->add_control(
 			'pubcrawl_title_color',
 			[
-				'label'     => __('Color', 'pubcrawls-addon'),
+				'label'     => esc_html__('Color', 'pubcrawls-addon'),
 				'type'      => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .pc-event-card-title, {{WRAPPER}} .pc-event-card-title a' => 'color: {{VALUE}};',
@@ -356,10 +449,117 @@ class Pubcrawls_City_Events extends \Elementor\Widget_Base
 		$this->add_control(
 			'pubcrawl_title_hover_color',
 			[
-				'label'     => __('Hover Color', 'pubcrawls-addon'),
+				'label'     => esc_html__('Hover Color', 'pubcrawls-addon'),
 				'type'      => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .pc-event-card-title a:hover' => 'color: {{VALUE}};',
+				],
+			]
+		);
+
+		$this->end_controls_section();
+
+		// ── Style Section: Date Select Label ────────────────────
+		$this->start_controls_section(
+			'section_style_date_select_label',
+			[
+				'label' => esc_html__('Select Date Label', 'pubcrawls-addon'),
+				'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
+			]
+		);
+
+		$this->add_responsive_control(
+			'pubcrawl_select_label_gap',
+			[
+				'label'      => esc_html__('Gap Between Icon & Text', 'pubcrawls-addon'),
+				'type'       => \Elementor\Controls_Manager::SLIDER,
+				'size_units' => ['px', 'em', 'rem'],
+				'range'      => [
+					'px' => ['min' => 0, 'max' => 50],
+				],
+				'selectors'  => [
+					'{{WRAPPER}} .pc-events-grid .pc-event-select-label, {{WRAPPER}} .pc-event-select-label' => 'gap: {{SIZE}}{{UNIT}};',
+				],
+			]
+		);
+
+		$this->add_responsive_control(
+			'pubcrawl_select_label_spacing',
+			[
+				'label'      => esc_html__('Bottom Spacing', 'pubcrawls-addon'),
+				'type'       => \Elementor\Controls_Manager::SLIDER,
+				'size_units' => ['px', 'em', 'rem'],
+				'range'      => [
+					'px' => ['min' => 0, 'max' => 50],
+				],
+				'selectors'  => [
+					'{{WRAPPER}} .pc-events-grid .pc-event-select-label, {{WRAPPER}} .pc-event-select-label' => 'margin-bottom: {{SIZE}}{{UNIT}};',
+				],
+			]
+		);
+
+		$this->add_control(
+			'pubcrawl_select_text_heading',
+			[
+				'label'     => esc_html__('Text Style', 'pubcrawls-addon'),
+				'type'      => \Elementor\Controls_Manager::HEADING,
+				'separator' => 'before',
+			]
+		);
+
+		$this->add_group_control(
+			\Elementor\Group_Control_Typography::get_type(),
+			[
+				'name'     => 'pubcrawl_select_text_typography',
+				'selector' => '{{WRAPPER}} .pc-events-grid .pc-event-select-label span, {{WRAPPER}} .pc-event-select-label span',
+			]
+		);
+
+		$this->add_control(
+			'pubcrawl_select_text_color',
+			[
+				'label'     => esc_html__('Text Color', 'pubcrawls-addon'),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'selectors' => [
+					'{{WRAPPER}} .pc-events-grid .pc-event-select-label span, {{WRAPPER}} .pc-event-select-label span' => 'color: {{VALUE}};',
+				],
+			]
+		);
+
+		$this->add_control(
+			'pubcrawl_select_icon_heading',
+			[
+				'label'     => esc_html__('Icon Style', 'pubcrawls-addon'),
+				'type'      => \Elementor\Controls_Manager::HEADING,
+				'separator' => 'before',
+			]
+		);
+
+		$this->add_responsive_control(
+			'pubcrawl_select_icon_size',
+			[
+				'label'      => esc_html__('Icon Size', 'pubcrawls-addon'),
+				'type'       => \Elementor\Controls_Manager::SLIDER,
+				'size_units' => ['px', 'em', 'rem'],
+				'range'      => [
+					'px' => ['min' => 10, 'max' => 60],
+				],
+				'selectors'  => [
+					'{{WRAPPER}} .pc-events-grid .pc-event-select-label i, {{WRAPPER}} .pc-event-select-label i' => 'font-size: {{SIZE}}{{UNIT}};',
+					'{{WRAPPER}} .pc-events-grid .pc-event-select-label svg, {{WRAPPER}} .pc-event-select-label svg' => 'width: {{SIZE}}{{UNIT}}; height: {{SIZE}}{{UNIT}};',
+				],
+			]
+		);
+
+		$this->add_control(
+			'pubcrawl_select_icon_color',
+			[
+				'label'     => esc_html__('Icon Color', 'pubcrawls-addon'),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'selectors' => [
+					'{{WRAPPER}} .pc-events-grid .pc-event-select-label i, {{WRAPPER}} .pc-event-select-label i' => 'color: {{VALUE}};',
+					'{{WRAPPER}} .pc-events-grid .pc-event-select-label svg, {{WRAPPER}} .pc-event-select-label svg' => 'color: {{VALUE}}; stroke: {{VALUE}};',
+					'{{WRAPPER}} .pc-events-grid .pc-event-select-label svg:not([fill="none"])' => 'fill: {{VALUE}};',
 				],
 			]
 		);
@@ -370,7 +570,7 @@ class Pubcrawls_City_Events extends \Elementor\Widget_Base
 		$this->start_controls_section(
 			'section_style_buy_btn',
 			[
-				'label' => __('Buy Button', 'pubcrawls-addon'),
+				'label' => esc_html__('Buy Button', 'pubcrawls-addon'),
 				'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
 			]
 		);
@@ -388,14 +588,14 @@ class Pubcrawls_City_Events extends \Elementor\Widget_Base
 		$this->start_controls_tab(
 			'tab_buy_btn_normal',
 			[
-				'label' => __('Normal', 'pubcrawls-addon'),
+				'label' => esc_html__('Normal', 'pubcrawls-addon'),
 			]
 		);
 
 		$this->add_control(
 			'pubcrawl_buy_btn_text_color',
 			[
-				'label'     => __('Text Color', 'pubcrawls-addon'),
+				'label'     => esc_html__('Text Color', 'pubcrawls-addon'),
 				'type'      => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .pc-event-btn--buy' => 'color: {{VALUE}};',
@@ -406,7 +606,7 @@ class Pubcrawls_City_Events extends \Elementor\Widget_Base
 		$this->add_control(
 			'pubcrawl_buy_btn_bg_color',
 			[
-				'label'     => __('Background Color', 'pubcrawls-addon'),
+				'label'     => esc_html__('Background Color', 'pubcrawls-addon'),
 				'type'      => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .pc-event-btn--buy' => 'background-color: {{VALUE}};',
@@ -419,14 +619,14 @@ class Pubcrawls_City_Events extends \Elementor\Widget_Base
 		$this->start_controls_tab(
 			'tab_buy_btn_hover',
 			[
-				'label' => __('Hover', 'pubcrawls-addon'),
+				'label' => esc_html__('Hover', 'pubcrawls-addon'),
 			]
 		);
 
 		$this->add_control(
 			'pubcrawl_buy_btn_hover_text_color',
 			[
-				'label'     => __('Text Color', 'pubcrawls-addon'),
+				'label'     => esc_html__('Text Color', 'pubcrawls-addon'),
 				'type'      => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .pc-event-btn--buy:hover' => 'color: {{VALUE}};',
@@ -437,7 +637,7 @@ class Pubcrawls_City_Events extends \Elementor\Widget_Base
 		$this->add_control(
 			'pubcrawl_buy_btn_hover_bg_color',
 			[
-				'label'     => __('Background Color', 'pubcrawls-addon'),
+				'label'     => esc_html__('Background Color', 'pubcrawls-addon'),
 				'type'      => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .pc-event-btn--buy:hover' => 'background-color: {{VALUE}};',
@@ -448,7 +648,7 @@ class Pubcrawls_City_Events extends \Elementor\Widget_Base
 		$this->add_control(
 			'pubcrawl_buy_btn_hover_border_color',
 			[
-				'label'     => __('Border Color', 'pubcrawls-addon'),
+				'label'     => esc_html__('Border Color', 'pubcrawls-addon'),
 				'type'      => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .pc-event-btn--buy:hover' => 'border-color: {{VALUE}};',
@@ -472,7 +672,7 @@ class Pubcrawls_City_Events extends \Elementor\Widget_Base
 		$this->add_responsive_control(
 			'pubcrawl_buy_btn_border_radius',
 			[
-				'label'      => __('Border Radius', 'pubcrawls-addon'),
+				'label'      => esc_html__('Border Radius', 'pubcrawls-addon'),
 				'type'       => \Elementor\Controls_Manager::DIMENSIONS,
 				'size_units' => ['px', '%'],
 				'selectors'  => [
@@ -484,7 +684,7 @@ class Pubcrawls_City_Events extends \Elementor\Widget_Base
 		$this->add_responsive_control(
 			'pubcrawl_buy_btn_padding',
 			[
-				'label'      => __('Padding', 'pubcrawls-addon'),
+				'label'      => esc_html__('Padding', 'pubcrawls-addon'),
 				'type'       => \Elementor\Controls_Manager::DIMENSIONS,
 				'size_units' => ['px', 'em', '%'],
 				'selectors'  => [
@@ -499,7 +699,7 @@ class Pubcrawls_City_Events extends \Elementor\Widget_Base
 		$this->start_controls_section(
 			'section_style_info_btn',
 			[
-				'label' => __('Info Button', 'pubcrawls-addon'),
+				'label' => esc_html__('Info Button', 'pubcrawls-addon'),
 				'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
 			]
 		);
@@ -517,14 +717,14 @@ class Pubcrawls_City_Events extends \Elementor\Widget_Base
 		$this->start_controls_tab(
 			'tab_info_btn_normal',
 			[
-				'label' => __('Normal', 'pubcrawls-addon'),
+				'label' => esc_html__('Normal', 'pubcrawls-addon'),
 			]
 		);
 
 		$this->add_control(
 			'pubcrawl_info_btn_text_color',
 			[
-				'label'     => __('Text Color', 'pubcrawls-addon'),
+				'label'     => esc_html__('Text Color', 'pubcrawls-addon'),
 				'type'      => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .pc-event-btn--info' => 'color: {{VALUE}};',
@@ -535,7 +735,7 @@ class Pubcrawls_City_Events extends \Elementor\Widget_Base
 		$this->add_control(
 			'pubcrawl_info_btn_bg_color',
 			[
-				'label'     => __('Background Color', 'pubcrawls-addon'),
+				'label'     => esc_html__('Background Color', 'pubcrawls-addon'),
 				'type'      => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .pc-event-btn--info' => 'background-color: {{VALUE}};',
@@ -548,14 +748,14 @@ class Pubcrawls_City_Events extends \Elementor\Widget_Base
 		$this->start_controls_tab(
 			'tab_info_btn_hover',
 			[
-				'label' => __('Hover', 'pubcrawls-addon'),
+				'label' => esc_html__('Hover', 'pubcrawls-addon'),
 			]
 		);
 
 		$this->add_control(
 			'pubcrawl_info_btn_hover_text_color',
 			[
-				'label'     => __('Text Color', 'pubcrawls-addon'),
+				'label'     => esc_html__('Text Color', 'pubcrawls-addon'),
 				'type'      => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .pc-event-btn--info:hover' => 'color: {{VALUE}};',
@@ -566,7 +766,7 @@ class Pubcrawls_City_Events extends \Elementor\Widget_Base
 		$this->add_control(
 			'pubcrawl_info_btn_hover_bg_color',
 			[
-				'label'     => __('Background Color', 'pubcrawls-addon'),
+				'label'     => esc_html__('Background Color', 'pubcrawls-addon'),
 				'type'      => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .pc-event-btn--info:hover' => 'background-color: {{VALUE}};',
@@ -577,7 +777,7 @@ class Pubcrawls_City_Events extends \Elementor\Widget_Base
 		$this->add_control(
 			'pubcrawl_info_btn_hover_border_color',
 			[
-				'label'     => __('Border Color', 'pubcrawls-addon'),
+				'label'     => esc_html__('Border Color', 'pubcrawls-addon'),
 				'type'      => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .pc-event-btn--info:hover' => 'border-color: {{VALUE}};',
@@ -601,7 +801,7 @@ class Pubcrawls_City_Events extends \Elementor\Widget_Base
 		$this->add_responsive_control(
 			'pubcrawl_info_btn_border_radius',
 			[
-				'label'      => __('Border Radius', 'pubcrawls-addon'),
+				'label'      => esc_html__('Border Radius', 'pubcrawls-addon'),
 				'type'       => \Elementor\Controls_Manager::DIMENSIONS,
 				'size_units' => ['px', '%'],
 				'selectors'  => [
@@ -613,7 +813,7 @@ class Pubcrawls_City_Events extends \Elementor\Widget_Base
 		$this->add_responsive_control(
 			'pubcrawl_info_btn_padding',
 			[
-				'label'      => __('Padding', 'pubcrawls-addon'),
+				'label'      => esc_html__('Padding', 'pubcrawls-addon'),
 				'type'       => \Elementor\Controls_Manager::DIMENSIONS,
 				'size_units' => ['px', 'em', '%'],
 				'selectors'  => [
@@ -645,7 +845,16 @@ class Pubcrawls_City_Events extends \Elementor\Widget_Base
 			}
 		}
 		$city_id  = ! empty($settings['city_id']) ? intval($settings['city_id']) : 0;
-		$category = isset($settings['category']) ? sanitize_text_field($settings['category']) : '';
+		$category = isset($settings['category']) ? $settings['category'] : '';
+		if (is_array($category)) {
+			$category = reset($category);
+		}
+		$category = sanitize_text_field($category);
+
+		$select_date_text = ! empty($settings['select_date_text'])
+			? $settings['select_date_text']
+			: esc_html__('Select Your Date :', 'pubcrawls-addon');
+		$select_date_icon = ! empty($settings['select_date_icon']) ? $settings['select_date_icon'] : [];
 
 		$today = gmdate('Ymd');
 
@@ -670,7 +879,8 @@ class Pubcrawls_City_Events extends \Elementor\Widget_Base
 		} elseif (! empty($url_crawl_cat)) {
 			$category_slug = $url_crawl_cat;
 		} elseif (is_tax('tribe_events_cat')) {
-			$category_slug = get_queried_object()->slug;
+			$queried_obj   = get_queried_object();
+			$category_slug = ($queried_obj instanceof \WP_Term) ? $queried_obj->slug : '';
 		} elseif (get_query_var('tribe_events_cat')) {
 			$category_slug = get_query_var('tribe_events_cat');
 		}
@@ -882,12 +1092,21 @@ class Pubcrawls_City_Events extends \Elementor\Widget_Base
 					<div class="pcet-event-date-select-wrapper">
 
 						<?php if ($has_dates && count($date_rows) > 1) : ?>
-							<p class="pc-event-select-label"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#E6B325" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar">
-									<path d="M8 2v3" />
-									<path d="M16 2v3" />
-									<rect x="3" y="3" width="18" height="18" rx="2" />
-									<path d="M3 9h18" />
-								</svg> <span><?php esc_html_e('Select Your Date :', 'pubcrawls-addon'); ?></span></p>
+							<p class="pc-event-select-label">
+								<?php if (! empty($select_date_icon['value'])) : ?>
+									<span class="pc-event-select-icon">
+										<?php \Elementor\Icons_Manager::render_icon($select_date_icon, ['aria-hidden' => 'true']); ?>
+									</span>
+								<?php else : ?>
+									<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#E6B325" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar">
+										<path d="M8 2v3" />
+										<path d="M16 2v3" />
+										<rect x="3" y="3" width="18" height="18" rx="2" />
+										<path d="M3 9h18" />
+									</svg>
+								<?php endif; ?>
+								<span><?php echo esc_html($select_date_text); ?></span>
+							</p>
 						<?php endif; ?>
 
 						<?php if ($has_dates && $first_row) : ?>
