@@ -25,6 +25,37 @@ class Pubcrawls_Admin {
 	const WIDGETS_KEY    = 'pubcrawls_disabled_widgets';
 	const POST_TYPES_KEY = 'pubcrawls_disabled_post_types';
 	const TAXONOMIES_KEY = 'pubcrawls_disabled_taxonomies';
+	const SLUGS_KEY      = 'pubcrawls_slug_overrides';
+	const FLUSH_FLAG     = 'pubcrawls_flush_rewrite';
+
+	/**
+	 * Default URL (rewrite) slugs exactly as registered in post-types.php / taxonomies.php.
+	 * These are what users get when no override is saved.
+	 */
+	const DEFAULT_SLUGS = array(
+		'post_types' => array(
+			'city'         => 'city',
+			'faq'          => 'faq',
+			'press'        => 'press',
+			'venue'        => 'venues',
+			'tribe_events' => 'tribe_events',
+			'city_map'     => 'maps',
+		),
+		'taxonomies' => array(
+			'venue_category'   => 'venue-category',
+			'tribe_events_cat' => 'events',
+		),
+	);
+
+	/**
+	 * Slugs WordPress itself (or common conventions) already uses for URLs.
+	 */
+	const RESERVED_SLUGS = array(
+		'post', 'posts', 'page', 'pages', 'attachment', 'attachments', 'revision', 'nav_menu_item',
+		'wp-admin', 'wp-content', 'wp-includes', 'wp-json', 'wp-login', 'wp-login.php', 'admin', 'login',
+		'feed', 'feeds', 'rss', 'rss2', 'atom', 'embed', 'trackback', 'comments', 'comment-page',
+		'category', 'categories', 'tag', 'tags', 'author', 'authors', 'search', 'type', 'sitemap', 'robots.txt',
+	);
 
 	/**
 	 * Instance.
@@ -50,6 +81,54 @@ class Pubcrawls_Admin {
 		add_action( 'admin_menu', array( $this, 'register_menu' ) );
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_assets' ) );
+
+		// Slug / enable-disable changes alter rewrite rules: flush once, after types are re-registered.
+		foreach ( array( self::SLUGS_KEY, self::POST_TYPES_KEY, self::TAXONOMIES_KEY ) as $option ) {
+			add_action( 'update_option_' . $option, array( $this, 'flag_rewrite_flush' ) );
+			add_action( 'add_option_' . $option, array( $this, 'flag_rewrite_flush' ) );
+		}
+		add_action( 'init', array( $this, 'maybe_flush_rewrites' ), 999 );
+	}
+
+	/**
+	 * Mark rewrite rules as stale.
+	 */
+	public function flag_rewrite_flush(): void {
+		update_option( self::FLUSH_FLAG, 1, false );
+	}
+
+	/**
+	 * Flush rewrite rules once, after all post types/taxonomies registered with the new slugs.
+	 */
+	public function maybe_flush_rewrites(): void {
+		if ( get_option( self::FLUSH_FLAG ) ) {
+			delete_option( self::FLUSH_FLAG );
+			flush_rewrite_rules( false );
+		}
+	}
+
+	/**
+	 * Default (source-code) slug for a post type or taxonomy.
+	 *
+	 * @param string $kind 'post_types' or 'taxonomies'.
+	 * @param string $key  Post type / taxonomy key.
+	 */
+	public static function get_default_slug( string $kind, string $key ): string {
+		return self::DEFAULT_SLUGS[ $kind ][ $key ] ?? $key;
+	}
+
+	/**
+	 * Effective slug: saved override, otherwise the source-code default.
+	 *
+	 * @param string $kind 'post_types' or 'taxonomies'.
+	 * @param string $key  Post type / taxonomy key.
+	 */
+	public static function get_slug( string $kind, string $key ): string {
+		$overrides = get_option( self::SLUGS_KEY, array() );
+		$slug      = ( is_array( $overrides ) && isset( $overrides[ $kind ][ $key ] ) && is_string( $overrides[ $kind ][ $key ] ) )
+			? sanitize_title( $overrides[ $kind ][ $key ] )
+			: '';
+		return '' !== $slug ? $slug : self::get_default_slug( $kind, $key );
 	}
 
 	/**
@@ -163,6 +242,16 @@ class Pubcrawls_Admin {
 			array(
 				'type'              => 'array',
 				'sanitize_callback' => array( $this, 'sanitize_disabled_taxonomies' ),
+				'default'           => array(),
+			)
+		);
+
+		register_setting(
+			'pubcrawls_settings_group',
+			self::SLUGS_KEY,
+			array(
+				'type'              => 'array',
+				'sanitize_callback' => array( $this, 'sanitize_slug_overrides' ),
 				'default'           => array(),
 			)
 		);
@@ -319,8 +408,10 @@ class Pubcrawls_Admin {
 	 * @return array
 	 */
 	public function sanitize_settings( $input ): array {
+		// A request that did not include these settings must never reset them to defaults.
 		if ( ! is_array( $input ) ) {
-			return self::get_default_settings();
+			$stored = get_option( self::SETTINGS_KEY, self::get_default_settings() );
+			return is_array( $stored ) ? $stored : self::get_default_settings();
 		}
 
 		$existing = get_option( self::SETTINGS_KEY, self::get_default_settings() );
@@ -508,8 +599,10 @@ class Pubcrawls_Admin {
 	 * @return array
 	 */
 	public function sanitize_disabled_widgets( $input ): array {
+		// Not submitted (e.g. a partial/legacy form): keep what is stored instead of re-enabling everything.
 		if ( ! is_array( $input ) ) {
-			return array();
+			$stored = get_option( self::WIDGETS_KEY, array() );
+			return is_array( $stored ) ? $stored : array();
 		}
 
 		$valid_slugs = array_keys( self::get_widget_manifest() );
@@ -523,8 +616,10 @@ class Pubcrawls_Admin {
 	 * @return array
 	 */
 	public function sanitize_disabled_post_types( $input ): array {
+		// Not submitted (e.g. a partial/legacy form): keep what is stored instead of re-enabling everything.
 		if ( ! is_array( $input ) ) {
-			return array();
+			$stored = get_option( self::POST_TYPES_KEY, array() );
+			return is_array( $stored ) ? $stored : array();
 		}
 
 		$valid_slugs = array_keys( self::get_post_types_manifest() );
@@ -538,12 +633,108 @@ class Pubcrawls_Admin {
 	 * @return array
 	 */
 	public function sanitize_disabled_taxonomies( $input ): array {
+		// Not submitted (e.g. a partial/legacy form): keep what is stored instead of re-enabling everything.
 		if ( ! is_array( $input ) ) {
-			return array();
+			$stored = get_option( self::TAXONOMIES_KEY, array() );
+			return is_array( $stored ) ? $stored : array();
 		}
 
 		$valid_slugs = array_keys( self::get_taxonomies_manifest() );
 		return array_values( array_intersect( $input, $valid_slugs ) );
+	}
+
+	/**
+	 * Sanitize URL slug overrides. Only values that differ from the source-code default are stored.
+	 * Invalid or conflicting values are rejected (the previous value is kept) with an admin notice.
+	 *
+	 * @param mixed $input Raw input: [ 'post_types' => [ key => slug ], 'taxonomies' => [ key => slug ] ].
+	 * @return array
+	 */
+	public function sanitize_slug_overrides( $input ): array {
+		$stored = get_option( self::SLUGS_KEY, array() );
+		$stored = is_array( $stored ) ? $stored : array();
+		if ( ! is_array( $input ) ) {
+			return $stored; // Not submitted: keep.
+		}
+
+		$labels = array(
+			'post_types' => self::get_post_types_manifest(),
+			'taxonomies' => self::get_taxonomies_manifest(),
+		);
+
+		// Effective slug of every item after this save, used for duplicate detection.
+		$effective = array();
+		$result    = array( 'post_types' => array(), 'taxonomies' => array() );
+
+		foreach ( $labels as $kind => $manifest ) {
+			foreach ( $manifest as $key => $item ) {
+				$default = self::get_default_slug( $kind, $key );
+				$raw     = isset( $input[ $kind ][ $key ] ) && is_string( $input[ $kind ][ $key ] ) ? trim( wp_unslash( $input[ $kind ][ $key ] ) ) : '';
+				$slug    = '' === $raw ? $default : sanitize_title( $raw );
+				$error   = '';
+
+				if ( '' === $slug ) {
+					$error = __( 'contains no valid characters (use letters, numbers, hyphens or underscores).', 'pubcrawls-addon' );
+				} elseif ( in_array( $slug, self::RESERVED_SLUGS, true ) ) {
+					/* translators: %s: slug */
+					$error = sprintf( __( '"%s" is reserved by WordPress.', 'pubcrawls-addon' ), $slug );
+				} elseif ( isset( $effective[ $slug ] ) ) {
+					/* translators: 1: slug, 2: other item label */
+					$error = sprintf( __( '"%1$s" is already used by %2$s.', 'pubcrawls-addon' ), $slug, $effective[ $slug ] );
+				} elseif ( $slug !== $default && self::slug_used_elsewhere( $slug ) ) {
+					/* translators: %s: slug */
+					$error = sprintf( __( '"%s" is already used by another post type or taxonomy.', 'pubcrawls-addon' ), $slug );
+				}
+
+				if ( '' !== $error ) {
+					add_settings_error(
+						self::SLUGS_KEY,
+						'pubcrawls_slug_' . $key,
+						/* translators: 1: item title, 2: reason */
+						sprintf( __( 'Slug for %1$s was not changed: %2$s', 'pubcrawls-addon' ), $item['title'], $error ),
+						'error'
+					);
+					// Keep the previously saved value (or default).
+					$prev = isset( $stored[ $kind ][ $key ] ) && is_string( $stored[ $kind ][ $key ] ) ? sanitize_title( $stored[ $kind ][ $key ] ) : '';
+					$slug = '' !== $prev ? $prev : $default;
+				}
+
+				$effective[ $slug ] = $item['title'];
+				if ( $slug !== $default ) {
+					$result[ $kind ][ $key ] = $slug;
+				}
+			}
+		}
+		return $result;
+	}
+
+	/**
+	 * Whether a rewrite slug is already used by a post type / taxonomy not managed by this plugin.
+	 *
+	 * @param string $slug Candidate slug.
+	 */
+	private static function slug_used_elsewhere( string $slug ): bool {
+		$own_pt  = array_keys( self::DEFAULT_SLUGS['post_types'] );
+		$own_tax = array_keys( self::DEFAULT_SLUGS['taxonomies'] );
+		foreach ( get_post_types( array(), 'objects' ) as $name => $obj ) {
+			if ( in_array( $name, $own_pt, true ) ) {
+				continue;
+			}
+			$rewrite = is_array( $obj->rewrite ) && ! empty( $obj->rewrite['slug'] ) ? $obj->rewrite['slug'] : ( $obj->public ? $name : '' );
+			if ( $rewrite === $slug ) {
+				return true;
+			}
+		}
+		foreach ( get_taxonomies( array(), 'objects' ) as $name => $obj ) {
+			if ( in_array( $name, $own_tax, true ) ) {
+				continue;
+			}
+			$rewrite = is_array( $obj->rewrite ) && ! empty( $obj->rewrite['slug'] ) ? $obj->rewrite['slug'] : '';
+			if ( $rewrite === $slug ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -556,18 +747,21 @@ class Pubcrawls_Admin {
 			return;
 		}
 
+		$css_ver = PUBCRAWLS_ADDON_VERSION . '.' . (int) @filemtime( PUBCRAWLS_ADDON_DIR . 'assets/css/admin-dashboard.css' ); // phpcs:ignore WordPress.PHP.NoSilencedErrors
+		$js_ver  = PUBCRAWLS_ADDON_VERSION . '.' . (int) @filemtime( PUBCRAWLS_ADDON_DIR . 'assets/js/admin-dashboard.js' );  // phpcs:ignore WordPress.PHP.NoSilencedErrors
+
 		wp_enqueue_style(
 			'pubcrawls-admin-dashboard',
 			PUBCRAWLS_ADDON_URL . 'assets/css/admin-dashboard.css',
 			array(),
-			PUBCRAWLS_ADDON_VERSION
+			$css_ver
 		);
 
 		wp_enqueue_script(
 			'pubcrawls-admin-dashboard',
 			PUBCRAWLS_ADDON_URL . 'assets/js/admin-dashboard.js',
 			array( 'jquery' ),
-			PUBCRAWLS_ADDON_VERSION,
+			$js_ver,
 			true
 		);
 

@@ -7,7 +7,9 @@
 
 	$(document).ready(function () {
 		// ── Tab Switching ──────────────────────────────────────
-		var $tabs = $('#pubcrawls-tab-nav a');
+		// Every tab lives in ONE form, so switching tabs never discards edits.
+		var $form = $('#pubcrawls-settings-form');
+		var $tabs = $('#pubcrawls-tab-nav .pubcrawls-nav__item');
 		var $panes = $('.pubcrawls-tab-pane');
 
 		function updateRefererTabs(tab) {
@@ -30,29 +32,124 @@
 			});
 		}
 
-		$tabs.on('click', function (e) {
-			var tab = $(this).data('tab');
-			if (!tab) return;
-
-			e.preventDefault();
-
-			// Update tabs
-			$tabs.removeClass('nav-tab-active');
-			$(this).addClass('nav-tab-active');
-
-			// Update panes
+		function activateTab(tab) {
+			if (!tab || !$('#tab-' + tab).length) return;
+			$tabs.removeClass('is-active').filter('[data-tab="' + tab + '"]').addClass('is-active');
 			$panes.removeClass('is-active');
 			$('#tab-' + tab).addClass('is-active');
-
-			// Keep hidden _wp_http_referer in sync with current active tab
-			updateRefererTabs(tab);
-
-			// Update URL state without page reload
+			updateRefererTabs(tab); // After saving, WordPress returns to this tab.
 			if (window.history && window.history.replaceState) {
 				var url = new URL(window.location.href);
 				url.searchParams.set('tab', tab);
+				url.searchParams.delete('settings-updated');
 				window.history.replaceState(null, '', url.toString());
 			}
+		}
+
+		// Sidebar items and any in-page link carrying data-tab.
+		$(document).on('click', 'a[data-tab]', function (e) {
+			var tab = $(this).data('tab');
+			if (!tab) return;
+			e.preventDefault();
+			activateTab(tab);
+			window.scrollTo({ top: 0, behavior: 'smooth' });
+		});
+
+		updateRefererTabs($tabs.filter('.is-active').data('tab') || 'overview');
+
+		// ── Unsaved-changes tracking ───────────────────────────
+		var $savebar = $('#pubcrawls-savebar');
+		var $saveText = $savebar.find('.pubcrawls-savebar__text');
+		var $saveIcon = $savebar.find('.pubcrawls-savebar__status .dashicons');
+		var dirty = false;
+		var submitting = false;
+		var i18n = {
+			saved: 'All changes saved',
+			unsaved: 'You have unsaved changes',
+			saving: 'Saving\u2026',
+			leave: 'You have unsaved changes. Leave this page without saving?'
+		};
+
+		function setDirty(state) {
+			if (dirty === state) return;
+			dirty = state;
+			$savebar.toggleClass('is-dirty', dirty);
+			$saveText.text(dirty ? i18n.unsaved : i18n.saved);
+			$saveIcon.toggleClass('dashicons-yes-alt', !dirty).toggleClass('dashicons-warning', dirty);
+		}
+
+		// Any edit to a setting field (not the AJAX test widgets) marks the form dirty.
+		$form.on('input change', 'input, select, textarea', function () {
+			var name = this.name || '';
+			if (!name || name === '_wpnonce' || name === '_wp_http_referer' || name === 'option_page' || name === 'action') return;
+			setDirty(true);
+		});
+
+		$form.on('submit', function () {
+			submitting = true;
+			$savebar.removeClass('is-dirty').addClass('is-saving');
+			$saveText.text(i18n.saving);
+			$('#pubcrawls-save-btn').prop('disabled', true);
+		});
+
+		$(window).on('beforeunload', function (e) {
+			if (dirty && !submitting) {
+				e.preventDefault();
+				e.returnValue = i18n.leave;
+				return i18n.leave;
+			}
+		});
+
+		// The Eventbrite tester/queue widgets sit inside the form: they must never submit it.
+		$form.find('button:not([type])').attr('type', 'button');
+		$form.on('keydown', 'input:not([type="submit"]):not([type="button"])', function (e) {
+			if (e.key === 'Enter') {
+				e.preventDefault();
+				if (this.id === 'pubcrawls-test-order-id') {
+					$('#pubcrawls-test-order-btn').trigger('click');
+				}
+			}
+		});
+
+		// ── URL Slug fields ────────────────────────────────────
+		function normalizeSlug(v) {
+			return String(v || '')
+				.toLowerCase()
+				.replace(/[^a-z0-9_\- ]+/g, '')
+				.replace(/\s+/g, '-')
+				.replace(/-{2,}/g, '-')
+				.replace(/^[-_]+|[-_]+$/g, '');
+		}
+
+		function refreshSlug($input) {
+			var def = String($input.data('default') || '');
+			var raw = $input.val();
+			var clean = normalizeSlug(raw);
+			var effective = clean || def;
+			var $wrap = $input.closest('.pubcrawls-slug');
+			$wrap.find('.pubcrawls-slug__field').toggleClass('is-modified', effective !== def);
+			$wrap.find('.pubcrawls-slug__reset').prop('hidden', effective === def);
+			var $prev = $wrap.find('.pubcrawls-slug__preview');
+			$prev.text('/' + effective + '/' + ($prev.data('suffix') || '') + '/');
+		}
+
+		$('.pubcrawls-slug__input').each(function () { refreshSlug($(this)); });
+
+		$(document).on('input', '.pubcrawls-slug__input', function () {
+			refreshSlug($(this));
+		});
+
+		// Tidy the value when leaving the field (spaces -> hyphens, strip unsafe characters).
+		$(document).on('blur', '.pubcrawls-slug__input', function () {
+			var $i = $(this);
+			var clean = normalizeSlug($i.val());
+			$i.val(clean || $i.data('default'));
+			refreshSlug($i);
+		});
+
+		$(document).on('click', '.pubcrawls-slug__reset', function () {
+			var $i = $(this).closest('.pubcrawls-slug').find('.pubcrawls-slug__input');
+			$i.val($i.data('default')).trigger('input').trigger('change').trigger('focus');
 		});
 
 		// ── Card Toggles Visual State ──────────────────────────

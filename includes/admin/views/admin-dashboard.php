@@ -37,10 +37,10 @@ if (! is_array($disabled_tax)) {
 
 <div class="wrap pubcrawls-dashboard-wrap">
 
-	<!-- Header Banner -->
+	<!-- Header -->
 	<header class="pubcrawls-header">
 		<div class="pubcrawls-header__logo">
-			<span class="dashicons dashicons-tickets-alt"></span>
+			<span class="pubcrawls-header__mark"><span class="dashicons dashicons-tickets-alt"></span></span>
 			<div>
 				<h1><?php esc_html_e('PubCrawls', 'pubcrawls-addon'); ?></h1>
 				<span class="pubcrawls-version">v<?php echo esc_html(PUBCRAWLS_ADDON_VERSION); ?></span>
@@ -48,7 +48,7 @@ if (! is_array($disabled_tax)) {
 		</div>
 		<div class="pubcrawls-header__meta">
 			<span class="pubcrawls-badge pubcrawls-badge--elementor">
-				<i class="dashicons dashicons-welcome-widgets-menus"></i> <?php echo esc_html(count($widgets) - count($disabled_w)); ?>/<?php echo esc_html(count($widgets)); ?> <?php esc_html_e('Widgets Active', 'pubcrawls-addon'); ?>
+				<span class="dashicons dashicons-welcome-widgets-menus"></span> <?php echo esc_html(count($widgets) - count($disabled_w)); ?>/<?php echo esc_html(count($widgets)); ?> <?php esc_html_e('Widgets Active', 'pubcrawls-addon'); ?>
 			</span>
 			<?php if (! in_array('tribe_events', $disabled_pt, true)) : ?>
 				<a href="<?php echo esc_url(admin_url('edit.php?post_type=tribe_events')); ?>" class="button button-secondary">
@@ -62,53 +62,87 @@ if (! is_array($disabled_tax)) {
 			<?php endif; ?>
 		</div>
 	</header>
+	<hr class="wp-header-end" />
+
+	<?php settings_errors(); ?>
 
 	<?php
-	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-	$settings_updated = isset($_GET['settings-updated']) && 'true' === $_GET['settings-updated'];
-	if ($settings_updated) :
-	?>
-		<div class="notice notice-success is-dismissible pubcrawls-notice">
-			<p><strong><?php esc_html_e('Settings saved successfully.', 'pubcrawls-addon'); ?></strong></p>
-		</div>
-	<?php endif; ?>
+	$active_helpers_count = (! empty($settings['enable_faq_seo_importer']) && '1' === (string) $settings['enable_faq_seo_importer'] ? 1 : 0)
+		+ (! empty($settings['enable_bulk_title_editor']) && '1' === (string) $settings['enable_bulk_title_editor'] ? 1 : 0)
+		+ (! empty($settings['enable_quick_featured_image']) && '1' === (string) $settings['enable_quick_featured_image'] ? 1 : 0)
+		+ (! empty($settings['enable_post_url_column']) && '1' === (string) $settings['enable_post_url_column'] ? 1 : 0);
 
-	<!-- Navigation Tabs -->
-	<nav class="nav-tab-wrapper pubcrawls-tabs" id="pubcrawls-tab-nav">
-		<a href="?page=pubcrawls-addon&tab=overview" class="nav-tab <?php echo 'overview' === $active_tab ? 'nav-tab-active' : ''; ?>" data-tab="overview">
-			<span class="dashicons dashicons-dashboard"></span> <?php esc_html_e('Overview & Health', 'pubcrawls-addon'); ?>
-		</a>
-		<a href="?page=pubcrawls-addon&tab=post-types" class="nav-tab <?php echo 'post-types' === $active_tab ? 'nav-tab-active' : ''; ?>" data-tab="post-types">
-			<span class="dashicons dashicons-category"></span> <?php esc_html_e('Post Types & Taxonomies', 'pubcrawls-addon'); ?>
-			<span class="pubcrawls-tab-count"><?php echo esc_html(count($post_types) - count($disabled_pt)); ?>/<?php echo esc_html(count($post_types)); ?></span>
-		</a>
-		<a href="?page=pubcrawls-addon&tab=widgets" class="nav-tab <?php echo 'widgets' === $active_tab ? 'nav-tab-active' : ''; ?>" data-tab="widgets">
-			<span class="dashicons dashicons-screenoptions"></span> <?php esc_html_e('Widgets Manager', 'pubcrawls-addon'); ?>
-			<span class="pubcrawls-tab-count"><?php echo esc_html(count($widgets) - count($disabled_w)); ?>/<?php echo esc_html(count($widgets)); ?></span>
-		</a>
-		<a href="?page=pubcrawls-addon&tab=settings" class="nav-tab <?php echo 'settings' === $active_tab ? 'nav-tab-active' : ''; ?>" data-tab="settings">
-			<span class="dashicons dashicons-admin-settings"></span> <?php esc_html_e('Ticket Settings', 'pubcrawls-addon'); ?>
-		</a>
-		<a href="?page=pubcrawls-addon&tab=schema" class="nav-tab <?php echo 'schema' === $active_tab ? 'nav-tab-active' : ''; ?>" data-tab="schema">
-			<span class="dashicons dashicons-networking"></span> <?php esc_html_e('Schema & SEO', 'pubcrawls-addon'); ?>
-			<span class="pubcrawls-tab-count" style="background:#8b5cf6;color:#fff;">JSON-LD</span>
-		</a>
-		<a href="?page=pubcrawls-addon&tab=tracking" class="nav-tab <?php echo 'tracking' === $active_tab ? 'nav-tab-active' : ''; ?>" data-tab="tracking">
-			<span class="dashicons dashicons-rest-api"></span> <?php esc_html_e('Tracking & Webhooks', 'pubcrawls-addon'); ?>
-			<span class="pubcrawls-tab-count" style="background:#0284c7;color:#fff;">CAPI</span>
-		</a>
-		<a href="?page=pubcrawls-addon&tab=helpers" class="nav-tab <?php echo 'helpers' === $active_tab ? 'nav-tab-active' : ''; ?>" data-tab="helpers">
-			<span class="dashicons dashicons-admin-tools"></span> <?php esc_html_e('Helpers & Tools', 'pubcrawls-addon'); ?>
-			<?php
-			$active_helpers_count = (! empty($settings['enable_faq_seo_importer']) && '1' === (string) $settings['enable_faq_seo_importer'] ? 1 : 0)
-				+ (! empty($settings['enable_bulk_title_editor']) && '1' === (string) $settings['enable_bulk_title_editor'] ? 1 : 0)
-				+ (! empty($settings['enable_quick_featured_image']) && '1' === (string) $settings['enable_quick_featured_image'] ? 1 : 0)
-				+ (! empty($settings['enable_post_url_column']) && '1' === (string) $settings['enable_post_url_column'] ? 1 : 0);
-			if ($active_helpers_count > 0) : ?>
-				<span class="pubcrawls-tab-count" style="background:#22c55e;color:#fff;"><?php echo esc_html($active_helpers_count); ?></span>
-			<?php endif; ?>
-		</a>
-	</nav>
+	// Sidebar navigation: grouped so related settings live together.
+	$nav_groups = array(
+		array(
+			'label' => '',
+			'items' => array(
+				'overview' => array(esc_html__('Overview & Health', 'pubcrawls-addon'), 'dashicons-dashboard', ''),
+			),
+		),
+		array(
+			'label' => esc_html__('Content', 'pubcrawls-addon'),
+			'items' => array(
+				'post-types' => array(esc_html__('Post Types & Taxonomies', 'pubcrawls-addon'), 'dashicons-category', (count($post_types) - count($disabled_pt)) . '/' . count($post_types)),
+				'widgets'    => array(esc_html__('Widgets Manager', 'pubcrawls-addon'), 'dashicons-screenoptions', (count($widgets) - count($disabled_w)) . '/' . count($widgets)),
+			),
+		),
+		array(
+			'label' => esc_html__('Tickets & Tracking', 'pubcrawls-addon'),
+			'items' => array(
+				'settings' => array(esc_html__('Ticket Settings', 'pubcrawls-addon'), 'dashicons-tickets-alt', ''),
+				'tracking' => array(esc_html__('Tracking & Webhooks', 'pubcrawls-addon'), 'dashicons-rest-api', 'CAPI'),
+			),
+		),
+		array(
+			'label' => esc_html__('SEO', 'pubcrawls-addon'),
+			'items' => array(
+				'schema' => array(esc_html__('Schema & SEO', 'pubcrawls-addon'), 'dashicons-networking', 'JSON-LD'),
+			),
+		),
+		array(
+			'label' => esc_html__('Tools', 'pubcrawls-addon'),
+			'items' => array(
+				'helpers' => array(esc_html__('Helpers & Tools', 'pubcrawls-addon'), 'dashicons-admin-tools', $active_helpers_count > 0 ? (string) $active_helpers_count : ''),
+			),
+		),
+	);
+	?>
+
+	<!-- One form for every tab: a single Save stores all tabs together, so nothing is lost when switching tabs. -->
+	<form method="post" action="options.php" id="pubcrawls-settings-form" class="pubcrawls-form" novalidate>
+		<?php settings_fields('pubcrawls_settings_group'); ?>
+		<?php foreach (array('ticket_settings_submitted', 'schema_settings_submitted', 'tracking_settings_submitted', 'helpers_settings_submitted') as $pc_flag) : ?>
+			<input type="hidden" name="<?php echo esc_attr(Pubcrawls_Admin::SETTINGS_KEY); ?>[<?php echo esc_attr($pc_flag); ?>]" value="1" />
+		<?php endforeach; ?>
+		<?php /* Empty markers so "nothing disabled" is submitted as an empty list instead of being treated as "not submitted". */ ?>
+		<input type="hidden" name="<?php echo esc_attr(Pubcrawls_Admin::WIDGETS_KEY); ?>[]" value="" />
+		<input type="hidden" name="<?php echo esc_attr(Pubcrawls_Admin::POST_TYPES_KEY); ?>[]" value="" />
+		<input type="hidden" name="<?php echo esc_attr(Pubcrawls_Admin::TAXONOMIES_KEY); ?>[]" value="" />
+
+		<div class="pubcrawls-layout">
+
+			<aside class="pubcrawls-sidebar">
+				<nav class="pubcrawls-nav" id="pubcrawls-tab-nav" aria-label="<?php esc_attr_e('PubCrawls sections', 'pubcrawls-addon'); ?>">
+					<?php foreach ($nav_groups as $group) : ?>
+						<?php if ('' !== $group['label']) : ?>
+							<span class="pubcrawls-nav__group"><?php echo esc_html($group['label']); ?></span>
+						<?php endif; ?>
+						<?php foreach ($group['items'] as $tab_key => $tab) : ?>
+							<a href="?page=pubcrawls-addon&tab=<?php echo esc_attr($tab_key); ?>" class="pubcrawls-nav__item <?php echo $tab_key === $active_tab ? 'is-active' : ''; ?>" data-tab="<?php echo esc_attr($tab_key); ?>">
+								<span class="dashicons <?php echo esc_attr($tab[1]); ?>"></span>
+								<span class="pubcrawls-nav__label"><?php echo esc_html($tab[0]); ?></span>
+								<?php if ('' !== $tab[2]) : ?>
+									<span class="pubcrawls-tab-count"><?php echo esc_html($tab[2]); ?></span>
+								<?php endif; ?>
+							</a>
+						<?php endforeach; ?>
+					<?php endforeach; ?>
+				</nav>
+			</aside>
+
+			<div class="pubcrawls-main">
+
 
 	<!-- ============================================================ -->
 	<!-- TAB 1: OVERVIEW & HEALTH -->
@@ -230,7 +264,7 @@ if (! is_array($disabled_tax)) {
 				</div>
 				<div class="pubcrawls-card__body">
 					<p><?php esc_html_e('Manage custom post types (Cities, Events, Venues, FAQs, Press, City Maps) and taxonomies directly from dashboard toggles.', 'pubcrawls-addon'); ?></p>
-					<a href="?page=pubcrawls-addon&tab=post-types" class="button button-secondary"><?php esc_html_e('Configure Post Types', 'pubcrawls-addon'); ?> &rarr;</a>
+					<a href="?page=pubcrawls-addon&tab=post-types" data-tab="post-types" class="button button-secondary"><?php esc_html_e('Configure Post Types', 'pubcrawls-addon'); ?> &rarr;</a>
 				</div>
 			</div>
 
@@ -240,7 +274,7 @@ if (! is_array($disabled_tax)) {
 				</div>
 				<div class="pubcrawls-card__body">
 					<p><?php esc_html_e('Toggle off unused Elementor widgets to keep the editor panel tidy and boost editor loading speeds.', 'pubcrawls-addon'); ?></p>
-					<a href="?page=pubcrawls-addon&tab=widgets" class="button button-secondary"><?php esc_html_e('Configure Widgets', 'pubcrawls-addon'); ?> &rarr;</a>
+					<a href="?page=pubcrawls-addon&tab=widgets" data-tab="widgets" class="button button-secondary"><?php esc_html_e('Configure Widgets', 'pubcrawls-addon'); ?> &rarr;</a>
 				</div>
 			</div>
 		</div>
@@ -252,8 +286,13 @@ if (! is_array($disabled_tax)) {
 	<!-- ============================================================ -->
 	<section class="pubcrawls-tab-pane <?php echo 'post-types' === $active_tab ? 'is-active' : ''; ?>" id="tab-post-types">
 
-		<form method="post" action="options.php">
-			<?php settings_fields('pubcrawls_settings_group'); ?>
+		<div class="pubcrawls-callout pubcrawls-callout--info">
+			<span class="dashicons dashicons-info-outline"></span>
+			<div>
+				<strong><?php esc_html_e('About URL slugs', 'pubcrawls-addon'); ?></strong>
+				<p><?php esc_html_e('The slug is the part of the public URL for each post type or taxonomy. It is prefilled with the plugin default; clear the field or press reset to go back to it. Permalinks are refreshed automatically after saving. Old URLs stop working after a change, so set up redirects if the pages are already indexed.', 'pubcrawls-addon'); ?></p>
+			</div>
+		</div>
 
 			<!-- Custom Post Types Section -->
 			<div class="pubcrawls-card">
@@ -287,6 +326,22 @@ if (! is_array($disabled_tax)) {
 
 								<h3 class="pubcrawls-widget-card__title"><?php echo esc_html($pt['title']); ?></h3>
 								<p class="pubcrawls-widget-card__desc"><?php echo esc_html($pt['description']); ?></p>
+									<?php
+									$pc_default = Pubcrawls_Admin::get_default_slug('post_types', $slug);
+									$pc_current = Pubcrawls_Admin::get_slug('post_types', $slug);
+									?>
+									<div class="pubcrawls-slug">
+										<label class="pubcrawls-slug__label" for="pc-slug-post_types-<?php echo esc_attr($slug); ?>"><?php esc_html_e('URL slug', 'pubcrawls-addon'); ?></label>
+										<div class="pubcrawls-slug__field">
+											<span class="pubcrawls-slug__prefix"><?php echo esc_html(preg_replace("#^https?://#", "", untrailingslashit(home_url()))); ?>/</span>
+											<input type="text" id="pc-slug-post_types-<?php echo esc_attr($slug); ?>" class="pubcrawls-slug__input" name="<?php echo esc_attr(Pubcrawls_Admin::SLUGS_KEY); ?>[post_types][<?php echo esc_attr($slug); ?>]" value="<?php echo esc_attr($pc_current); ?>" data-default="<?php echo esc_attr($pc_default); ?>" placeholder="<?php echo esc_attr($pc_default); ?>" autocomplete="off" spellcheck="false" />
+											<button type="button" class="pubcrawls-slug__reset" title="<?php esc_attr_e('Reset to default slug', 'pubcrawls-addon'); ?>" <?php echo $pc_current === $pc_default ? 'hidden' : ''; ?>><span class="dashicons dashicons-undo"></span></button>
+										</div>
+										<p class="pubcrawls-slug__hint">
+											<?php esc_html_e('Default:', 'pubcrawls-addon'); ?> <code><?php echo esc_html($pc_default); ?></code>
+											&middot; <span class="pubcrawls-slug__preview" data-suffix="sample-post">/<?php echo esc_html($pc_current); ?>/sample-post/</span>
+										</p>
+									</div>
 							</div>
 						<?php endforeach; ?>
 					</div>
@@ -325,17 +380,28 @@ if (! is_array($disabled_tax)) {
 
 								<h3 class="pubcrawls-widget-card__title"><?php echo esc_html($tax_item['title']); ?></h3>
 								<p class="pubcrawls-widget-card__desc"><?php echo esc_html($tax_item['description']); ?></p>
+									<?php
+									$pc_default = Pubcrawls_Admin::get_default_slug('taxonomies', $slug);
+									$pc_current = Pubcrawls_Admin::get_slug('taxonomies', $slug);
+									?>
+									<div class="pubcrawls-slug">
+										<label class="pubcrawls-slug__label" for="pc-slug-taxonomies-<?php echo esc_attr($slug); ?>"><?php esc_html_e('URL slug', 'pubcrawls-addon'); ?></label>
+										<div class="pubcrawls-slug__field">
+											<span class="pubcrawls-slug__prefix"><?php echo esc_html(preg_replace("#^https?://#", "", untrailingslashit(home_url()))); ?>/</span>
+											<input type="text" id="pc-slug-taxonomies-<?php echo esc_attr($slug); ?>" class="pubcrawls-slug__input" name="<?php echo esc_attr(Pubcrawls_Admin::SLUGS_KEY); ?>[taxonomies][<?php echo esc_attr($slug); ?>]" value="<?php echo esc_attr($pc_current); ?>" data-default="<?php echo esc_attr($pc_default); ?>" placeholder="<?php echo esc_attr($pc_default); ?>" autocomplete="off" spellcheck="false" />
+											<button type="button" class="pubcrawls-slug__reset" title="<?php esc_attr_e('Reset to default slug', 'pubcrawls-addon'); ?>" <?php echo $pc_current === $pc_default ? 'hidden' : ''; ?>><span class="dashicons dashicons-undo"></span></button>
+										</div>
+										<p class="pubcrawls-slug__hint">
+											<?php esc_html_e('Default:', 'pubcrawls-addon'); ?> <code><?php echo esc_html($pc_default); ?></code>
+											&middot; <span class="pubcrawls-slug__preview" data-suffix="sample-term">/<?php echo esc_html($pc_current); ?>/sample-term/</span>
+										</p>
+									</div>
 							</div>
 						<?php endforeach; ?>
 					</div>
 				</div>
-
-				<div class="pubcrawls-card__footer">
-					<?php submit_button(esc_html__('Save Post Types & Taxonomies', 'pubcrawls-addon'), 'primary', 'submit', false); ?>
-				</div>
 			</div>
 
-		</form>
 
 	</section>
 
@@ -343,9 +409,6 @@ if (! is_array($disabled_tax)) {
 	<!-- TAB 3: WIDGETS MANAGER -->
 	<!-- ============================================================ -->
 	<section class="pubcrawls-tab-pane <?php echo 'widgets' === $active_tab ? 'is-active' : ''; ?>" id="tab-widgets">
-
-		<form method="post" action="options.php">
-			<?php settings_fields('pubcrawls_settings_group'); ?>
 
 			<div class="pubcrawls-card">
 				<div class="pubcrawls-card__header pubcrawls-card__header--flex">
@@ -384,12 +447,8 @@ if (! is_array($disabled_tax)) {
 					</div>
 
 				</div>
-				<div class="pubcrawls-card__footer">
-					<?php submit_button(esc_html__('Save Widget Preferences', 'pubcrawls-addon'), 'primary', 'submit', false); ?>
-				</div>
 			</div>
 
-		</form>
 
 	</section>
 
@@ -397,10 +456,6 @@ if (! is_array($disabled_tax)) {
 	<!-- TAB 4: TICKET SETTINGS -->
 	<!-- ============================================================ -->
 	<section class="pubcrawls-tab-pane <?php echo 'settings' === $active_tab ? 'is-active' : ''; ?>" id="tab-settings">
-
-		<form method="post" action="options.php">
-			<?php settings_fields('pubcrawls_settings_group'); ?>
-			<input type="hidden" name="<?php echo esc_attr(Pubcrawls_Admin::SETTINGS_KEY); ?>[ticket_settings_submitted]" value="1" />
 
 			<div class="pubcrawls-card">
 				<div class="pubcrawls-card__header">
@@ -521,12 +576,8 @@ if (! is_array($disabled_tax)) {
 					</table>
 
 				</div>
-				<div class="pubcrawls-card__footer">
-					<?php submit_button(esc_html__('Save Ticket Settings', 'pubcrawls-addon'), 'primary', 'submit', false); ?>
-				</div>
 			</div>
 
-		</form>
 
 	</section>
 
@@ -534,10 +585,6 @@ if (! is_array($disabled_tax)) {
 	<!-- TAB: SCHEMA.ORG & MULTI-SITE SEO SETTINGS -->
 	<!-- ============================================================ -->
 	<section class="pubcrawls-tab-pane <?php echo 'schema' === $active_tab ? 'is-active' : ''; ?>" id="tab-schema">
-
-		<form method="post" action="options.php">
-			<?php settings_fields('pubcrawls_settings_group'); ?>
-			<input type="hidden" name="<?php echo esc_attr(Pubcrawls_Admin::SETTINGS_KEY); ?>[schema_settings_submitted]" value="1" />
 
 			<!-- Card 1: Event Schema (JSON-LD) Configuration -->
 			<div class="pubcrawls-card" style="margin-bottom: 24px;">
@@ -715,9 +762,6 @@ if (! is_array($disabled_tax)) {
 					</table>
 
 				</div>
-				<div class="pubcrawls-card__footer">
-					<?php submit_button(esc_html__('Save Schema Settings', 'pubcrawls-addon'), 'primary', 'submit', false); ?>
-				</div>
 			</div>
 
 			<!-- Card 2: FAQ Schema Markup Options -->
@@ -750,9 +794,6 @@ if (! is_array($disabled_tax)) {
 						</tbody>
 					</table>
 
-				</div>
-				<div class="pubcrawls-card__footer">
-					<?php submit_button(esc_html__('Save Schema Settings', 'pubcrawls-addon'), 'primary', 'submit', false); ?>
 				</div>
 			</div>
 
@@ -795,7 +836,6 @@ if (! is_array($disabled_tax)) {
 				</div>
 			</div>
 
-		</form>
 
 	</section>
 
@@ -929,10 +969,6 @@ if (! is_array($disabled_tax)) {
 				<div id="pubcrawls-queue-action-result" style="display:none;margin-top:14px;"></div>
 			</div>
 		</div>
-
-		<form method="post" action="options.php">
-			<?php settings_fields( 'pubcrawls_settings_group' ); ?>
-			<input type="hidden" name="<?php echo esc_attr( Pubcrawls_Admin::SETTINGS_KEY ); ?>[tracking_settings_submitted]" value="1" />
 
 			<!-- Card 1: Webhook Endpoint Configuration -->
 			<div class="pubcrawls-card" style="margin-bottom: 24px;">
@@ -1247,15 +1283,7 @@ if (! is_array($disabled_tax)) {
 				</div>
 			</div>
 
-			<div class="pubcrawls-card" style="margin-bottom: 24px;">
-				<div class="pubcrawls-card__footer">
-					<?php submit_button( esc_html__( 'Save Tracking & Webhook Settings', 'pubcrawls-addon' ), 'primary', 'submit', false ); ?>
-				</div>
-			</div>
-
-		</form>
-
-		<!-- Card 6: Order Tester & Simulator -->
+			<!-- Card 6: Order Tester & Simulator -->
 		<div class="pubcrawls-card" style="margin-bottom: 24px;">
 			<div class="pubcrawls-card__header">
 				<h2><span class="dashicons dashicons-hammer"></span> <?php esc_html_e( 'Live Order Simulator & Pipeline Tester', 'pubcrawls-addon' ); ?></h2>
@@ -1506,10 +1534,6 @@ if (! is_array($disabled_tax)) {
 	<!-- ============================================================ -->
 	<section class="pubcrawls-tab-pane <?php echo 'helpers' === $active_tab ? 'is-active' : ''; ?>" id="tab-helpers">
 
-		<form method="post" action="options.php">
-			<?php settings_fields('pubcrawls_settings_group'); ?>
-			<input type="hidden" name="<?php echo esc_attr(Pubcrawls_Admin::SETTINGS_KEY); ?>[helpers_settings_submitted]" value="1" />
-
 			<div class="pubcrawls-card" style="margin-bottom: 24px;">
 				<div class="pubcrawls-card__header">
 					<h2><span class="dashicons dashicons-admin-tools"></span> <?php esc_html_e('Modular Helper Features & Utilities', 'pubcrawls-addon'); ?></h2>
@@ -1727,9 +1751,6 @@ if (! is_array($disabled_tax)) {
 					</div>
 
 				</div>
-				<div class="pubcrawls-card__footer">
-					<?php submit_button(esc_html__('Save Helpers Settings', 'pubcrawls-addon'), 'primary', 'submit', false); ?>
-				</div>
 			</div>
 
 			<!-- Multi-site Portability Notice Card -->
@@ -1771,8 +1792,19 @@ if (! is_array($disabled_tax)) {
 				</div>
 			</div>
 
-		</form>
 
 	</section>
+
+				<!-- Single Save bar for every tab -->
+				<div class="pubcrawls-savebar" id="pubcrawls-savebar">
+					<span class="pubcrawls-savebar__status" id="pubcrawls-save-status" role="status" aria-live="polite">
+						<span class="dashicons dashicons-yes-alt"></span> <span class="pubcrawls-savebar__text"><?php esc_html_e('All changes saved', 'pubcrawls-addon'); ?></span>
+					</span>
+					<button type="submit" class="button button-primary button-large" id="pubcrawls-save-btn"><?php esc_html_e('Save All Changes', 'pubcrawls-addon'); ?></button>
+				</div>
+
+			</div><!-- /.pubcrawls-main -->
+		</div><!-- /.pubcrawls-layout -->
+	</form>
 
 </div>

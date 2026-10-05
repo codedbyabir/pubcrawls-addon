@@ -47,6 +47,7 @@ if ( ! function_exists( 'pubcrawls_register_post_types' ) ) {
 					'supports'      => array( 'title', 'editor', 'thumbnail' ),
 					'has_archive'   => true,
 					'show_in_rest'  => true,
+					'rewrite'       => array( 'slug' => Pubcrawls_Admin::get_slug( 'post_types', 'city' ) ),
 				)
 			);
 		}
@@ -77,6 +78,7 @@ if ( ! function_exists( 'pubcrawls_register_post_types' ) ) {
 					'supports'      => array( 'title', 'editor' ),
 					'has_archive'   => true,
 					'show_in_rest'  => true,
+					'rewrite'       => array( 'slug' => Pubcrawls_Admin::get_slug( 'post_types', 'faq' ) ),
 				)
 			);
 		}
@@ -107,6 +109,7 @@ if ( ! function_exists( 'pubcrawls_register_post_types' ) ) {
 					'supports'      => array( 'title' ),
 					'has_archive'   => false,
 					'show_in_rest'  => true,
+					'rewrite'       => array( 'slug' => Pubcrawls_Admin::get_slug( 'post_types', 'press' ) ),
 				)
 			);
 		}
@@ -137,7 +140,7 @@ if ( ! function_exists( 'pubcrawls_register_post_types' ) ) {
 					'supports'      => array( 'title', 'editor', 'thumbnail' ),
 					'has_archive'   => true,
 					'show_in_rest'  => true,
-					'rewrite'       => array( 'slug' => 'venues' ),
+					'rewrite'       => array( 'slug' => Pubcrawls_Admin::get_slug( 'post_types', 'venue' ) ),
 				)
 			);
 		}
@@ -168,6 +171,7 @@ if ( ! function_exists( 'pubcrawls_register_post_types' ) ) {
 					'supports'      => array( 'title', 'thumbnail' ),
 					'has_archive'   => true,
 					'show_in_rest'  => true,
+					'rewrite'       => array( 'slug' => Pubcrawls_Admin::get_slug( 'post_types', 'tribe_events' ) ),
 				)
 			);
 		}
@@ -198,7 +202,7 @@ if ( ! function_exists( 'pubcrawls_register_post_types' ) ) {
 					'supports'      => array( 'title', 'editor', 'thumbnail' ),
 					'has_archive'   => true,
 					'show_in_rest'  => true,
-					'rewrite'       => array( 'slug' => 'maps' ),
+					'rewrite'       => array( 'slug' => Pubcrawls_Admin::get_slug( 'post_types', 'city_map' ) ),
 				)
 			);
 		}
