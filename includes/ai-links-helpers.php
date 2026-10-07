@@ -83,7 +83,7 @@ if ( ! function_exists( 'pubcrawls_get_ai_platforms' ) ) {
 			'chatgpt'    => array(
 				'key'            => 'chatgpt',
 				'title'          => esc_html__( 'ChatGPT', 'pubcrawls-addon' ),
-				'default_label'  => esc_html__( 'Ask ChatGPT', 'pubcrawls-addon' ),
+				'default_label'  => esc_html__( 'ChatGPT', 'pubcrawls-addon' ),
 				'base_url'       => 'https://chatgpt.com/?q=',
 				'query_url'      => 'https://chatgpt.com/?q=' . rawurlencode( $prompt ),
 				'icon_filenames' => array( 'chatgpt.svg', 'chatgpt.png', 'chatgpt.webp', 'openai.svg', 'openai.png' ),
@@ -92,7 +92,7 @@ if ( ! function_exists( 'pubcrawls_get_ai_platforms' ) ) {
 			'perplexity' => array(
 				'key'            => 'perplexity',
 				'title'          => esc_html__( 'Perplexity', 'pubcrawls-addon' ),
-				'default_label'  => esc_html__( 'Ask Perplexity', 'pubcrawls-addon' ),
+				'default_label'  => esc_html__( 'Perplexity', 'pubcrawls-addon' ),
 				'base_url'       => 'https://www.perplexity.ai/search?q=',
 				'query_url'      => 'https://www.perplexity.ai/search?q=' . rawurlencode( $prompt ),
 				'icon_filenames' => array( 'perplexity.svg', 'perplexity.png', 'perplexity.webp' ),
@@ -101,7 +101,7 @@ if ( ! function_exists( 'pubcrawls_get_ai_platforms' ) ) {
 			'google_ai'  => array(
 				'key'            => 'google_ai',
 				'title'          => esc_html__( 'Google AI', 'pubcrawls-addon' ),
-				'default_label'  => esc_html__( 'Ask Google AI', 'pubcrawls-addon' ),
+				'default_label'  => esc_html__( 'Google AI', 'pubcrawls-addon' ),
 				'base_url'       => 'https://www.google.com/search?udm=50&source=searchlabs&q=',
 				'query_url'      => 'https://www.google.com/search?udm=50&source=searchlabs&q=' . rawurlencode( $prompt ),
 				'icon_filenames' => array( 'google-ai.svg', 'google-ai.png', 'google.svg', 'google.png', 'gemini.svg', 'gemini.png' ),
@@ -110,7 +110,7 @@ if ( ! function_exists( 'pubcrawls_get_ai_platforms' ) ) {
 			'copilot'    => array(
 				'key'            => 'copilot',
 				'title'          => esc_html__( 'Microsoft Copilot', 'pubcrawls-addon' ),
-				'default_label'  => esc_html__( 'Ask Copilot', 'pubcrawls-addon' ),
+				'default_label'  => esc_html__( 'Copilot', 'pubcrawls-addon' ),
 				'base_url'       => 'https://www.bing.com/copilotsearch?q=',
 				'query_url'      => 'https://www.bing.com/copilotsearch?q=' . rawurlencode( $prompt ),
 				'icon_filenames' => array( 'copilot.svg', 'copilot.png', 'copilot.webp', 'microsoft-copilot.svg', 'bing.svg' ),

@@ -361,6 +361,17 @@ class Pubcrawls_Event_Sticky extends \Elementor\Widget_Base
 			]
 		);
 
+		$this->add_control(
+			'pubcrawl_btn_hover_border_color',
+			[
+				'label'     => esc_html__('Border Color', 'pubcrawls-addon'),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'selectors' => [
+					'{{WRAPPER}} .pcet-btn--sticky:hover, {{WRAPPER}} .pcet-btn--sticky:focus-visible' => 'border-color: {{VALUE}};',
+				],
+			]
+		);
+
 		$this->add_group_control(
 			\Elementor\Group_Control_Box_Shadow::get_type(),
 			[
@@ -373,6 +384,15 @@ class Pubcrawls_Event_Sticky extends \Elementor\Widget_Base
 
 		$this->end_controls_tabs();
 
+		$this->add_group_control(
+			\Elementor\Group_Control_Border::get_type(),
+			[
+				'name'      => 'pubcrawl_btn_border',
+				'selector'  => '{{WRAPPER}} .pcet-btn--sticky',
+				'separator' => 'before',
+			]
+		);
+
 		$this->add_responsive_control(
 			'pubcrawl_btn_radius',
 			[
@@ -382,7 +402,6 @@ class Pubcrawls_Event_Sticky extends \Elementor\Widget_Base
 				'selectors'  => [
 					'{{WRAPPER}} .pcet-btn--sticky' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
 				],
-				'separator'  => 'before',
 			]
 		);
 

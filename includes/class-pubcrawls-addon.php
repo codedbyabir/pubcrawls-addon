@@ -160,7 +160,6 @@ final class Pubcrawls_Addon
 	public function get_widget_classes()
 	{
 		$widget_map = [
-			'pc-cities-card'     => 'Pubcrawls_Cities_Card',
 			'pc-cities-list'     => 'Pubcrawls_Cities_List',
 			'pc-city-archive'    => 'Pubcrawls_City_Archive',
 			'pc-city-events'     => 'Pubcrawls_City_Events',
@@ -177,6 +176,7 @@ final class Pubcrawls_Addon
 			'pc-page-faqs'       => 'Pubcrawls_Page_FAQs',
 			'pc-social-share'    => 'Pubcrawls_Social_Share',
 			'pc-ai-quick-links'  => 'Pubcrawls_AI_Quick_Links',
+			'pc-gravity-forms'   => 'Pubcrawls_Gravity_Forms',
 		];
 
 		$disabled = get_option('pubcrawls_disabled_widgets', []);
@@ -265,6 +265,14 @@ final class Pubcrawls_Addon
 		wp_enqueue_style(
 			'pcet-styles',
 			PUBCRAWLS_ADDON_URL . 'assets/css/tickets.css',
+			[],
+			PUBCRAWLS_ADDON_VERSION
+		);
+
+		// Gravity Forms stylesheet inside editor
+		wp_enqueue_style(
+			'pc-gravity-forms',
+			PUBCRAWLS_ADDON_URL . 'assets/css/gravity-forms.css',
 			[],
 			PUBCRAWLS_ADDON_VERSION
 		);

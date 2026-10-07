@@ -1,4 +1,23 @@
 
+// ── Privacy & PII Protection: Clean sensitive URL parameters (order_data, emails, etc.) ──
+(function () {
+    if (typeof window === 'undefined' || !window.location || !window.history || !window.history.replaceState) return;
+    try {
+        var url = new URL(window.location.href);
+        var sensitiveKeys = ['order_data', 'email', 'phone', 'first_name', 'last_name', 'fn', 'ln', 'em', 'ph', 'token', 'secret', 'key'];
+        var changed = false;
+        sensitiveKeys.forEach(function (k) {
+            if (url.searchParams.has(k)) {
+                url.searchParams.delete(k);
+                changed = true;
+            }
+        });
+        if (changed) {
+            window.history.replaceState(null, '', url.pathname + (url.searchParams.toString() ? '?' + url.searchParams.toString() : '') + url.hash);
+        }
+    } catch (e) {}
+})();
+
 // ── Popular / All Cities Toggle ──────────────────────────────
 jQuery(document).ready(function ($) {
     if (typeof pubcrawlsCityData === 'undefined') return;

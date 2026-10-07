@@ -1,0 +1,497 @@
+/**
+ * Pubcrawl Addon - Gravity Forms Widget Base Styles
+ *
+ * Provides modern baseline styling, CSS resets, and flexbox helpers
+ * for Gravity Forms embedded via the Elementor widget.
+ * Compatible with legacy Gravity Forms as well as modern Theme Framework / Orbital (GF 2.5+).
+ *
+ * @package Pubcrawl_Addon
+ */
+
+.pc-gravity-form-wrap {
+	width: 100%;
+	position: relative;
+	box-sizing: border-box;
+}
+
+.pc-gravity-form-wrap *,
+.pc-gravity-form-wrap *::before,
+.pc-gravity-form-wrap *::after {
+	box-sizing: border-box;
+}
+
+/* Form Container */
+.pc-gravity-form-wrap .gform_wrapper,
+.pc-gravity-form-wrap .gform_wrapper.gravity-theme,
+.pc-gravity-form-wrap .gform-theme--framework.gform_wrapper {
+	margin: 0;
+	padding: 0;
+	width: 100%;
+	background: transparent;
+	border: none;
+}
+
+.pc-gravity-form-wrap form {
+	width: 100%;
+}
+
+/* Headings */
+.pc-gravity-form-wrap .gform_heading,
+.pc-gravity-form-wrap .gform-heading,
+.pc-gravity-form-wrap .pc-gf-custom-header {
+	margin-bottom: 20px;
+}
+
+.pc-gravity-form-wrap .gform_title,
+.pc-gravity-form-wrap .gform-title,
+.pc-gravity-form-wrap .pc-gf-custom-title {
+	margin-top: 0;
+	margin-bottom: 8px;
+	font-weight: 700;
+	line-height: 1.3;
+}
+
+.pc-gravity-form-wrap .gform_description,
+.pc-gravity-form-wrap .gform-description,
+.pc-gravity-form-wrap .pc-gf-custom-description {
+	margin: 0;
+	line-height: 1.5;
+}
+
+/* Fields Grid & Structure */
+.pc-gravity-form-wrap .gform_fields {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.pc-gravity-form-wrap .gfield {
+	margin-bottom: 18px;
+	clear: both;
+}
+
+.pc-gravity-form-wrap .gfield:last-child {
+	margin-bottom: 0;
+}
+
+/* Labels */
+.pc-gravity-form-wrap .gfield_label,
+.pc-gravity-form-wrap .gform-field-label,
+.pc-gravity-form-wrap label.gfield_label,
+.pc-gravity-form-wrap legend.gfield_label,
+.pc-gravity-form-wrap .gform_wrapper.gravity-theme .gfield_label,
+.pc-gravity-form-wrap .gform-theme--framework .gform-field-label {
+	display: block;
+	font-weight: 600;
+	margin-bottom: 6px;
+	line-height: 1.3;
+}
+
+.pc-gravity-form-wrap .gfield_required,
+.pc-gravity-form-wrap .gfield_required_asterisk,
+.pc-gravity-form-wrap .gform-field-label .gfield_required {
+	color: #ef4444;
+	margin-left: 4px;
+	font-weight: 700;
+}
+
+.pc-gravity-form-wrap .gfield_sub_label,
+.pc-gravity-form-wrap .ginput_complex label,
+.pc-gravity-form-wrap .field_sublabel_below label,
+.pc-gravity-form-wrap .field_sublabel_above label,
+.pc-gravity-form-wrap .gform_wrapper.gravity-theme .gfield_sub_label,
+.pc-gravity-form-wrap .gform-theme--framework .gform-field-label--type-sub {
+	display: block;
+	font-size: 0.85em;
+	margin-top: 4px;
+	color: #64748b;
+}
+
+/* Form Inputs */
+.pc-gravity-form-wrap .gform_wrapper input[type="text"],
+.pc-gravity-form-wrap .gform_wrapper input[type="email"],
+.pc-gravity-form-wrap .gform_wrapper input[type="tel"],
+.pc-gravity-form-wrap .gform_wrapper input[type="url"],
+.pc-gravity-form-wrap .gform_wrapper input[type="number"],
+.pc-gravity-form-wrap .gform_wrapper input[type="password"],
+.pc-gravity-form-wrap .gform_wrapper input[type="date"],
+.pc-gravity-form-wrap .gform_wrapper select,
+.pc-gravity-form-wrap .gform_wrapper textarea,
+.pc-gravity-form-wrap .gform_wrapper.gravity-theme input[type="text"],
+.pc-gravity-form-wrap .gform_wrapper.gravity-theme input[type="email"],
+.pc-gravity-form-wrap .gform_wrapper.gravity-theme input[type="tel"],
+.pc-gravity-form-wrap .gform_wrapper.gravity-theme input[type="url"],
+.pc-gravity-form-wrap .gform_wrapper.gravity-theme input[type="number"],
+.pc-gravity-form-wrap .gform_wrapper.gravity-theme input[type="password"],
+.pc-gravity-form-wrap .gform_wrapper.gravity-theme input[type="date"],
+.pc-gravity-form-wrap .gform_wrapper.gravity-theme select,
+.pc-gravity-form-wrap .gform_wrapper.gravity-theme textarea,
+.pc-gravity-form-wrap .gform-theme--framework input[type]:not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),
+.pc-gravity-form-wrap .gform-theme--framework select,
+.pc-gravity-form-wrap .gform-theme--framework textarea {
+	width: 100%;
+	max-width: 100%;
+	padding: 12px 14px;
+	font-size: 15px;
+	line-height: 1.5;
+	border: 1px solid #d1d5db;
+	border-radius: 6px;
+	background-color: #ffffff;
+	color: #1f2937;
+	transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+	outline: none;
+	box-sizing: border-box;
+}
+
+.pc-gravity-form-wrap .gform_wrapper textarea,
+.pc-gravity-form-wrap .gform_wrapper.gravity-theme textarea,
+.pc-gravity-form-wrap .gform-theme--framework textarea {
+	min-height: 120px;
+	resize: vertical;
+}
+
+/* Input Focus */
+.pc-gravity-form-wrap .gform_wrapper input[type="text"]:focus,
+.pc-gravity-form-wrap .gform_wrapper input[type="email"]:focus,
+.pc-gravity-form-wrap .gform_wrapper input[type="tel"]:focus,
+.pc-gravity-form-wrap .gform_wrapper input[type="url"]:focus,
+.pc-gravity-form-wrap .gform_wrapper input[type="number"]:focus,
+.pc-gravity-form-wrap .gform_wrapper input[type="password"]:focus,
+.pc-gravity-form-wrap .gform_wrapper input[type="date"]:focus,
+.pc-gravity-form-wrap .gform_wrapper select:focus,
+.pc-gravity-form-wrap .gform_wrapper textarea:focus,
+.pc-gravity-form-wrap .gform_wrapper.gravity-theme input:focus,
+.pc-gravity-form-wrap .gform_wrapper.gravity-theme select:focus,
+.pc-gravity-form-wrap .gform_wrapper.gravity-theme textarea:focus,
+.pc-gravity-form-wrap .gform-theme--framework input:focus,
+.pc-gravity-form-wrap .gform-theme--framework select:focus,
+.pc-gravity-form-wrap .gform-theme--framework textarea:focus {
+	border-color: #2563eb;
+	box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+/* Radios & Checkboxes */
+.pc-gravity-form-wrap .gfield_checkbox,
+.pc-gravity-form-wrap .gfield_radio {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.pc-gravity-form-wrap .gchoice {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-bottom: 8px;
+}
+
+.pc-gravity-form-wrap .gchoice:last-child {
+	margin-bottom: 0;
+}
+
+.pc-gravity-form-wrap .gchoice input[type="checkbox"],
+.pc-gravity-form-wrap .gchoice input[type="radio"],
+.pc-gravity-form-wrap .gfield_checkbox input,
+.pc-gravity-form-wrap .gfield_radio input,
+.pc-gravity-form-wrap .gform_wrapper.gravity-theme .gfield_checkbox input,
+.pc-gravity-form-wrap .gform_wrapper.gravity-theme .gfield_radio input {
+	margin: 0;
+	cursor: pointer;
+	accent-color: #2563eb;
+}
+
+.pc-gravity-form-wrap .gchoice label,
+.pc-gravity-form-wrap .gfield_checkbox label,
+.pc-gravity-form-wrap .gfield_radio label,
+.pc-gravity-form-wrap .gform_wrapper.gravity-theme .gfield_checkbox label,
+.pc-gravity-form-wrap .gform_wrapper.gravity-theme .gfield_radio label {
+	margin: 0;
+	cursor: pointer;
+	font-size: 14px;
+	font-weight: 400;
+	line-height: 1.4;
+}
+
+/* Section Breaks */
+.pc-gravity-form-wrap .gsection {
+	border-bottom: 1px solid #e5e7eb;
+	padding-bottom: 12px;
+	margin: 24px 0 16px;
+}
+
+.pc-gravity-form-wrap .gsection_title {
+	font-size: 1.25em;
+	font-weight: 700;
+	margin: 0 0 4px;
+}
+
+.pc-gravity-form-wrap .gsection_description {
+	font-size: 0.9em;
+	color: #64748b;
+	margin: 0;
+}
+
+/* Field Description */
+.pc-gravity-form-wrap .gfield_description:not(.validation_message):not(.gfield_validation_message) {
+	font-size: 13px;
+	color: #64748b;
+	margin-top: 6px;
+	line-height: 1.4;
+}
+
+/* Footer & Submit Buttons */
+.pc-gravity-form-wrap .gform_footer,
+.pc-gravity-form-wrap .gform-footer,
+.pc-gravity-form-wrap .gform_page_footer,
+.pc-gravity-form-wrap .gform_wrapper.gravity-theme .gform_footer,
+.pc-gravity-form-wrap .gform_wrapper.gravity-theme .gform_page_footer {
+	margin-top: 20px;
+	display: flex;
+	align-items: center;
+	width: 100%;
+}
+
+.pc-gravity-form-wrap .gform_button,
+.pc-gravity-form-wrap .gform_footer input[type="submit"],
+.pc-gravity-form-wrap .gform-footer input[type="submit"],
+.pc-gravity-form-wrap .gform_footer button[type="submit"],
+.pc-gravity-form-wrap .gform-footer button[type="submit"],
+.pc-gravity-form-wrap .gform_page_footer input[type="submit"],
+.pc-gravity-form-wrap .gform_page_footer button[type="submit"],
+.pc-gravity-form-wrap .gform_wrapper input[type="submit"],
+.pc-gravity-form-wrap .gform_wrapper button[type="submit"],
+.pc-gravity-form-wrap .gform_wrapper.gravity-theme .gform_footer input,
+.pc-gravity-form-wrap .gform_wrapper.gravity-theme .gform_footer button,
+.pc-gravity-form-wrap .gform_wrapper.gravity-theme .gform_page_footer input,
+.pc-gravity-form-wrap .gform_wrapper.gravity-theme .gform_page_footer button,
+.pc-gravity-form-wrap .gform-theme--framework.gform_wrapper input[type="submit"].button.gform_button,
+.pc-gravity-form-wrap .gform-theme--framework.gform_wrapper .button,
+.pc-gravity-form-wrap .gform-theme--framework.gform_wrapper .gform_button,
+.pc-gravity-form-wrap .gform_next_button,
+.pc-gravity-form-wrap .gform_previous_button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 12px 28px;
+	font-size: 16px;
+	font-weight: 600;
+	line-height: 1.2;
+	color: #ffffff;
+	background-color: #2563eb;
+	border: 1px solid transparent;
+	border-radius: 6px;
+	cursor: pointer;
+	text-decoration: none;
+	transition: all 0.2s ease;
+}
+
+.pc-gravity-form-wrap .gform_button:hover,
+.pc-gravity-form-wrap .gform_footer input[type="submit"]:hover,
+.pc-gravity-form-wrap .gform-footer input[type="submit"]:hover,
+.pc-gravity-form-wrap .gform_footer button[type="submit"]:hover,
+.pc-gravity-form-wrap .gform-footer button[type="submit"]:hover,
+.pc-gravity-form-wrap .gform_page_footer input[type="submit"]:hover,
+.pc-gravity-form-wrap .gform_page_footer button[type="submit"]:hover,
+.pc-gravity-form-wrap .gform_wrapper input[type="submit"]:hover,
+.pc-gravity-form-wrap .gform_wrapper button[type="submit"]:hover,
+.pc-gravity-form-wrap .gform_wrapper.gravity-theme .gform_footer input:hover,
+.pc-gravity-form-wrap .gform_wrapper.gravity-theme .gform_footer button:hover,
+.pc-gravity-form-wrap .gform_wrapper.gravity-theme .gform_page_footer input:hover,
+.pc-gravity-form-wrap .gform_wrapper.gravity-theme .gform_page_footer button:hover,
+.pc-gravity-form-wrap .gform-theme--framework.gform_wrapper input[type="submit"].button.gform_button:hover,
+.pc-gravity-form-wrap .gform-theme--framework.gform_wrapper .button:hover,
+.pc-gravity-form-wrap .gform-theme--framework.gform_wrapper .gform_button:hover,
+.pc-gravity-form-wrap .gform_next_button:hover,
+.pc-gravity-form-wrap .gform_previous_button:hover {
+	background-color: #1d4ed8;
+}
+
+/* Full Width Button */
+.pc-gravity-form-wrap.button-full-width .gform_footer,
+.pc-gravity-form-wrap.button-full-width .gform-footer,
+.pc-gravity-form-wrap.button-full-width .gform_page_footer,
+.elementor-widget-pc-gravity-forms.button-full-width-yes .gform_footer,
+.elementor-widget-pc-gravity-forms.button-full-width-yes .gform-footer,
+.elementor-widget-pc-gravity-forms.button-full-width-yes .gform_page_footer {
+	width: 100% !important;
+	display: flex !important;
+}
+
+.pc-gravity-form-wrap.button-full-width .gform_button,
+.pc-gravity-form-wrap.button-full-width input[type="submit"],
+.pc-gravity-form-wrap.button-full-width button[type="submit"],
+.pc-gravity-form-wrap.button-full-width .gform-theme--framework.gform_wrapper .button,
+.elementor-widget-pc-gravity-forms.button-full-width-yes .gform_button,
+.elementor-widget-pc-gravity-forms.button-full-width-yes input[type="submit"],
+.elementor-widget-pc-gravity-forms.button-full-width-yes button[type="submit"],
+.elementor-widget-pc-gravity-forms.button-full-width-yes .gform-theme--framework.gform_wrapper .button {
+	width: 100% !important;
+	min-width: 100% !important;
+	display: flex !important;
+	justify-content: center !important;
+	text-align: center !important;
+}
+
+/* Validation & Errors */
+.pc-gravity-form-wrap .gform_validation_errors,
+.pc-gravity-form-wrap .validation_error,
+.pc-gravity-form-wrap .gform_wrapper.gravity-theme .gform_validation_errors {
+	padding: 12px 16px;
+	margin-bottom: 20px;
+	background-color: #fef2f2;
+	border: 1px solid #fecaca;
+	border-radius: 6px;
+	color: #b91c1c;
+	font-size: 14px;
+	font-weight: 500;
+}
+
+.pc-gravity-form-wrap .gfield_error input,
+.pc-gravity-form-wrap .gfield_error select,
+.pc-gravity-form-wrap .gfield_error textarea,
+.pc-gravity-form-wrap .gform_wrapper.gravity-theme .gfield_error input,
+.pc-gravity-form-wrap .gform_wrapper.gravity-theme .gfield_error select,
+.pc-gravity-form-wrap .gform_wrapper.gravity-theme .gfield_error textarea {
+	border-color: #dc2626 !important;
+	background-color: #fffafb;
+}
+
+.pc-gravity-form-wrap .validation_message,
+.pc-gravity-form-wrap .gfield_validation_message,
+.pc-gravity-form-wrap .gform_wrapper.gravity-theme .validation_message,
+.pc-gravity-form-wrap .gform_wrapper.gravity-theme .gfield_validation_message {
+	color: #dc2626;
+	font-size: 13px;
+	font-weight: 500;
+	margin-top: 6px;
+}
+
+/* Confirmation Message */
+.pc-gravity-form-wrap .gform_confirmation_message,
+.pc-gravity-form-wrap .gform_wrapper.gravity-theme .gform_confirmation_message {
+	padding: 24px;
+	background-color: #f0fdf4;
+	border: 1px solid #bbf7d0;
+	border-radius: 8px;
+	color: #166534;
+	font-size: 16px;
+	line-height: 1.6;
+	text-align: center;
+}
+
+/* Hide native title/desc when disabled */
+.pc-gravity-form-wrap.hide-form-title .gform_title,
+.pc-gravity-form-wrap.hide-form-title .gform-title {
+	display: none !important;
+}
+
+.pc-gravity-form-wrap.hide-form-description .gform_description,
+.pc-gravity-form-wrap.hide-form-description .gform-description {
+	display: none !important;
+}
+
+/* Checkbox Buttons / Pills Mode */
+.elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gfield_checkbox,
+.pc-gravity-form-wrap.pc-gf-checkbox-pills .gfield_checkbox,
+.elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gform_wrapper .gfield_checkbox,
+.pc-gravity-form-wrap.pc-gf-checkbox-pills .gform_wrapper .gfield_checkbox,
+.elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gform_wrapper.gravity-theme .gfield_checkbox,
+.pc-gravity-form-wrap.pc-gf-checkbox-pills .gform_wrapper.gravity-theme .gfield_checkbox {
+	display: flex !important;
+	flex-direction: row !important;
+	flex-wrap: wrap !important;
+	gap: 8px !important;
+}
+
+.elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gfield_checkbox .gchoice,
+.pc-gravity-form-wrap.pc-gf-checkbox-pills .gfield_checkbox .gchoice,
+.elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gform_wrapper .gfield_checkbox .gchoice,
+.pc-gravity-form-wrap.pc-gf-checkbox-pills .gform_wrapper .gfield_checkbox .gchoice,
+.elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gform_wrapper.gravity-theme .gfield_checkbox .gchoice,
+.pc-gravity-form-wrap.pc-gf-checkbox-pills .gform_wrapper.gravity-theme .gfield_checkbox .gchoice {
+	margin: 0 !important;
+	padding: 0 !important;
+	display: inline-flex !important;
+	align-items: stretch !important;
+	gap: 0 !important;
+}
+
+.elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gfield_checkbox input[type="checkbox"],
+.pc-gravity-form-wrap.pc-gf-checkbox-pills .gfield_checkbox input[type="checkbox"],
+.elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gform_wrapper .gfield_checkbox input[type="checkbox"],
+.pc-gravity-form-wrap.pc-gf-checkbox-pills .gform_wrapper .gfield_checkbox input[type="checkbox"] {
+	display: none !important;
+	opacity: 0 !important;
+	position: absolute !important;
+	pointer-events: none !important;
+	width: 0 !important;
+	height: 0 !important;
+	margin: 0 !important;
+}
+
+.elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gfield_checkbox .gfield-choice-input::before,
+.pc-gravity-form-wrap.pc-gf-checkbox-pills .gfield_checkbox .gfield-choice-input::before {
+	color: #fff;
+}
+
+.elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gfield_checkbox label,
+.pc-gravity-form-wrap.pc-gf-checkbox-pills .gfield_checkbox label,
+.elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gfield_checkbox .gchoice label,
+.pc-gravity-form-wrap.pc-gf-checkbox-pills .gfield_checkbox .gchoice label,
+.elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gform_wrapper.gravity-theme .gfield_checkbox label,
+.pc-gravity-form-wrap.pc-gf-checkbox-pills .gform_wrapper.gravity-theme .gfield_checkbox label {
+	display: inline-flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	text-align: center !important;
+	border: 1px solid #2a2f3a;
+	border-radius: 999px;
+	padding: 6px 12px;
+	background-color: #1b1f27;
+	color: #B8BDC7 !important;
+	cursor: pointer !important;
+	transition: all 0.3s ease !important;
+	margin: 0 !important;
+	user-select: none;
+	line-height: 1.4;
+}
+
+.elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gfield_checkbox label:hover,
+.pc-gravity-form-wrap.pc-gf-checkbox-pills .gfield_checkbox label:hover,
+.elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gfield_checkbox .gchoice label:hover,
+.pc-gravity-form-wrap.pc-gf-checkbox-pills .gfield_checkbox .gchoice label:hover {
+	border-color: #4b5563;
+}
+
+.elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gfield_checkbox input[type="checkbox"]:checked + label,
+.elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gfield_checkbox input[type="checkbox"]:checked ~ label,
+.elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gfield_checkbox .gchoice input[type="checkbox"]:checked + label,
+.elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gfield_checkbox .gchoice input[type="checkbox"]:checked ~ label,
+.pc-gravity-form-wrap.pc-gf-checkbox-pills .gfield_checkbox input[type="checkbox"]:checked + label,
+.pc-gravity-form-wrap.pc-gf-checkbox-pills .gfield_checkbox input[type="checkbox"]:checked ~ label,
+.pc-gravity-form-wrap.pc-gf-checkbox-pills .gfield_checkbox .gchoice input[type="checkbox"]:checked + label,
+.pc-gravity-form-wrap.pc-gf-checkbox-pills .gfield_checkbox .gchoice input[type="checkbox"]:checked ~ label,
+.elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gform_wrapper.gravity-theme .gfield_checkbox input[type="checkbox"]:checked + label,
+.pc-gravity-form-wrap.pc-gf-checkbox-pills .gform_wrapper.gravity-theme .gfield_checkbox input[type="checkbox"]:checked + label {
+	border-color: #E6B325 !important;
+	color: #E6B325 !important;
+	background-color: rgba(230, 179, 37, 0.1) !important;
+}
+
+/* Notice for editor placeholder */
+.pc-gf-placeholder-notice {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 20px 24px;
+	background: #f8fafc;
+	border: 2px dashed #cbd5e1;
+	border-radius: 8px;
+	color: #475569;
+	font-size: 14px;
+}
+
+.pc-gf-placeholder-notice i {
+	font-size: 24px;
+	color: #64748b;
+}

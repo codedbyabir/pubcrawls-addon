@@ -43,7 +43,7 @@ if ( ! function_exists( 'pubcrawls_register_taxonomies' ) ) {
 					'hierarchical' => true,
 					'public'       => true,
 					'show_in_rest' => true,
-					'rewrite'      => array( 'slug' => 'venue-category' ),
+					'rewrite'      => array( 'slug' => Pubcrawls_Admin::get_slug( 'taxonomies', 'venue_category' ) ),
 				)
 			);
 		}
@@ -69,7 +69,7 @@ if ( ! function_exists( 'pubcrawls_register_taxonomies' ) ) {
 					),
 					'hierarchical' => true,
 					'show_in_rest' => true,
-					'rewrite'      => array( 'slug' => 'events' ),
+					'rewrite'      => array( 'slug' => Pubcrawls_Admin::get_slug( 'taxonomies', 'tribe_events_cat' ) ),
 				)
 			);
 		}

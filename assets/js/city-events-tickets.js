@@ -25,6 +25,113 @@
         }, 100);
     }
 
+    function getCookie( name ) {
+        var match = document.cookie.match( new RegExp( '(^|;\\s*)(' + name + ')=([^;]*)' ) );
+        return match ? decodeURIComponent( match[3] ) : '';
+    }
+
+    function collectAttribution() {
+        var gaCookie = getCookie( '_ga' );
+        var clientId = '';
+        if ( gaCookie ) {
+            var parts = gaCookie.split( '.' );
+            if ( parts.length >= 4 ) {
+                clientId = parts[2] + '.' + parts[3];
+            } else if ( parts.length >= 2 ) {
+                clientId = parts.slice( -2 ).join( '.' );
+            }
+        }
+
+        // GA4 session id: Support dynamic measurement cookie matching (_ga_<MEASUREMENT_ID>)
+        // Supports the current GS2 format (GS2.1.s<session_id>$o..$t..) and the older GS1 format.
+        var sessionId = '';
+        var configuredMid = ( window.pubcrawlsTicketConfig && window.pubcrawlsTicketConfig.ga4MeasurementId )
+            ? window.pubcrawlsTicketConfig.ga4MeasurementId.replace( /^G-/, '' )
+            : '';
+        var targetCookieName = configuredMid ? ( '_ga_' + configuredMid ) : '';
+        var ga4Cookie = targetCookieName ? getCookie( targetCookieName ) : '';
+        if ( ! ga4Cookie ) {
+            var ga4Match = document.cookie.match( /(?:^|;\s*)(_ga_[A-Z0-9]+)=([^;]*)/ );
+            ga4Cookie = ga4Match ? decodeURIComponent( ga4Match[2] ) : getCookie( '_ga_65M38WNEJH' );
+        }
+        if ( ga4Cookie ) {
+            var sMatch = ga4Cookie.match( /^GS[12]\.\d+\.(?:s)?(\d+)/ ) || ga4Cookie.match( /(?:^|[$~|])s?(\d{9,12})/ );
+            if ( sMatch ) {
+                sessionId = sMatch[1];
+            }
+        }
+
+        var urlParams = ( typeof URLSearchParams !== 'undefined' ) ? new URLSearchParams( window.location.search ) : null;
+        var fbc = getCookie( '_fbc' );
+        if ( ! fbc && urlParams && urlParams.get( 'fbclid' ) ) {
+            fbc = 'fb.1.' + Date.now() + '.' + urlParams.get( 'fbclid' );
+        }
+
+        var ttclid = getCookie( 'ttclid' ) || ( urlParams ? urlParams.get( 'ttclid' ) : '' ) || '';
+
+        var pageUrl = '';
+        if ( typeof window !== 'undefined' && window.location && window.location.href ) {
+            try {
+                var parsedUrl = new URL( window.location.href );
+                var sensitiveKeys = [ 'order_data', 'email', 'phone', 'first_name', 'last_name', 'fn', 'ln', 'em', 'ph', 'token', 'secret', 'key' ];
+                sensitiveKeys.forEach( function ( k ) {
+                    parsedUrl.searchParams.delete( k );
+                } );
+                pageUrl = parsedUrl.toString();
+            } catch ( e ) {
+                pageUrl = ( window.location.href || '' ).split( '?' )[0];
+            }
+        }
+
+        return {
+            page_url: pageUrl,
+            client_id: clientId,
+            session_id: sessionId,
+            fbp: getCookie( '_fbp' ),
+            fbc: fbc,
+            ttp: getCookie( '_ttp' ),
+            ttclid: ttclid,
+            user_agent: navigator.userAgent || ''
+        };
+    }
+
+    function sendAttribution( orderId, eventId ) {
+        if ( ! orderId ) return;
+        var data = collectAttribution();
+        data.order_id = String( orderId );
+        data.event_id = String( eventId || '' );
+
+        var endpoint = ( window.pubcrawlsTicketConfig && window.pubcrawlsTicketConfig.attributionUrl )
+            ? window.pubcrawlsTicketConfig.attributionUrl
+            : '/wp-json/pubcrawls/v1/eventbrite/attribution';
+
+        if ( window.fetch ) {
+            fetch( endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify( data ),
+                keepalive: true
+            } ).catch( function () {} );
+        }
+    }
+
+    // Listen to postMessage from Eventbrite embedded checkout iframe
+    window.addEventListener( 'message', function ( event ) {
+        if ( ! event.origin || ( event.origin.indexOf( 'eventbrite.com' ) === -1 && event.origin.indexOf( 'eventbriteapi.com' ) === -1 ) ) {
+            return;
+        }
+        var msg = event.data;
+        if ( typeof msg === 'string' ) {
+            try { msg = JSON.parse( msg ); } catch ( e ) {}
+        }
+        if ( msg && typeof msg === 'object' ) {
+            var orderId = msg.orderId || msg.order_id || ( msg.data && ( msg.data.orderId || msg.data.order_id ) );
+            if ( orderId ) {
+                sendAttribution( orderId, msg.eventId || msg.event_id );
+            }
+        }
+    } );
+
     function initEBWidget(uid, triggerId, ebId, ebLink) {
         if (!ebId || !triggerId) return;
         if (widgetRegistry[triggerId]) return;
@@ -36,8 +143,12 @@
                     eventId: ebId,
                     modal: true,
                     modalTriggerElementId: triggerId,
-                    onOrderComplete: function () {
-                        console.log('EB Order complete:', uid);
+                    onOrderComplete: function ( response ) {
+                        var orderId = ( response && ( response.orderId || response.order_id || response.id ) ) || '';
+                        if ( orderId ) {
+                            sendAttribution( orderId, ebId );
+                        }
+                        console.log('EB Order complete:', uid, orderId);
                         if ( window.pubcrawlsTicketConfig && window.pubcrawlsTicketConfig.eventbriteConfirmationUrl ) {
                             window.location.href = window.pubcrawlsTicketConfig.eventbriteConfirmationUrl;
                         }
@@ -88,10 +199,11 @@
 
         // 1. Ensure baseline squadup object exists
         if (!window.squadup) {
+            var cfg = (typeof pubcrawlsTicketConfig !== 'undefined') ? pubcrawlsTicketConfig : {};
             window.squadup = {
-                title: 'Pubcrawls Events',
+                title: cfg.squadupTitle || 'Pubcrawls Events',
                 root: 'squadup-checkout',
-                userId: [3438001],
+                userId: [cfg.squadupUserId || 3438001],
                 onDomReady: false,
                 shoppingCartEnabled: true,
                 ticketGuardianEnabled: false,
@@ -100,8 +212,8 @@
                 descriptionEnabled: false,
                 brandingPosition: 'none',
                 autoScrollElementId: 'squadup-checkout',
-                confirmationUrl: 'https://pubcrawls.com/purchase-confirmation/',
-                orderQuestions: [{
+                confirmationUrl: cfg.squadupConfirmationUrl || 'https://pubcrawls.com/purchase-confirmation/',
+                orderQuestions: cfg.squadupOrderQuestions || [{
                     question: 'Phone Number for SMS Updates related to your event(s).',
                     type: 'text',
                     required: false

@@ -73,17 +73,17 @@ class Pubcrawls_Event_Agenda extends \Elementor\Widget_Base
 		$this->start_controls_section(
 			'section_content',
 			[
-				'label' => __('Content', 'pubcrawls-addon'),
+				'label' => esc_html__('Content', 'pubcrawls-addon'),
 			]
 		);
 
 		$this->add_control(
 			'pubcrawl_post_id',
 			[
-				'label'       => __('Post ID', 'pubcrawls-addon'),
+				'label'       => esc_html__('Post ID', 'pubcrawls-addon'),
 				'type'        => \Elementor\Controls_Manager::NUMBER,
 				'default'     => '',
-				'description' => __('Post ID — leave empty to use current post', 'pubcrawls-addon'),
+				'description' => esc_html__('Post ID — leave empty to use current post', 'pubcrawls-addon'),
 			]
 		);
 
@@ -92,7 +92,7 @@ class Pubcrawls_Event_Agenda extends \Elementor\Widget_Base
 		$this->start_controls_section(
 			'section_style_layout',
 			[
-				'label' => __('Layout', 'pubcrawls-addon'),
+				'label' => esc_html__('Layout', 'pubcrawls-addon'),
 				'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
 			]
 		);
@@ -100,7 +100,7 @@ class Pubcrawls_Event_Agenda extends \Elementor\Widget_Base
 		$this->add_responsive_control(
 			'pubcrawl_layout_gap',
 			[
-				'label'      => __('Gap between steps', 'pubcrawls-addon'),
+				'label'      => esc_html__('Gap between steps', 'pubcrawls-addon'),
 				'type'       => \Elementor\Controls_Manager::SLIDER,
 				'size_units' => ['px', 'em', 'rem'],
 				'range'      => [
@@ -117,7 +117,7 @@ class Pubcrawls_Event_Agenda extends \Elementor\Widget_Base
 		$this->start_controls_section(
 			'section_style_step_card',
 			[
-				'label' => __('Step Card', 'pubcrawls-addon'),
+				'label' => esc_html__('Step Card', 'pubcrawls-addon'),
 				'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
 			]
 		);
@@ -125,7 +125,7 @@ class Pubcrawls_Event_Agenda extends \Elementor\Widget_Base
 		$this->add_control(
 			'pubcrawl_step_card_bg_color',
 			[
-				'label'     => __('Background Color', 'pubcrawls-addon'),
+				'label'     => esc_html__('Background Color', 'pubcrawls-addon'),
 				'type'      => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .pubcrawl-step' => 'background-color: {{VALUE}};',
@@ -144,7 +144,7 @@ class Pubcrawls_Event_Agenda extends \Elementor\Widget_Base
 		$this->add_responsive_control(
 			'pubcrawl_step_card_border_radius',
 			[
-				'label'      => __('Border Radius', 'pubcrawls-addon'),
+				'label'      => esc_html__('Border Radius', 'pubcrawls-addon'),
 				'type'       => \Elementor\Controls_Manager::DIMENSIONS,
 				'size_units' => ['px', '%'],
 				'selectors'  => [
@@ -156,7 +156,7 @@ class Pubcrawls_Event_Agenda extends \Elementor\Widget_Base
 		$this->add_responsive_control(
 			'pubcrawl_step_card_padding',
 			[
-				'label'      => __('Padding', 'pubcrawls-addon'),
+				'label'      => esc_html__('Padding', 'pubcrawls-addon'),
 				'type'       => \Elementor\Controls_Manager::DIMENSIONS,
 				'size_units' => ['px', 'em', '%'],
 				'selectors'  => [
@@ -170,7 +170,7 @@ class Pubcrawls_Event_Agenda extends \Elementor\Widget_Base
 		$this->start_controls_section(
 			'section_style_time_badge',
 			[
-				'label' => __('Time Badge', 'pubcrawls-addon'),
+				'label' => esc_html__('Time Badge', 'pubcrawls-addon'),
 				'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
 			]
 		);
@@ -186,7 +186,7 @@ class Pubcrawls_Event_Agenda extends \Elementor\Widget_Base
 		$this->add_control(
 			'pubcrawl_time_badge_color',
 			[
-				'label'     => __('Text Color', 'pubcrawls-addon'),
+				'label'     => esc_html__('Text Color', 'pubcrawls-addon'),
 				'type'      => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .pubcrawl-time-badge' => 'color: {{VALUE}};',
@@ -197,7 +197,7 @@ class Pubcrawls_Event_Agenda extends \Elementor\Widget_Base
 		$this->add_control(
 			'pubcrawl_time_badge_bg_color',
 			[
-				'label'     => __('Background Color', 'pubcrawls-addon'),
+				'label'     => esc_html__('Background Color', 'pubcrawls-addon'),
 				'type'      => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .pubcrawl-time-badge' => 'background-color: {{VALUE}};',
@@ -216,7 +216,7 @@ class Pubcrawls_Event_Agenda extends \Elementor\Widget_Base
 		$this->add_responsive_control(
 			'pubcrawl_time_badge_border_radius',
 			[
-				'label'      => __('Border Radius', 'pubcrawls-addon'),
+				'label'      => esc_html__('Border Radius', 'pubcrawls-addon'),
 				'type'       => \Elementor\Controls_Manager::DIMENSIONS,
 				'size_units' => ['px', '%'],
 				'selectors'  => [
@@ -228,7 +228,7 @@ class Pubcrawls_Event_Agenda extends \Elementor\Widget_Base
 		$this->add_responsive_control(
 			'pubcrawl_time_badge_padding',
 			[
-				'label'      => __('Padding', 'pubcrawls-addon'),
+				'label'      => esc_html__('Padding', 'pubcrawls-addon'),
 				'type'       => \Elementor\Controls_Manager::DIMENSIONS,
 				'size_units' => ['px', 'em', '%'],
 				'selectors'  => [
@@ -242,7 +242,7 @@ class Pubcrawls_Event_Agenda extends \Elementor\Widget_Base
 		$this->start_controls_section(
 			'section_style_title',
 			[
-				'label' => __('Title', 'pubcrawls-addon'),
+				'label' => esc_html__('Title', 'pubcrawls-addon'),
 				'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
 			]
 		);
@@ -258,7 +258,7 @@ class Pubcrawls_Event_Agenda extends \Elementor\Widget_Base
 		$this->add_control(
 			'pubcrawl_title_color',
 			[
-				'label'     => __('Color', 'pubcrawls-addon'),
+				'label'     => esc_html__('Color', 'pubcrawls-addon'),
 				'type'      => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .pubcrawl-card-title' => 'color: {{VALUE}};',
@@ -271,7 +271,7 @@ class Pubcrawls_Event_Agenda extends \Elementor\Widget_Base
 		$this->start_controls_section(
 			'section_style_description',
 			[
-				'label' => __('Description', 'pubcrawls-addon'),
+				'label' => esc_html__('Description', 'pubcrawls-addon'),
 				'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
 			]
 		);
@@ -287,7 +287,7 @@ class Pubcrawls_Event_Agenda extends \Elementor\Widget_Base
 		$this->add_control(
 			'pubcrawl_description_color',
 			[
-				'label'     => __('Color', 'pubcrawls-addon'),
+				'label'     => esc_html__('Color', 'pubcrawls-addon'),
 				'type'      => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .pubcrawl-card-desc' => 'color: {{VALUE}};',

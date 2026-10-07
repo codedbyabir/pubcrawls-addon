@@ -478,7 +478,7 @@ class Pubcrawls_Get_Directions extends \Elementor\Widget_Base
                 $settings['pubcrawl_' . $setting_key] = $settings[$setting_key];
             }
         }
-        $btn_text = ! empty($settings['button_text']) ? $settings['button_text'] : __('Get Directions', 'pubcrawls-addon');
+        $btn_text = ! empty($settings['button_text']) ? $settings['button_text'] : esc_html__('Get Directions', 'pubcrawls-addon');
 
         // Custom address override or dynamic address from ACF
         $address = ! empty($settings['custom_address']) ? trim($settings['custom_address']) : '';

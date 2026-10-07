@@ -168,6 +168,29 @@ if (! class_exists('PCET_Enqueue')) {
 				);
 			}
 
+			$conf_url   = class_exists('Pubcrawls_Admin')
+				? esc_url(Pubcrawls_Admin::get_setting('squadup_confirmation_url', 'https://pubcrawls.com/purchase-confirmation/'))
+				: 'https://pubcrawls.com/purchase-confirmation/';
+			$sms_q      = class_exists('Pubcrawls_Admin')
+				? esc_js(Pubcrawls_Admin::get_setting('squadup_sms_question', 'Phone Number for SMS Updates related to your event(s).'))
+				: 'Phone Number for SMS Updates related to your event(s).';
+			$has_sms    = ! class_exists('Pubcrawls_Admin') || '1' === (string) Pubcrawls_Admin::get_setting('squadup_enable_sms', '1');
+			$su_user_id = class_exists('Pubcrawls_Admin')
+				? sanitize_text_field((string) Pubcrawls_Admin::get_setting('squadup_user_id', '3438001'))
+				: '3438001';
+			$su_image   = class_exists('Pubcrawls_Admin')
+				? esc_url(Pubcrawls_Admin::get_setting('squadup_modal_image', 'https://pubcrawls.com/wp-content/uploads/2026/03/Logo.webp'))
+				: 'https://pubcrawls.com/wp-content/uploads/2026/03/Logo.webp';
+			$su_title   = class_exists('Pubcrawls_Admin')
+				? esc_js(Pubcrawls_Admin::get_setting('squadup_modal_title', 'Pubcrawls Events'))
+				: 'Pubcrawls Events';
+
+			$order_questions_json = $has_sms
+				? '[{ question: "' . $sms_q . '", type: "text", required: false }]'
+				: '[]';
+
+			$user_id_num = is_numeric($su_user_id) ? (int) $su_user_id : 3438001;
+
 			// ── SquadUp SDK (official embed domain) ───────────
 			if (! wp_script_is('squadup-widget', 'registered')) {
 				wp_register_script(
@@ -178,25 +201,15 @@ if (! class_exists('PCET_Enqueue')) {
 					true
 				);
 
-				$conf_url = class_exists('Pubcrawls_Admin')
-					? esc_url(Pubcrawls_Admin::get_setting('squadup_confirmation_url', 'https://pubcrawls.com/purchase-confirmation/'))
-					: 'https://pubcrawls.com/purchase-confirmation/';
-				$sms_q    = class_exists('Pubcrawls_Admin')
-					? esc_js(Pubcrawls_Admin::get_setting('squadup_sms_question', 'Phone Number for SMS Updates related to your event(s).'))
-					: 'Phone Number for SMS Updates related to your event(s).';
-				$has_sms  = ! class_exists('Pubcrawls_Admin') || '1' === (string) Pubcrawls_Admin::get_setting('squadup_enable_sms', '1');
-				$order_questions_json = $has_sms
-					? '[{ question: "' . $sms_q . '", type: "text", required: false }]'
-					: '[]';
-
 				// ── SquadUp config — printed BEFORE the SDK runs ──
 				wp_add_inline_script(
 					'squadup-widget',
 					'if ( ! window.squadup ) {
 						window.squadup = {
-							image: "https://pubcrawls.com/wp-content/uploads/2026/03/Logo.webp",
+							image: "' . esc_url($su_image) . '",
+							title: "' . $su_title . '",
 							root: "squadup-checkout",
-							userId: [3438001],
+							userId: [' . $user_id_num . '],
 							onDomReady: false,
 							shoppingCartEnabled: true,
 							ticketGuardianEnabled: false,
@@ -241,6 +254,13 @@ if (! class_exists('PCET_Enqueue')) {
 
 			$ticket_config = array(
 				'eventbriteConfirmationUrl' => $eb_conf_url,
+				'attributionUrl'            => esc_url_raw( rest_url( 'pubcrawls/v1/eventbrite/attribution' ) ),
+				'squadupUserId'             => $user_id_num,
+				'squadupImage'              => esc_url( $su_image ),
+				'squadupTitle'              => $su_title,
+				'squadupConfirmationUrl'    => esc_url( $conf_url ),
+				'squadupOrderQuestions'     => $has_sms ? array( array( 'question' => $sms_q, 'type' => 'text', 'required' => false ) ) : array(),
+				'ga4MeasurementId'          => class_exists( 'Pubcrawls_Tracking_Dispatcher' ) ? Pubcrawls_Tracking_Dispatcher::get_config( 'ga4_measurement_id', '' ) : '',
 			);
 
 			wp_localize_script( 'pcet-tickets', 'pubcrawlsTicketConfig', $ticket_config );
