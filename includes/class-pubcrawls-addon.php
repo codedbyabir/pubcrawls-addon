@@ -176,6 +176,12 @@ final class Pubcrawls_Addon
 			'pc-page-faqs'       => 'Pubcrawls_Page_FAQs',
 			'pc-social-share'    => 'Pubcrawls_Social_Share',
 			'pc-ai-quick-links'  => 'Pubcrawls_AI_Quick_Links',
+<<<<<<< Updated upstream
+=======
+			'pc-gravity-forms'   => 'Pubcrawls_Gravity_Forms',
+			'pc-timeline'        => 'Pubcrawls_Timeline',
+			'pc-taxonomy-terms'  => 'Pubcrawls_Taxonomy_Terms',
+>>>>>>> Stashed changes
 		];
 
 		$disabled = get_option('pubcrawls_disabled_widgets', []);
@@ -267,5 +273,32 @@ final class Pubcrawls_Addon
 			[],
 			PUBCRAWLS_ADDON_VERSION
 		);
+<<<<<<< Updated upstream
+=======
+
+		// Gravity Forms stylesheet inside editor
+		wp_enqueue_style(
+			'pc-gravity-forms',
+			PUBCRAWLS_ADDON_URL . 'assets/css/gravity-forms.css',
+			[],
+			PUBCRAWLS_ADDON_VERSION
+		);
+
+		// Steps Timeline stylesheet inside editor
+		wp_enqueue_style(
+			'pc-timeline-css',
+			PUBCRAWLS_ADDON_URL . 'assets/css/timeline.css',
+			[],
+			PUBCRAWLS_ADDON_VERSION
+		);
+
+		// Taxonomy Terms stylesheet inside editor
+		wp_enqueue_style(
+			'pc-taxonomy-terms-css',
+			PUBCRAWLS_ADDON_URL . 'assets/css/taxonomy-terms.css',
+			[],
+			PUBCRAWLS_ADDON_VERSION
+		);
+>>>>>>> Stashed changes
 	}
 }

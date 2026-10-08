@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Plugin Name:       Pubcrawls
  * Plugin URI:        https://pubcrawls.com/
@@ -93,6 +92,42 @@ add_action('wp_enqueue_scripts', function () {
 		);
 	}
 
+<<<<<<< Updated upstream
+=======
+	// Gravity Forms Widget Styles (Registered for get_style_depends)
+	wp_register_style(
+		'pc-gravity-forms',
+		PUBCRAWLS_ADDON_URL . 'assets/css/gravity-forms.css',
+		[],
+		PUBCRAWLS_ADDON_VERSION
+	);
+
+	// Steps Timeline Widget Styles (Registered for get_style_depends)
+	wp_register_style(
+		'pc-timeline-css',
+		PUBCRAWLS_ADDON_URL . 'assets/css/timeline.css',
+		[],
+		PUBCRAWLS_ADDON_VERSION
+	);
+
+	// Steps Timeline Widget Script (Registered for get_script_depends)
+	wp_register_script(
+		'pc-timeline-js',
+		PUBCRAWLS_ADDON_URL . 'assets/js/timeline.js',
+		['jquery'],
+		PUBCRAWLS_ADDON_VERSION,
+		true
+	);
+
+	// Taxonomy Terms Widget Styles (Registered for get_style_depends)
+	wp_register_style(
+		'pc-taxonomy-terms-css',
+		PUBCRAWLS_ADDON_URL . 'assets/css/taxonomy-terms.css',
+		[],
+		PUBCRAWLS_ADDON_VERSION
+	);
+
+>>>>>>> Stashed changes
 	// Core Plugin JS
 	if (! wp_script_is('pub-crawls-js', 'enqueued')) {
 		wp_enqueue_script(

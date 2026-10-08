@@ -965,6 +965,30 @@ class Pubcrawls_Admin {
 				'class'       => 'Pubcrawls_AI_Quick_Links',
 				'description' => esc_html__( 'Direct query buttons for ChatGPT, Perplexity, Google AI, and Microsoft Copilot.', 'pubcrawls-addon' ),
 			),
+<<<<<<< Updated upstream
+=======
+			'pc-gravity-forms'   => array(
+				'title'       => esc_html__( 'Gravity Forms', 'pubcrawls-addon' ),
+				'icon'        => 'eicon-form-horizontal',
+				'file'        => 'pubcrawl-gravity-forms.php',
+				'class'       => 'Pubcrawls_Gravity_Forms',
+				'description' => esc_html__( 'Embeds and provides full Elementor styling controls for any active Gravity Form.', 'pubcrawls-addon' ),
+			),
+			'pc-timeline'        => array(
+				'title'       => esc_html__( 'Steps Timeline', 'pubcrawls-addon' ),
+				'icon'        => 'eicon-time-line',
+				'file'        => 'pubcrawl-timeline.php',
+				'class'       => 'Pubcrawls_Timeline',
+				'description' => esc_html__( 'Interactive vertical timeline with scroll line fill progress, steps, icons, and titles.', 'pubcrawls-addon' ),
+			),
+			'pc-taxonomy-terms'  => array(
+				'title'       => esc_html__( 'Taxonomy Terms Grid', 'pubcrawls-addon' ),
+				'icon'        => 'eicon-tags',
+				'file'        => 'pubcrawl-taxonomy-terms.php',
+				'class'       => 'Pubcrawls_Taxonomy_Terms',
+				'description' => esc_html__( 'Displays taxonomy terms in a responsive grid with post counts, custom after-text, and complete box/hover styling.', 'pubcrawls-addon' ),
+			),
+>>>>>>> Stashed changes
 		);
 	}
 
