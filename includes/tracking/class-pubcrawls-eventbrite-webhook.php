@@ -517,6 +517,8 @@ class Pubcrawls_Eventbrite_Webhook {
 			'fbc'        => sanitize_text_field( (string) ( $params['fbc'] ?? '' ) ),
 			'ttp'        => sanitize_text_field( (string) ( $params['ttp'] ?? '' ) ),
 			'ttclid'     => sanitize_text_field( (string) ( $params['ttclid'] ?? '' ) ),
+			'oai_obref'  => sanitize_text_field( (string) ( $params['oai_obref'] ?? ( $params['obref'] ?? '' ) ) ),
+			'oai_oppref' => sanitize_text_field( (string) ( $params['oai_oppref'] ?? ( $params['oppref'] ?? '' ) ) ),
 			'ip'         => $ip,
 			'user_agent' => sanitize_textarea_field( (string) ( $params['user_agent'] ?? ( $_SERVER['HTTP_USER_AGENT'] ?? '' ) ) ),
 		);
@@ -671,7 +673,9 @@ class Pubcrawls_Eventbrite_Webhook {
 				|| ! empty( $attribution['fbp'] )
 				|| ! empty( $attribution['fbc'] )
 				|| ! empty( $attribution['ttp'] )
-				|| ! empty( $attribution['ttclid'] );
+				|| ! empty( $attribution['ttclid'] )
+				|| ! empty( $attribution['oai_obref'] )
+				|| ! empty( $attribution['oai_oppref'] );
 
 			if ( $has_attribution ) {
 				return;
@@ -756,6 +760,7 @@ class Pubcrawls_Eventbrite_Webhook {
 					Pubcrawls_Tracking_DB::update_platform_status( $order_id, 'ga4', 'skipped', 'Order rejected: ' . $err );
 					Pubcrawls_Tracking_DB::update_platform_status( $order_id, 'meta', 'skipped', 'Order rejected: ' . $err );
 					Pubcrawls_Tracking_DB::update_platform_status( $order_id, 'tiktok', 'skipped', 'Order rejected: ' . $err );
+					Pubcrawls_Tracking_DB::update_platform_status( $order_id, 'openai', 'skipped', 'Order rejected: ' . $err );
 				}
 
 				self::add_log_entry(
@@ -793,6 +798,7 @@ class Pubcrawls_Eventbrite_Webhook {
 					'ga4'         => $dispatch_result['platforms']['ga4'] ?? null,
 					'meta'        => $dispatch_result['platforms']['meta'] ?? null,
 					'tiktok'      => $dispatch_result['platforms']['tiktok'] ?? null,
+					'openai'      => $dispatch_result['platforms']['openai'] ?? null,
 					'attribution' => $dispatch_result['attribution'] ?? null,
 				)
 			);

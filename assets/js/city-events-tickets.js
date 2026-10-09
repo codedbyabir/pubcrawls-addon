@@ -69,6 +69,10 @@
 
         var ttclid = getCookie( 'ttclid' ) || ( urlParams ? urlParams.get( 'ttclid' ) : '' ) || '';
 
+        // OpenAI attribution cookies (__obref: browser ID, __oppref: ad click ID)
+        var oai_obref = getCookie( '__obref' ) || ( urlParams ? ( urlParams.get( '__obref' ) || urlParams.get( 'obref' ) ) : '' ) || '';
+        var oai_oppref = getCookie( '__oppref' ) || ( urlParams ? ( urlParams.get( '__oppref' ) || urlParams.get( 'oppref' ) ) : '' ) || '';
+
         return {
             client_id: clientId,
             session_id: sessionId,
@@ -76,6 +80,8 @@
             fbc: fbc,
             ttp: getCookie( '_ttp' ),
             ttclid: ttclid,
+            oai_obref: oai_obref,
+            oai_oppref: oai_oppref,
             user_agent: navigator.userAgent || ''
         };
     }

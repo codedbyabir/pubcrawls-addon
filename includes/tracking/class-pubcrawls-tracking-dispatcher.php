@@ -144,17 +144,49 @@ class Pubcrawls_Tracking_Dispatcher {
 			Pubcrawls_Tracking_DB::update_platform_status( $order_id, 'tiktok', 'skipped', null, null );
 		}
 
+		// ── 4. OpenAI Conversions API ───────────────────────────────────────────
+		$prev_openai_status = $db_record ? ( $db_record->openai_status ?? 'pending' ) : 'pending';
+		if ( 'success' === $prev_openai_status ) {
+			$active_platforms[] = 'openai';
+			$results['openai']  = array(
+				'enabled' => true,
+				'success' => true,
+				'skipped' => true,
+				'code'    => (int) ( $db_record->openai_code ?? 200 ),
+				'message' => 'OpenAI Conversions API delivery previously succeeded; skipped resending.',
+			);
+		} elseif ( self::is_platform_enabled( 'openai' ) ) {
+			$active_platforms[] = 'openai';
+			$res                = self::send_openai( $normalized_order, $attribution );
+			$results['openai']  = $res;
+			Pubcrawls_Tracking_DB::update_platform_status(
+				$order_id,
+				'openai',
+				$res['success'] ? 'success' : 'failed',
+				! empty( $res['error'] ) ? $res['error'] : null,
+				$res['code'] ?? null
+			);
+		} else {
+			$results['openai'] = array(
+				'enabled' => false,
+				'message' => 'OpenAI Conversions API tracking is disabled or missing credentials.',
+			);
+			Pubcrawls_Tracking_DB::update_platform_status( $order_id, 'openai', 'skipped', null, null );
+		}
+
 		// Finalize overall order status in database
 		$overall_status = Pubcrawls_Tracking_DB::finalize_order_status( $order_id, $active_platforms );
 
 		// Compile safe attribution diagnostics (Phase 13)
 		$attribution_diag = array(
-			'record'     => ( ! empty( $attribution['client_id'] ) || ! empty( $attribution['fbp'] ) || ! empty( $attribution['fbc'] ) ) ? 'found' : 'none',
+			'record'     => ( ! empty( $attribution['client_id'] ) || ! empty( $attribution['fbp'] ) || ! empty( $attribution['fbc'] ) || ! empty( $attribution['oai_obref'] ) || ! empty( $attribution['oai_oppref'] ) ) ? 'found' : 'none',
 			'status'     => $results['ga4']['attribution'] ?? 'fallback',
 			'client_id'  => ! empty( $attribution['client_id'] ) ? 'present' : 'absent',
 			'session_id' => ! empty( $attribution['session_id'] ) ? 'present' : 'absent',
 			'fbp'        => ! empty( $attribution['fbp'] ) ? 'present' : 'absent',
 			'fbc'        => ! empty( $attribution['fbc'] ) ? 'present' : 'absent',
+			'oai_obref'  => ! empty( $attribution['oai_obref'] ) ? 'present' : 'absent',
+			'oai_oppref' => ! empty( $attribution['oai_oppref'] ) ? 'present' : 'absent',
 			'buyer_ip'   => ! empty( $attribution['ip'] ) ? 'present' : 'absent',
 			'buyer_ua'   => ! empty( $attribution['user_agent'] ) ? 'present' : 'absent',
 		);
@@ -171,7 +203,7 @@ class Pubcrawls_Tracking_Dispatcher {
 	/**
 	 * Check if a platform is enabled and has minimal required credentials.
 	 *
-	 * @param string $platform Platform slug ('ga4', 'meta', 'tiktok').
+	 * @param string $platform Platform slug ('ga4', 'meta', 'tiktok', 'openai').
 	 * @return bool
 	 */
 	public static function is_platform_enabled( string $platform ): bool {
@@ -201,6 +233,13 @@ class Pubcrawls_Tracking_Dispatcher {
 			return $enabled && ! empty( $pixel ) && ! empty( $token );
 		}
 
+		if ( 'openai' === $platform ) {
+			$enabled = self::get_config( 'enable_openai_tracking', '1' ) === '1';
+			$pixel   = self::get_config( 'openai_pixel_id', 'JoAtsPLnsm5Jfs1GnaGpxo' );
+			$key     = self::get_config( 'openai_capi_key', '' );
+			return $enabled && ! empty( $pixel ) && ! empty( $key );
+		}
+
 		return false;
 	}
 
@@ -225,11 +264,33 @@ class Pubcrawls_Tracking_Dispatcher {
 			'tiktok_pixel_id'        => 'PUBCRAWLS_TIKTOK_PIXEL_ID',
 			'tiktok_access_token'    => 'PUBCRAWLS_TIKTOK_ACCESS_TOKEN',
 			'tiktok_test_code'       => 'PUBCRAWLS_TIKTOK_TEST_CODE',
+			'openai_pixel_id'        => 'PUBCRAWLS_OPENAI_PIXEL_ID',
+			'openai_capi_key'        => 'PUBCRAWLS_OPENAI_CAPI_KEY',
+			'openai_validate_only'   => 'PUBCRAWLS_OPENAI_VALIDATE_ONLY',
 			'enable_server_tracking' => 'PUBCRAWLS_ENABLE_SERVER_TRACKING',
 			'enable_ga4_tracking'    => 'PUBCRAWLS_ENABLE_GA4_TRACKING',
 			'enable_meta_tracking'   => 'PUBCRAWLS_ENABLE_META_TRACKING',
 			'enable_tiktok_tracking' => 'PUBCRAWLS_ENABLE_TIKTOK_TRACKING',
+			'enable_openai_tracking' => 'PUBCRAWLS_ENABLE_OPENAI_TRACKING',
 		);
+
+		// Support custom OpenAI constants (PC_OPENAI_CAPI_KEY, PC_OPENAI_PIXEL_ID)
+		if ( 'openai_capi_key' === $key ) {
+			if ( defined( 'PC_OPENAI_CAPI_KEY' ) && ! empty( PC_OPENAI_CAPI_KEY ) ) {
+				return PC_OPENAI_CAPI_KEY;
+			}
+			if ( defined( 'PUBCRAWLS_OPENAI_CAPI_KEY' ) && ! empty( PUBCRAWLS_OPENAI_CAPI_KEY ) ) {
+				return PUBCRAWLS_OPENAI_CAPI_KEY;
+			}
+		}
+		if ( 'openai_pixel_id' === $key ) {
+			if ( defined( 'PC_OPENAI_PIXEL_ID' ) && ! empty( PC_OPENAI_PIXEL_ID ) ) {
+				return PC_OPENAI_PIXEL_ID;
+			}
+			if ( defined( 'PUBCRAWLS_OPENAI_PIXEL_ID' ) && ! empty( PUBCRAWLS_OPENAI_PIXEL_ID ) ) {
+				return PUBCRAWLS_OPENAI_PIXEL_ID;
+			}
+		}
 
 		if ( isset( $constant_map[ $key ] ) && defined( $constant_map[ $key ] ) ) {
 			return constant( $constant_map[ $key ] );
@@ -680,6 +741,157 @@ class Pubcrawls_Tracking_Dispatcher {
 			'code'     => $code,
 			'response' => $body,
 			'error'    => ! $success ? sprintf( 'TikTok HTTP %d: %s', $code, $body['message'] ?? 'Unknown error' ) : null,
+		);
+	}
+
+	/**
+	 * Send order_created event to OpenAI Conversions API.
+	 *
+	 * Sends purchase conversions server-side using the official OpenAI Bazaar endpoint.
+	 * Formats order value in cents, SHA-256 hashes customer email, and attaches
+	 * browser attribution (obref, oppref, IP, user-agent) when available.
+	 *
+	 * @param array $order       Normalized order.
+	 * @param array $attribution Stored browser attribution parameters.
+	 * @return array
+	 */
+	public static function send_openai( array $order, array $attribution = array() ): array {
+		$pixel_id      = trim( (string) self::get_config( 'openai_pixel_id', 'JoAtsPLnsm5Jfs1GnaGpxo' ) );
+		$api_key       = trim( (string) self::get_config( 'openai_capi_key', '' ) );
+		$validate_only = ( '1' === (string) self::get_config( 'openai_validate_only', '0' ) );
+
+		if ( empty( $pixel_id ) || empty( $api_key ) ) {
+			return array(
+				'enabled' => false,
+				'success' => false,
+				'error'   => 'Missing OpenAI Pixel ID or Conversions API Key.',
+			);
+		}
+
+		$endpoint = add_query_arg( 'pid', rawurlencode( $pixel_id ), 'https://bzr.openai.com/v1/events' );
+
+		// ── 1. User Matching Data ───────────────────────────────────────────
+		$user_data = array();
+
+		// Buyer email (SHA-256 hashed)
+		if ( ! empty( $order['buyer']['email'] ) ) {
+			$email_clean               = strtolower( trim( (string) $order['buyer']['email'] ) );
+			$hashed_email              = hash( 'sha256', $email_clean );
+			$user_data['email_sha256'] = $hashed_email;
+			$user_data['email']        = $hashed_email;
+		}
+
+		// OpenAI Browser ID (__obref cookie)
+		$obref = ! empty( $attribution['oai_obref'] )
+			? trim( (string) $attribution['oai_obref'] )
+			: ( ! empty( $attribution['obref'] ) ? trim( (string) $attribution['obref'] ) : '' );
+		if ( ! empty( $obref ) ) {
+			$user_data['obref'] = sanitize_text_field( $obref );
+		}
+
+		// OpenAI Click ID (__oppref cookie)
+		$oppref = ! empty( $attribution['oai_oppref'] )
+			? trim( (string) $attribution['oai_oppref'] )
+			: ( ! empty( $attribution['oppref'] ) ? trim( (string) $attribution['oppref'] ) : '' );
+		if ( ! empty( $oppref ) ) {
+			$user_data['oppref'] = sanitize_text_field( $oppref );
+		}
+
+		// Network & client telemetry
+		if ( ! empty( $attribution['ip'] ) ) {
+			$user_data['ip_address'] = sanitize_text_field( $attribution['ip'] );
+			$user_data['ip']         = sanitize_text_field( $attribution['ip'] );
+		}
+		if ( ! empty( $attribution['user_agent'] ) ) {
+			$user_data['user_agent'] = sanitize_text_field( $attribution['user_agent'] );
+		}
+
+		// ── 2. Timestamp Calculation (milliseconds) ─────────────────────────
+		$order_created_raw  = $order['created_at'] ?? '';
+		$order_created_time = ! empty( $order_created_raw ) ? strtotime( (string) $order_created_raw ) : false;
+		$event_time_sec     = ( $order_created_time && $order_created_time > 0 && ( time() - $order_created_time ) <= 604800 && ( time() - $order_created_time ) >= 0 )
+			? (int) $order_created_time
+			: time();
+		$timestamp_ms       = (int) ( $event_time_sec * 1000 );
+
+		// ── 3. Revenue in Minor Units (Cents) ────────────────────────────────
+		$order_val_cents = (int) round( ( (float) ( $order['value'] ?? 0.0 ) ) * 100 );
+		$currency        = ! empty( $order['currency'] ) ? strtoupper( (string) $order['currency'] ) : 'USD';
+
+		// ── 4. Event Object ──────────────────────────────────────────────────
+		$data_event = array(
+			'id'            => (string) $order['order_id'], // Deduplication key
+			'type'          => 'order_created',
+			'timestamp_ms'  => $timestamp_ms,
+			'action_source' => 'web',
+			'source_url'    => ! empty( $order['event_url'] ) ? (string) $order['event_url'] : home_url( '/purchase-confirmation/' ),
+			'user'          => empty( $user_data ) ? (object) array() : $user_data,
+			'data'          => array(
+				'type'     => 'contents',
+				'amount'   => $order_val_cents,
+				'currency' => $currency,
+			),
+		);
+
+		// Include oppref at root level as well for attribution matching
+		if ( ! empty( $oppref ) ) {
+			$data_event['oppref'] = sanitize_text_field( $oppref );
+		}
+
+		// ── 5. Request Payload ──────────────────────────────────────────────
+		$payload = array(
+			'events' => array( $data_event ),
+		);
+
+		if ( $validate_only ) {
+			$payload['validate_only'] = true;
+		}
+
+		$response = wp_remote_post(
+			$endpoint,
+			array(
+				'timeout'            => 12,
+				'redirection'        => 0,
+				'reject_unsafe_urls' => true,
+				'sslverify'          => true,
+				'headers'            => array(
+					'Authorization' => 'Bearer ' . $api_key,
+					'Content-Type'  => 'application/json',
+				),
+				'body'               => wp_json_encode( $payload ),
+			)
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return array(
+				'enabled'       => true,
+				'success'       => false,
+				'validate_only' => $validate_only,
+				'error'         => $response->get_error_message(),
+			);
+		}
+
+		$code = wp_remote_retrieve_response_code( $response );
+		$body = json_decode( wp_remote_retrieve_body( $response ), true );
+
+		$success = ( 200 === $code || 201 === $code || 202 === $code );
+		if ( $success && isset( $body['errors'] ) && ! empty( $body['errors'] ) ) {
+			$success = false;
+		}
+
+		$error_msg = null;
+		if ( ! $success ) {
+			$detail    = $body['message'] ?? ( $body['error']['message'] ?? ( ! empty( $body['errors'] ) ? wp_json_encode( $body['errors'] ) : 'Unknown error' ) );
+			$error_msg = sprintf( 'OpenAI CAPI HTTP %d: %s', $code, $detail );
+		}
+
+		return array(
+			'enabled'       => true,
+			'success'       => $success,
+			'code'          => $code,
+			'validate_only' => $validate_only,
+			'response'      => $body,
+			'error'         => $error_msg,
 		);
 	}
 }

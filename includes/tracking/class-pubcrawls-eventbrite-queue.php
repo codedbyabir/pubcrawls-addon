@@ -204,6 +204,7 @@ class Pubcrawls_Eventbrite_Queue {
 			'ga4_sent'        => 0,
 			'meta_sent'       => 0,
 			'tiktok_sent'     => 0,
+			'openai_sent'     => 0,
 			'details'         => array(),
 			'duration_ms'     => 0,
 		);
@@ -248,6 +249,9 @@ class Pubcrawls_Eventbrite_Queue {
 				}
 				if ( ! empty( $res['platforms']['tiktok']['success'] ) && empty( $res['platforms']['tiktok']['skipped'] ) ) {
 					$summary['tiktok_sent']++;
+				}
+				if ( ! empty( $res['platforms']['openai']['success'] ) && empty( $res['platforms']['openai']['skipped'] ) ) {
+					$summary['openai_sent']++;
 				}
 
 				$summary['details'][] = array(

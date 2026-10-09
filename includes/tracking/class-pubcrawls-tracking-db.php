@@ -25,7 +25,7 @@ class Pubcrawls_Tracking_DB {
 	/**
 	 * Database schema version.
 	 */
-	const DB_VERSION = '2.1.0';
+	const DB_VERSION = '2.2.0';
 	const DB_VERSION_OPTION = 'pubcrawls_eb_orders_db_version';
 
 	/**
@@ -78,18 +78,23 @@ class Pubcrawls_Tracking_DB {
 			ga4_status varchar(32) DEFAULT 'pending' NOT NULL,
 			meta_status varchar(32) DEFAULT 'pending' NOT NULL,
 			tiktok_status varchar(32) DEFAULT 'pending' NOT NULL,
+			openai_status varchar(32) DEFAULT 'pending' NOT NULL,
 			ga4_code int(11) DEFAULT NULL,
 			meta_code int(11) DEFAULT NULL,
 			tiktok_code int(11) DEFAULT NULL,
+			openai_code int(11) DEFAULT NULL,
 			ga4_attempts int(11) DEFAULT 0 NOT NULL,
 			meta_attempts int(11) DEFAULT 0 NOT NULL,
 			tiktok_attempts int(11) DEFAULT 0 NOT NULL,
+			openai_attempts int(11) DEFAULT 0 NOT NULL,
 			client_id varchar(128) DEFAULT NULL,
 			session_id varchar(128) DEFAULT NULL,
 			fbp varchar(128) DEFAULT NULL,
 			fbc varchar(255) DEFAULT NULL,
 			ttp varchar(128) DEFAULT NULL,
 			ttclid varchar(255) DEFAULT NULL,
+			oai_obref varchar(255) DEFAULT NULL,
+			oai_oppref varchar(255) DEFAULT NULL,
 			ip varchar(64) DEFAULT NULL,
 			user_agent text DEFAULT NULL,
 			last_error text,
@@ -125,6 +130,26 @@ class Pubcrawls_Tracking_DB {
 				// phpcs:ignore WordPress.DB.DirectDatabaseQuery
 				$wpdb->query( "ALTER TABLE {$table_name} ADD COLUMN worker_id varchar(64) DEFAULT NULL AFTER locked_at" );
 			}
+			if ( ! in_array( 'openai_status', $columns, true ) ) {
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+				$wpdb->query( "ALTER TABLE {$table_name} ADD COLUMN openai_status varchar(32) DEFAULT 'pending' NOT NULL AFTER tiktok_status" );
+			}
+			if ( ! in_array( 'openai_code', $columns, true ) ) {
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+				$wpdb->query( "ALTER TABLE {$table_name} ADD COLUMN openai_code int(11) DEFAULT NULL AFTER tiktok_code" );
+			}
+			if ( ! in_array( 'openai_attempts', $columns, true ) ) {
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+				$wpdb->query( "ALTER TABLE {$table_name} ADD COLUMN openai_attempts int(11) DEFAULT 0 NOT NULL AFTER tiktok_attempts" );
+			}
+			if ( ! in_array( 'oai_obref', $columns, true ) ) {
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+				$wpdb->query( "ALTER TABLE {$table_name} ADD COLUMN oai_obref varchar(255) DEFAULT NULL AFTER ttclid" );
+			}
+			if ( ! in_array( 'oai_oppref', $columns, true ) ) {
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+				$wpdb->query( "ALTER TABLE {$table_name} ADD COLUMN oai_oppref varchar(255) DEFAULT NULL AFTER oai_obref" );
+			}
 		}
 
 		update_option( self::DB_VERSION_OPTION, self::DB_VERSION, false );
@@ -157,8 +182,8 @@ class Pubcrawls_Tracking_DB {
 		$inserted = $wpdb->query(
 			$wpdb->prepare(
 				"INSERT IGNORE INTO {$table_name}
-				(order_id, eventbrite_event_id, value, currency, status, ga4_status, meta_status, tiktok_status, created_at, updated_at)
-				VALUES (%s, %s, 0.00, 'USD', 'pending', 'pending', 'pending', 'pending', %s, %s)",
+				(order_id, eventbrite_event_id, value, currency, status, ga4_status, meta_status, tiktok_status, openai_status, created_at, updated_at)
+				VALUES (%s, %s, 0.00, 'USD', 'pending', 'pending', 'pending', 'pending', 'pending', %s, %s)",
 				$order_id,
 				$eventbrite_event_id,
 				$now,
@@ -242,6 +267,8 @@ class Pubcrawls_Tracking_DB {
 			'fbc'        => 'sanitize_text_field',
 			'ttp'        => 'sanitize_text_field',
 			'ttclid'     => 'sanitize_text_field',
+			'oai_obref'  => 'sanitize_text_field',
+			'oai_oppref' => 'sanitize_text_field',
 			'ip'         => 'sanitize_text_field',
 			'user_agent' => 'sanitize_textarea_field',
 		);
@@ -281,6 +308,8 @@ class Pubcrawls_Tracking_DB {
 			'fbc'        => $order->fbc ?? '',
 			'ttp'        => $order->ttp ?? '',
 			'ttclid'     => $order->ttclid ?? '',
+			'oai_obref'  => $order->oai_obref ?? '',
+			'oai_oppref' => $order->oai_oppref ?? '',
 			'ip'         => $order->ip ?? '',
 			'user_agent' => $order->user_agent ?? '',
 		);
@@ -338,7 +367,7 @@ class Pubcrawls_Tracking_DB {
 		global $wpdb;
 		$table_name = self::get_table_name();
 
-		$valid_platforms = array( 'ga4', 'meta', 'tiktok' );
+		$valid_platforms = array( 'ga4', 'meta', 'tiktok', 'openai' );
 		if ( ! in_array( $platform, $valid_platforms, true ) ) {
 			return false;
 		}
@@ -418,8 +447,9 @@ class Pubcrawls_Tracking_DB {
 		$ga4_done    = ( 'success' === $order->ga4_status || 'skipped' === $order->ga4_status || (int) $order->ga4_attempts >= $max );
 		$meta_done   = ( 'success' === $order->meta_status || 'skipped' === $order->meta_status || (int) $order->meta_attempts >= $max );
 		$tiktok_done = ( 'success' === $order->tiktok_status || 'skipped' === $order->tiktok_status || (int) $order->tiktok_attempts >= $max );
+		$openai_done = ( 'success' === ( $order->openai_status ?? 'pending' ) || 'skipped' === ( $order->openai_status ?? 'pending' ) || (int) ( $order->openai_attempts ?? 0 ) >= $max );
 
-		return ( $ga4_done && $meta_done && $tiktok_done );
+		return ( $ga4_done && $meta_done && $tiktok_done && $openai_done );
 	}
 
 	/**
@@ -648,7 +678,7 @@ class Pubcrawls_Tracking_DB {
 					status IN ('pending', 'queued')
 					OR (
 						status IN ('failed', 'partial')
-						AND (ga4_attempts < %d OR meta_attempts < %d OR tiktok_attempts < %d)
+						AND (ga4_attempts < %d OR meta_attempts < %d OR tiktok_attempts < %d OR openai_attempts < %d)
 					)
 					OR (
 						status = 'processing'
@@ -660,6 +690,7 @@ class Pubcrawls_Tracking_DB {
 				)
 				ORDER BY id ASC
 				LIMIT %d",
+				$max,
 				$max,
 				$max,
 				$max,
@@ -697,7 +728,8 @@ class Pubcrawls_Tracking_DB {
 					SUM(CASE WHEN status = 'rejected' THEN 1 ELSE 0 END) AS rejected,
 					SUM(CASE WHEN ga4_status = 'success' THEN 1 ELSE 0 END) AS ga4_success,
 					SUM(CASE WHEN meta_status = 'success' THEN 1 ELSE 0 END) AS meta_success,
-					SUM(CASE WHEN tiktok_status = 'success' THEN 1 ELSE 0 END) AS tiktok_success
+					SUM(CASE WHEN tiktok_status = 'success' THEN 1 ELSE 0 END) AS tiktok_success,
+					SUM(CASE WHEN openai_status = 'success' THEN 1 ELSE 0 END) AS openai_success
 				FROM {$table_name}",
 				$threshold,
 				$threshold,
@@ -719,6 +751,7 @@ class Pubcrawls_Tracking_DB {
 			'ga4_success'       => 0,
 			'meta_success'      => 0,
 			'tiktok_success'    => 0,
+			'openai_success'    => 0,
 		) );
 	}
 
