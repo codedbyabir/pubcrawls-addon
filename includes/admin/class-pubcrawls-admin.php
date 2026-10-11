@@ -347,6 +347,7 @@ class Pubcrawls_Admin
 			'schema_organizer_logo'       => 'https://pubcrawls.com/wp-content/uploads/2026/03/Logo.webp',
 			'schema_currency'             => 'USD',
 			'schema_default_price'        => '',
+			'schema_default_start_time'   => '4:00 PM',
 			'schema_country_code'         => 'US',
 			'schema_event_status'         => 'https://schema.org/EventScheduled',
 			'schema_attendance_mode'      => 'https://schema.org/OfflineEventAttendanceMode',
@@ -612,6 +613,7 @@ class Pubcrawls_Admin
 			$clean['schema_organizer_logo']     = isset($input['schema_organizer_logo']) ? esc_url_raw($input['schema_organizer_logo']) : '';
 			$clean['schema_currency']           = ! empty($input['schema_currency']) ? strtoupper(sanitize_text_field($input['schema_currency'])) : 'USD';
 			$clean['schema_default_price']      = isset($input['schema_default_price']) && '' !== trim((string) $input['schema_default_price']) ? sanitize_text_field(trim((string) $input['schema_default_price'])) : '';
+			$clean['schema_default_start_time'] = isset($input['schema_default_start_time']) && '' !== trim((string) $input['schema_default_start_time']) ? sanitize_text_field(trim((string) $input['schema_default_start_time'])) : '4:00 PM';
 			$clean['schema_country_code']       = ! empty($input['schema_country_code']) ? strtoupper(sanitize_text_field(trim((string) $input['schema_country_code']))) : 'US';
 			$clean['schema_event_status']       = ! empty($input['schema_event_status']) ? esc_url_raw($input['schema_event_status']) : 'https://schema.org/EventScheduled';
 			$clean['schema_attendance_mode']    = ! empty($input['schema_attendance_mode']) ? esc_url_raw($input['schema_attendance_mode']) : 'https://schema.org/OfflineEventAttendanceMode';
@@ -635,6 +637,9 @@ class Pubcrawls_Admin
 			}
 			if (isset($input['schema_default_price'])) {
 				$clean['schema_default_price'] = sanitize_text_field(trim((string) $input['schema_default_price']));
+			}
+			if (isset($input['schema_default_start_time'])) {
+				$clean['schema_default_start_time'] = sanitize_text_field(trim((string) $input['schema_default_start_time']));
 			}
 			if (isset($input['schema_country_code'])) {
 				$clean['schema_country_code'] = strtoupper(sanitize_text_field(trim((string) $input['schema_country_code'])));
@@ -1058,6 +1063,27 @@ class Pubcrawls_Admin
 				'file'        => 'pubcrawl-taxonomy-terms.php',
 				'class'       => 'Pubcrawls_Taxonomy_Terms',
 				'description' => esc_html__('Displays taxonomy terms in a responsive grid with post counts, custom after-text, and complete box/hover styling.', 'pubcrawls-addon'),
+			),
+			'pc-venue-archive'   => array(
+				'title'       => esc_html__('Venue Archive Grid', 'pubcrawls-addon'),
+				'icon'        => 'eicon-gallery-grid',
+				'file'        => 'pubcrawl-venue-archive.php',
+				'class'       => 'Pubcrawls_Venue_Archive',
+				'description' => esc_html__('Grid of venues with category filter and directions links, designed for venue category archives.', 'pubcrawls-addon'),
+			),
+			'pc-post-content'    => array(
+				'title'       => esc_html__('Post Content', 'pubcrawls-addon'),
+				'icon'        => 'eicon-post-content',
+				'file'        => 'pubcrawl-post-content.php',
+				'class'       => 'Pubcrawls_Post_Content',
+				'description' => esc_html__('Full-featured post content widget designed to style all Gutenberg block elements with pixel-perfect control.', 'pubcrawls-addon'),
+			),
+			'pc-author-box'       => array(
+				'title'       => esc_html__('Author Box', 'pubcrawls-addon'),
+				'icon'        => 'eicon-person',
+				'file'        => 'pubcrawl-author-box.php',
+				'class'       => 'Pubcrawls_Author_Box',
+				'description' => esc_html__('Displays a card with author image, name, bio, and social media profiles powered by ACF User meta.', 'pubcrawls-addon'),
 			),
 		);
 	}

@@ -176,12 +176,12 @@ final class Pubcrawls_Addon
 			'pc-page-faqs'       => 'Pubcrawls_Page_FAQs',
 			'pc-social-share'    => 'Pubcrawls_Social_Share',
 			'pc-ai-quick-links'  => 'Pubcrawls_AI_Quick_Links',
-<<<<<<< Updated upstream
-=======
 			'pc-gravity-forms'   => 'Pubcrawls_Gravity_Forms',
 			'pc-timeline'        => 'Pubcrawls_Timeline',
 			'pc-taxonomy-terms'  => 'Pubcrawls_Taxonomy_Terms',
->>>>>>> Stashed changes
+			'pc-venue-archive'   => 'Pubcrawls_Venue_Archive',
+			'pc-post-content'    => 'Pubcrawls_Post_Content',
+			'pc-author-box'      => 'Pubcrawls_Author_Box',
 		];
 
 		$disabled = get_option('pubcrawls_disabled_widgets', []);
@@ -273,8 +273,6 @@ final class Pubcrawls_Addon
 			[],
 			PUBCRAWLS_ADDON_VERSION
 		);
-<<<<<<< Updated upstream
-=======
 
 		// Gravity Forms stylesheet inside editor
 		wp_enqueue_style(
@@ -299,6 +297,21 @@ final class Pubcrawls_Addon
 			[],
 			PUBCRAWLS_ADDON_VERSION
 		);
->>>>>>> Stashed changes
+
+		// Post Content stylesheet inside editor
+		wp_enqueue_style(
+			'pc-post-content-css',
+			PUBCRAWLS_ADDON_URL . 'assets/css/post-content.css',
+			[],
+			PUBCRAWLS_ADDON_VERSION
+		);
+
+		// Author Box stylesheet inside editor
+		wp_enqueue_style(
+			'pc-author-box-css',
+			PUBCRAWLS_ADDON_URL . 'assets/css/author-box.css',
+			[],
+			PUBCRAWLS_ADDON_VERSION
+		);
 	}
 }

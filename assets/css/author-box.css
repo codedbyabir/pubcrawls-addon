@@ -1,0 +1,238 @@
+/**
+ * Author Box Widget & Shortcode Styles — Pubcrawl Addon
+ *
+ * Pixel-perfect styling for the Author Box card with ACF User integration.
+ *
+ * @package Pubcrawl_Addon
+ */
+
+.pubcrawl-author-box {
+	box-sizing: border-box;
+	background-color: #ffffff;
+	border: 1px solid #eef2f6;
+	border-radius: 24px;
+	padding: 36px 40px;
+	display: flex;
+	align-items: flex-start;
+	gap: 32px;
+	position: relative;
+	transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pubcrawl-author-box *,
+.pubcrawl-author-box *::before,
+.pubcrawl-author-box *::after {
+	box-sizing: border-box;
+}
+
+/* ── Avatar / Image ────────────────────────────────────────────────────────── */
+.pubcrawl-author-box__avatar-wrap {
+	flex: 0 0 150px;
+	width: 150px;
+	height: 150px;
+	border-radius: 18px;
+	overflow: hidden;
+	position: relative;
+	background-color: #f3f4f6;
+	box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+}
+
+.pubcrawl-author-box__avatar {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+	border-radius: inherit;
+	transition: transform 0.4s ease;
+}
+
+.pubcrawl-author-box:hover .pubcrawl-author-box__avatar {
+	transform: scale(1.02);
+}
+
+/* ── Content Column ────────────────────────────────────────────────────────── */
+.pubcrawl-author-box__content {
+	flex: 1 1 auto;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+}
+
+.pubcrawl-author-box__pretitle {
+	font-size: 13px;
+	font-weight: 800;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: #111827;
+	margin: 0 0 8px 0;
+	line-height: 1.3;
+}
+
+.pubcrawl-author-box__name {
+	font-size: 28px;
+	font-weight: 800;
+	line-height: 1.2;
+	color: #e50914;
+	margin: 0 0 14px 0;
+}
+
+.pubcrawl-author-box__name a {
+	color: inherit;
+	text-decoration: none;
+	transition: color 0.2s ease, opacity 0.2s ease;
+}
+
+.pubcrawl-author-box__name a:hover {
+	opacity: 0.85;
+}
+
+.pubcrawl-author-box__bio {
+	font-size: 15px;
+	line-height: 1.68;
+	color: #4b5563;
+	margin: 0 0 24px 0;
+}
+
+.pubcrawl-author-box__bio > *:first-child {
+	margin-top: 0;
+}
+
+.pubcrawl-author-box__bio > *:last-child {
+	margin-bottom: 0;
+}
+
+.pubcrawl-author-box__bio p {
+	margin: 0 0 0.85em 0;
+}
+
+.pubcrawl-author-box__bio a {
+	color: #e50914;
+	text-decoration: underline;
+	transition: opacity 0.2s ease;
+}
+
+.pubcrawl-author-box__bio a:hover {
+	opacity: 0.8;
+}
+
+/* ── Follow Us & Social Icons ──────────────────────────────────────────────── */
+.pubcrawl-author-box__social-row {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	flex-wrap: wrap;
+	margin-top: auto;
+}
+
+.pubcrawl-author-box__follow-label {
+	font-size: 13px;
+	font-weight: 800;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: #111827;
+	margin: 0;
+	line-height: 1;
+}
+
+.pubcrawl-author-box__social-list {
+	display: inline-flex;
+	align-items: center;
+	gap: 12px;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	flex-wrap: wrap;
+}
+
+.pubcrawl-author-box__social-item {
+	margin: 0;
+	padding: 0;
+}
+
+.pubcrawl-author-box__social-link {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 44px;
+	height: 44px;
+	border-radius: 50%;
+	background-color: #f3f4f6;
+	border: 1px solid #e5e7eb;
+	color: #111827;
+	text-decoration: none;
+	transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+	position: relative;
+	line-height: 1;
+}
+
+.pubcrawl-author-box__social-link:hover,
+.pubcrawl-author-box__social-link:focus {
+	background-color: #111827;
+	border-color: #111827;
+	color: #ffffff;
+	transform: translateY(-2px);
+	box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+.pubcrawl-author-box__social-link .elementor-icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	color: inherit;
+	line-height: 1;
+	margin: 0;
+	padding: 0;
+}
+
+.pubcrawl-author-box__social-link i {
+	font-size: 18px;
+	line-height: 1;
+	color: currentColor;
+	display: inline-block;
+	vertical-align: middle;
+	transition: color 0.2s ease;
+}
+
+.pubcrawl-author-box__social-link svg,
+.pubcrawl-author-box__social-icon {
+	width: 18px;
+	height: 18px;
+	max-width: 100%;
+	max-height: 100%;
+	fill: currentColor;
+	display: inline-block;
+	vertical-align: middle;
+	pointer-events: none;
+	transition: fill 0.2s ease, stroke 0.2s ease;
+}
+
+.pubcrawl-author-box__social-icon--ig-fallback,
+.pubcrawl-author-box__social-link--instagram .pubcrawl-author-box__social-icon:not(.fab):not([data-icon]) {
+	fill: none;
+	stroke: currentColor;
+}
+
+/* ── Responsive Mobile ─────────────────────────────────────────────────────── */
+@media (max-width: 767px) {
+	.pubcrawl-author-box {
+		flex-direction: column;
+		align-items: center;
+		text-align: center;
+		padding: 28px 24px;
+		gap: 20px;
+	}
+
+	.pubcrawl-author-box__avatar-wrap {
+		flex: 0 0 120px;
+		width: 120px;
+		height: 120px;
+	}
+
+	.pubcrawl-author-box__content {
+		align-items: center;
+	}
+
+	.pubcrawl-author-box__social-row {
+		justify-content: center;
+	}
+}

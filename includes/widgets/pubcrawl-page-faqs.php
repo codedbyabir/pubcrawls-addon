@@ -512,7 +512,7 @@ class Pubcrawls_Page_FAQs extends \Elementor\Widget_Base
 			\Elementor\Group_Control_Typography::get_type(),
 			[
 				'name'     => 'pubcrawl_answer_typography',
-				'selector' => '{{WRAPPER}} .pubcrawls-faq-answer',
+				'selector' => '{{WRAPPER}} .pubcrawls-faq-answer p',
 			]
 		);
 
@@ -522,7 +522,7 @@ class Pubcrawls_Page_FAQs extends \Elementor\Widget_Base
 				'label'     => esc_html__('Color', 'pubcrawls-addon'),
 				'type'      => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
-					'{{WRAPPER}} .pubcrawls-faq-answer' => 'color: {{VALUE}};',
+					'{{WRAPPER}} .pubcrawls-faq-answer p' => 'color: {{VALUE}};',
 				],
 			]
 		);
@@ -533,7 +533,7 @@ class Pubcrawls_Page_FAQs extends \Elementor\Widget_Base
 				'label'     => esc_html__('Hover Color', 'pubcrawls-addon'),
 				'type'      => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
-					'{{WRAPPER}} .pubcrawls-faq-item:hover .pubcrawls-faq-answer, {{WRAPPER}} .pubcrawls-faq-item:hover .pubcrawls-faq-answer *, {{WRAPPER}} .pubcrawls-faq-answer:hover' => 'color: {{VALUE}};',
+					'{{WRAPPER}} .pubcrawls-faq-item:hover .pubcrawls-faq-answer p' => 'color: {{VALUE}};',
 				],
 			]
 		);

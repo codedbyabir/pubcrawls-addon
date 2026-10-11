@@ -1,32 +1,56 @@
 
 // ── Popular / All Cities Toggle ──────────────────────────────
 jQuery(document).ready(function ($) {
-    if (typeof pubcrawlsCityData === 'undefined') return;
+    var $btn = $('#pubcrawls-city-toggle');
+    if (!$btn.length) return;
 
-    var $btn         = $('#pubcrawls-city-toggle');
-    var $btnText     = $btn.find('.elementor-button-text'); // IMPORTANT
+    var $btnText     = $btn.find('.elementor-button-text').length ? $btn.find('.elementor-button-text') : $btn;
     var $popularList = $('.pubcrawls-city-grid#pubcrawls-popular-list');
     var $allList     = $('.pubcrawls-city-grid#pubcrawls-all-list');
-    var showingAll   = pubcrawlsCityData.showingAll === '1';
 
-    // Initial label
-    if (showingAll) {
-        $btnText.text('Show Popular Cities');
-    } else {
-        $btnText.text('View All Cities');
+    // Store custom button label from Elementor (e.g. "View All Cities")
+    var defaultLabel = $btnText.text().trim() || 'View All Cities';
+    var toggleLabel  = 'Show Popular Cities';
+
+    // Check whether All list is currently visible based on live DOM or localized data
+    function isShowingAll() {
+        if ($allList.length && $popularList.length) {
+            if ($allList.is(':visible') && $popularList.is(':hidden')) return true;
+            if ($popularList.is(':visible') && $allList.is(':hidden')) return false;
+        }
+        if (typeof pubcrawlsCityData !== 'undefined' && pubcrawlsCityData.showingAll) {
+            return pubcrawlsCityData.showingAll === '1';
+        }
+        return false;
     }
 
-    $(document).on('click', '#pubcrawls-city-toggle', function () {
-        if (!showingAll) {
+    var showingAll = isShowingAll();
+
+    // Only update button text on load if All Cities is the one active
+    if (showingAll) {
+        $btnText.text(toggleLabel);
+    } else {
+        $btnText.text(defaultLabel);
+    }
+
+    $(document).on('click', '#pubcrawls-city-toggle', function (e) {
+        e.preventDefault();
+
+        $popularList = $('.pubcrawls-city-grid#pubcrawls-popular-list');
+        $allList     = $('.pubcrawls-city-grid#pubcrawls-all-list');
+        $btnText     = $(this).find('.elementor-button-text').length ? $(this).find('.elementor-button-text') : $(this);
+
+        // Always check current live DOM visibility state
+        var currentlyAll = $allList.is(':visible');
+
+        if (!currentlyAll) {
             $popularList.hide();
-            $allList.show();
-            $btnText.text('Show Popular Cities');
-            showingAll = true;
+            $allList.fadeIn(150);
+            $btnText.text(toggleLabel);
         } else {
             $allList.hide();
-            $popularList.show();
-            $btnText.text('View All Cities');
-            showingAll = false;
+            $popularList.fadeIn(150);
+            $btnText.text(defaultLabel);
         }
     });
 });

@@ -672,6 +672,19 @@ if (! is_array($disabled_tax)) {
 								</td>
 							</tr>
 
+							<!-- Default Event Start Time -->
+							<tr>
+								<th scope="row">
+									<label for="schema_default_start_time"><?php esc_html_e('Default Event Start Time', 'pubcrawls-addon'); ?></label>
+								</th>
+								<td>
+									<input type="text" name="<?php echo esc_attr(Pubcrawls_Admin::SETTINGS_KEY); ?>[schema_default_start_time]" id="schema_default_start_time" value="<?php echo esc_attr($settings['schema_default_start_time'] ?? '4:00 PM'); ?>" placeholder="4:00 PM" class="regular-text" style="width: 150px;" />
+									<p class="description">
+										<?php esc_html_e('Fallback start time used when an event date row does not specify a start time (e.g. 4:00 PM, 5:00 PM, 16:00). Default is 4:00 PM.', 'pubcrawls-addon'); ?>
+									</p>
+								</td>
+							</tr>
+
 							<!-- Venue Country Code -->
 							<tr>
 								<th scope="row">

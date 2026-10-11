@@ -544,6 +544,7 @@
 .pc-events-grid .pcet-event-date-select-wrapper .pc-event-select-label {
     color: #fff;
     display: flex;
+    align-items: center;
     gap: 10px;
     margin-bottom: 10px;
 }
