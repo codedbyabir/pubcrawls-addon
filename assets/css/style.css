@@ -519,8 +519,8 @@
     width: 100%;
     padding: 0.625rem 2.25rem 0.625rem 0.875rem;
     font-size: 1rem;
-    color: var(--pcet-text);
-    border: 1px solid var(--pcet-border);
+    color: var(--pcet-text, #0F1115);
+    border: 1px solid var(--pcet-border, #d1d1d6);
     border-radius: 8px;
 
     appearance: none;
@@ -535,6 +535,10 @@
     cursor: pointer;
     transition: border-color 0.15s ease, box-shadow 0.15s ease;
     margin-bottom: 1rem;
+}
+
+.pc-events-grid .pc-event-date-select:focus {
+    outline: none;
 }
 
 .pc-events-grid .pcet-event-date-select-wrapper {

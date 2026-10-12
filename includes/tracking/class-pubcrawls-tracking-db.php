@@ -25,7 +25,7 @@ class Pubcrawls_Tracking_DB {
 	/**
 	 * Database schema version.
 	 */
-	const DB_VERSION = '2.2.0';
+	const DB_VERSION = '2.3.0';
 	const DB_VERSION_OPTION = 'pubcrawls_eb_orders_db_version';
 
 	/**
@@ -97,6 +97,7 @@ class Pubcrawls_Tracking_DB {
 			oai_oppref varchar(255) DEFAULT NULL,
 			ip varchar(64) DEFAULT NULL,
 			user_agent text DEFAULT NULL,
+			page_url varchar(500) DEFAULT NULL,
 			last_error text,
 			created_at datetime NOT NULL,
 			updated_at datetime NOT NULL,
@@ -122,6 +123,10 @@ class Pubcrawls_Tracking_DB {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
 		$columns = $wpdb->get_col( "DESCRIBE {$table_name}" );
 		if ( is_array( $columns ) && ! empty( $columns ) ) {
+			if ( ! in_array( 'page_url', $columns, true ) ) {
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+				$wpdb->query( "ALTER TABLE {$table_name} ADD COLUMN page_url varchar(500) DEFAULT NULL AFTER user_agent" );
+			}
 			if ( ! in_array( 'locked_at', $columns, true ) ) {
 				// phpcs:ignore WordPress.DB.DirectDatabaseQuery
 				$wpdb->query( "ALTER TABLE {$table_name} ADD COLUMN locked_at datetime DEFAULT NULL AFTER processed_at" );
@@ -190,6 +195,23 @@ class Pubcrawls_Tracking_DB {
 				$now
 			)
 		);
+
+		// If query failed due to missing table/columns on older schema, upgrade and retry once
+		if ( false === $inserted ) {
+			self::create_tables();
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			$inserted = $wpdb->query(
+				$wpdb->prepare(
+					"INSERT IGNORE INTO {$table_name}
+					(order_id, eventbrite_event_id, value, currency, status, ga4_status, meta_status, tiktok_status, openai_status, created_at, updated_at)
+					VALUES (%s, %s, 0.00, 'USD', 'pending', 'pending', 'pending', 'pending', 'pending', %s, %s)",
+					$order_id,
+					$eventbrite_event_id,
+					$now,
+					$now
+				)
+			);
+		}
 
 		// If 1 row affected, we locked this order exclusively!
 		if ( 1 === $inserted ) {
@@ -271,6 +293,7 @@ class Pubcrawls_Tracking_DB {
 			'oai_oppref' => 'sanitize_text_field',
 			'ip'         => 'sanitize_text_field',
 			'user_agent' => 'sanitize_textarea_field',
+			'page_url'   => array( __CLASS__, 'sanitize_page_url' ),
 		);
 
 		foreach ( $allowed_fields as $key => $sanitizer ) {
@@ -287,6 +310,22 @@ class Pubcrawls_Tracking_DB {
 		);
 
 		return false !== $res;
+	}
+
+	/**
+	 * Sanitize page URL for attribution storage, stripping sensitive parameters.
+	 *
+	 * @param mixed $url Raw URL string.
+	 * @return string
+	 */
+	public static function sanitize_page_url( $url ): string {
+		if ( empty( $url ) || ! is_string( $url ) ) {
+			return '';
+		}
+		if ( class_exists( 'Pubcrawls_Tracking_Dispatcher' ) && method_exists( 'Pubcrawls_Tracking_Dispatcher', 'sanitize_event_url' ) ) {
+			return Pubcrawls_Tracking_Dispatcher::sanitize_event_url( $url );
+		}
+		return esc_url_raw( $url );
 	}
 
 	/**
@@ -312,6 +351,7 @@ class Pubcrawls_Tracking_DB {
 			'oai_oppref' => $order->oai_oppref ?? '',
 			'ip'         => $order->ip ?? '',
 			'user_agent' => $order->user_agent ?? '',
+			'page_url'   => $order->page_url ?? '',
 		);
 	}
 
@@ -443,11 +483,16 @@ class Pubcrawls_Tracking_DB {
 			return false;
 		}
 
-		$max = self::MAX_ATTEMPTS;
-		$ga4_done    = ( 'success' === $order->ga4_status || 'skipped' === $order->ga4_status || (int) $order->ga4_attempts >= $max );
-		$meta_done   = ( 'success' === $order->meta_status || 'skipped' === $order->meta_status || (int) $order->meta_attempts >= $max );
-		$tiktok_done = ( 'success' === $order->tiktok_status || 'skipped' === $order->tiktok_status || (int) $order->tiktok_attempts >= $max );
-		$openai_done = ( 'success' === ( $order->openai_status ?? 'pending' ) || 'skipped' === ( $order->openai_status ?? 'pending' ) || (int) ( $order->openai_attempts ?? 0 ) >= $max );
+		$max            = self::MAX_ATTEMPTS;
+		$ga4_enabled    = class_exists( 'Pubcrawls_Tracking_Dispatcher' ) ? Pubcrawls_Tracking_Dispatcher::is_platform_enabled( 'ga4' ) : true;
+		$meta_enabled   = class_exists( 'Pubcrawls_Tracking_Dispatcher' ) ? Pubcrawls_Tracking_Dispatcher::is_platform_enabled( 'meta' ) : true;
+		$tiktok_enabled = class_exists( 'Pubcrawls_Tracking_Dispatcher' ) ? Pubcrawls_Tracking_Dispatcher::is_platform_enabled( 'tiktok' ) : true;
+		$openai_enabled = class_exists( 'Pubcrawls_Tracking_Dispatcher' ) ? Pubcrawls_Tracking_Dispatcher::is_platform_enabled( 'openai' ) : false;
+
+		$ga4_done    = ( ! $ga4_enabled || 'success' === $order->ga4_status || 'skipped' === $order->ga4_status || (int) $order->ga4_attempts >= $max );
+		$meta_done   = ( ! $meta_enabled || 'success' === $order->meta_status || 'skipped' === $order->meta_status || (int) $order->meta_attempts >= $max );
+		$tiktok_done = ( ! $tiktok_enabled || 'success' === $order->tiktok_status || 'skipped' === $order->tiktok_status || (int) $order->tiktok_attempts >= $max );
+		$openai_done = ( ! $openai_enabled || 'success' === ( $order->openai_status ?? 'pending' ) || 'skipped' === ( $order->openai_status ?? 'pending' ) || (int) ( $order->openai_attempts ?? 0 ) >= $max );
 
 		return ( $ga4_done && $meta_done && $tiktok_done && $openai_done );
 	}

@@ -669,17 +669,6 @@ class Pubcrawls_City_Events extends \Elementor\Widget_Base
 			]
 		);
 
-		$this->add_control(
-			'pubcrawl_date_select_border_color',
-			[
-				'label'     => esc_html__('Border Color', 'pubcrawls-addon'),
-				'type'      => \Elementor\Controls_Manager::COLOR,
-				'selectors' => [
-					'{{WRAPPER}} .pc-events-grid .pc-event-date-select, {{WRAPPER}} .pc-event-date-select' => 'border-color: {{VALUE}};',
-				],
-			]
-		);
-
 		$this->add_group_control(
 			\Elementor\Group_Control_Box_Shadow::get_type(),
 			[

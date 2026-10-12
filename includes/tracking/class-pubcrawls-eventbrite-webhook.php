@@ -406,9 +406,9 @@ class Pubcrawls_Eventbrite_Webhook {
 			);
 		}
 
-		// Check lock staleness if status is 'pending' or 'processing'
-		if ( 'pending' === $status || 'processing' === $status ) {
-			$lock_time = ! empty( $existing->locked_at ) ? strtotime( (string) $existing->locked_at ) : ( ! empty( $existing->updated_at ) ? strtotime( (string) $existing->updated_at ) : 0 );
+		// Check lock staleness only if status is 'processing'
+		if ( 'processing' === $status ) {
+			$lock_time = ! empty( $existing->locked_at ) ? strtotime( (string) $existing->locked_at ) : 0;
 			$lock_age  = $lock_time > 0 ? ( current_time( 'timestamp' ) - $lock_time ) : 9999;
 
 			// If locked less than 10 minutes (600s), respect active worker
@@ -425,7 +425,7 @@ class Pubcrawls_Eventbrite_Webhook {
 			}
 
 			// Stale lock detected (> 10 minutes): release stale lock and resume processing
-			Pubcrawls_Tracking_DB::release_stale_locks( 600 );
+			Pubcrawls_Tracking_DB::release_order_lock( $order_id, null, 'pending' );
 			self::add_log_entry(
 				array(
 					'order_id' => $order_id,
@@ -506,8 +506,13 @@ class Pubcrawls_Eventbrite_Webhook {
 			);
 		}
 
-		// Derive visitor IP server-side safely
+		// Derive visitor IP server-side safely from browser attribution request
 		$ip = self::get_client_ip( $request );
+
+		$raw_page_url = $params['page_url'] ?? $request->get_param( 'page_url' );
+		$page_url     = class_exists( 'Pubcrawls_Tracking_Dispatcher' )
+			? Pubcrawls_Tracking_Dispatcher::sanitize_event_url( (string) $raw_page_url )
+			: esc_url_raw( (string) $raw_page_url );
 
 		$attribution = array(
 			'event_id'   => sanitize_text_field( (string) ( $params['event_id'] ?? '' ) ),
@@ -521,6 +526,7 @@ class Pubcrawls_Eventbrite_Webhook {
 			'oai_oppref' => sanitize_text_field( (string) ( $params['oai_oppref'] ?? ( $params['oppref'] ?? '' ) ) ),
 			'ip'         => $ip,
 			'user_agent' => sanitize_textarea_field( (string) ( $params['user_agent'] ?? ( $_SERVER['HTTP_USER_AGENT'] ?? '' ) ) ),
+			'page_url'   => $page_url,
 		);
 
 		Pubcrawls_Tracking_DB::store_attribution( $order_id, $attribution );

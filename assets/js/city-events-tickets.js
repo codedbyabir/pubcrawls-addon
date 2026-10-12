@@ -69,11 +69,26 @@
 
         var ttclid = getCookie( 'ttclid' ) || ( urlParams ? urlParams.get( 'ttclid' ) : '' ) || '';
 
+        var pageUrl = '';
+        if ( typeof window !== 'undefined' && window.location && window.location.href ) {
+            try {
+                var parsedUrl = new URL( window.location.href );
+                var sensitiveKeys = [ 'order_data', 'email', 'phone', 'first_name', 'last_name', 'fn', 'ln', 'em', 'ph', 'token', 'secret', 'key' ];
+                sensitiveKeys.forEach( function ( k ) {
+                    parsedUrl.searchParams.delete( k );
+                } );
+                pageUrl = parsedUrl.toString();
+            } catch ( e ) {
+                pageUrl = ( window.location.href || '' ).split( '?' )[0];
+            }
+        }
+
         // OpenAI attribution cookies (__obref: browser ID, __oppref: ad click ID)
         var oai_obref = getCookie( '__obref' ) || ( urlParams ? ( urlParams.get( '__obref' ) || urlParams.get( 'obref' ) ) : '' ) || '';
         var oai_oppref = getCookie( '__oppref' ) || ( urlParams ? ( urlParams.get( '__oppref' ) || urlParams.get( 'oppref' ) ) : '' ) || '';
 
         return {
+            page_url: pageUrl,
             client_id: clientId,
             session_id: sessionId,
             fbp: getCookie( '_fbp' ),

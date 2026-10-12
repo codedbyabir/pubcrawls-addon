@@ -179,10 +179,11 @@ class Pubcrawls_Tracking_Dispatcher {
 
 		// Compile safe attribution diagnostics (Phase 13)
 		$attribution_diag = array(
-			'record'     => ( ! empty( $attribution['client_id'] ) || ! empty( $attribution['fbp'] ) || ! empty( $attribution['fbc'] ) || ! empty( $attribution['oai_obref'] ) || ! empty( $attribution['oai_oppref'] ) ) ? 'found' : 'none',
+			'record'     => ( ! empty( $attribution['client_id'] ) || ! empty( $attribution['fbp'] ) || ! empty( $attribution['fbc'] ) || ! empty( $attribution['page_url'] ) || ! empty( $attribution['oai_obref'] ) || ! empty( $attribution['oai_oppref'] ) ) ? 'found' : 'none',
 			'status'     => $results['ga4']['attribution'] ?? 'fallback',
 			'client_id'  => ! empty( $attribution['client_id'] ) ? 'present' : 'absent',
 			'session_id' => ! empty( $attribution['session_id'] ) ? 'present' : 'absent',
+			'page_url'   => ! empty( $attribution['page_url'] ) ? 'present' : 'absent',
 			'fbp'        => ! empty( $attribution['fbp'] ) ? 'present' : 'absent',
 			'fbc'        => ! empty( $attribution['fbc'] ) ? 'present' : 'absent',
 			'oai_obref'  => ! empty( $attribution['oai_obref'] ) ? 'present' : 'absent',
@@ -480,6 +481,61 @@ class Pubcrawls_Tracking_Dispatcher {
 	}
 
 	/**
+	 * Sanitize event URL before sending to analytics/Meta CAPI to prevent PII leakage.
+	 *
+	 * Strips order_data, email, phone, names, tokens, and any PII query parameters.
+	 *
+	 * @param string|null $url Raw URL.
+	 * @return string Sanitized URL.
+	 */
+	public static function sanitize_event_url( ?string $url ): string {
+		if ( empty( $url ) ) {
+			return 'https://www.eventbrite.com/';
+		}
+
+		$parts = wp_parse_url( $url );
+		if ( false === $parts || empty( $parts['host'] ) ) {
+			return esc_url_raw( $url );
+		}
+
+		$scheme = $parts['scheme'] ?? 'https';
+		$host   = $parts['host'];
+		$port   = ! empty( $parts['port'] ) ? ':' . $parts['port'] : '';
+		$path   = $parts['path'] ?? '/';
+
+		$sanitized = "{$scheme}://{$host}{$port}{$path}";
+
+		if ( ! empty( $parts['query'] ) ) {
+			parse_str( $parts['query'], $query_args );
+			$sensitive_keys = array(
+				'order_data',
+				'email',
+				'phone',
+				'first_name',
+				'last_name',
+				'fn',
+				'ln',
+				'em',
+				'ph',
+				'token',
+				'secret',
+				'key',
+				'name',
+				'data',
+				'user_id',
+			);
+			foreach ( $sensitive_keys as $key ) {
+				unset( $query_args[ $key ] );
+			}
+			if ( ! empty( $query_args ) ) {
+				$sanitized .= '?' . http_build_query( $query_args );
+			}
+		}
+
+		return esc_url_raw( $sanitized );
+	}
+
+	/**
 	 * Send Purchase event to Meta Conversions API (CAPI).
 	 *
 	 * @param array $order       Normalized order.
@@ -540,6 +596,15 @@ class Pubcrawls_Tracking_Dispatcher {
 				$user_data['client_user_agent'] = sanitize_text_field( $ua );
 			}
 		}
+		if ( ! empty( $attribution['client_id'] ) ) {
+			$user_data['external_id'] = array( hash( 'sha256', (string) $attribution['client_id'] ) );
+		}
+
+		// Clean null/empty optional fields safely (preserve zero-like values)
+		$user_data = array_filter(
+			$user_data,
+			static fn( $value ) => $value !== null && $value !== '' && $value !== array()
+		);
 
 		$contents = array();
 		foreach ( $order['items'] as $item ) {
@@ -557,12 +622,19 @@ class Pubcrawls_Tracking_Dispatcher {
 			? (int) $order_created_time
 			: time();
 
+		// Use PubCrawls widget page URL from attribution if present; fallback to sanitized event URL or safe default
+		$raw_event_url = ! empty( $attribution['page_url'] )
+			? (string) $attribution['page_url']
+			: ( ! empty( $order['event_url'] ) ? (string) $order['event_url'] : 'https://www.eventbrite.com/' );
+
+		$sanitized_event_url = self::sanitize_event_url( $raw_event_url );
+
 		$event_payload = array(
 			'event_name'       => 'Purchase',
 			'event_time'       => $meta_event_time,
 			'event_id'         => (string) $order['order_id'], // Deduplication key
 			'action_source'    => 'website',
-			'event_source_url' => $order['event_url'] ?: home_url( '/purchase-confirmation/' ),
+			'event_source_url' => $sanitized_event_url,
 			'user_data'        => $user_data,
 			'custom_data'      => array(
 				'currency'     => (string) $order['currency'],
@@ -819,12 +891,17 @@ class Pubcrawls_Tracking_Dispatcher {
 		$currency        = ! empty( $order['currency'] ) ? strtoupper( (string) $order['currency'] ) : 'USD';
 
 		// ── 4. Event Object ──────────────────────────────────────────────────
+		$raw_source_url = ! empty( $attribution['page_url'] )
+			? (string) $attribution['page_url']
+			: ( ! empty( $order['event_url'] ) ? (string) $order['event_url'] : home_url( '/purchase-confirmation/' ) );
+		$source_url     = self::sanitize_event_url( $raw_source_url );
+
 		$data_event = array(
 			'id'            => (string) $order['order_id'], // Deduplication key
 			'type'          => 'order_created',
 			'timestamp_ms'  => $timestamp_ms,
 			'action_source' => 'web',
-			'source_url'    => ! empty( $order['event_url'] ) ? (string) $order['event_url'] : home_url( '/purchase-confirmation/' ),
+			'source_url'    => $source_url,
 			'user'          => empty( $user_data ) ? (object) array() : $user_data,
 			'data'          => array(
 				'type'     => 'contents',
