@@ -514,7 +514,7 @@
     text-decoration: none;
 }
 
-/* Event Card Select  */
+/* Event Card Select (Legacy / Fallback) */
 .pc-events-grid .pc-event-date-select {
     width: 100%;
     padding: 0.625rem 2.25rem 0.625rem 0.875rem;
@@ -557,6 +557,104 @@
     pointer-events: none;
     appearance: none;
     -webkit-appearance: none;
+}
+
+/* Event Card Date Buttons (Replaces Dropdown) */
+.pc-events-grid .pc-event-date-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 1rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.pc-events-grid .pc-event-date-btn {
+    flex: 1 1 calc(50% - 8px);
+    min-width: 0;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 10px;
+    border-radius: 7px;
+    border: 1px solid #2E3440;
+    background: #0F1115;
+    color: #ffffff;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    font-family: inherit;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+    box-sizing: border-box;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    user-select: none;
+    line-height: 1.25;
+}
+
+.pc-events-grid .pc-event-date-btn:hover {
+    background: #1A1D24;
+    border-color: #E6B325;
+    color: #ffffff;
+}
+
+.pc-events-grid .pc-event-date-btn:focus-visible {
+    outline: 2px solid #E6B325;
+    outline-offset: 2px;
+}
+
+/* Selected state: Yellow/gold brand color */
+.pc-events-grid .pc-event-date-btn.is-selected {
+    background: #E6B325;
+    border-color: #E6B325;
+    color: #000000;
+}
+
+.pc-events-grid .pc-event-date-btn.is-selected:hover {
+    background: #C9971E;
+    border-color: #C9971E;
+    color: #000000;
+}
+
+.pc-events-grid .pc-event-date-btn.is-selected:focus-visible {
+    outline: 2px solid #ffffff;
+    outline-offset: 2px;
+}
+
+.pc-events-grid .pc-event-date-btn__date {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    line-height: 1.25;
+}
+
+.pc-events-grid .pc-event-date-btn__time {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 500;
+    line-height: 1.2;
+    margin-top: 2px;
+    opacity: 0.85;
+}
+
+.pc-events-grid .pc-event-date-btn.is-selected .pc-event-date-btn__time {
+    color: #000000;
+    opacity: 0.9;
+}
+
+/* When only a single date is available */
+.pc-events-grid .pc-event-date-buttons.single-date .pc-event-date-btn {
+    flex: 1 1 100%;
+}
+
+@media (max-width: 480px) {
+    .pc-events-grid .pc-event-date-btn {
+        flex: 1 1 100%;
+        padding: 8px 10px;
+    }
 }
 
 /* ============================================================

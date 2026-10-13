@@ -30,35 +30,122 @@
         return match ? decodeURIComponent( match[3] ) : '';
     }
 
+    function parseGa4CookieValue( rawVal ) {
+        if ( ! rawVal ) return null;
+        var val = decodeURIComponent( rawVal ).replace( /^"+|"+$/g, '' );
+        var sid = '';
+        var snum = '';
+
+        // Match session ID timestamp (9 to 12 digits):
+        // GS2 format: GS2.1.s1728800050$o14$g0$t1728800050 or GS2.1.1728800050...
+        // GS1 format: GS1.1.1728800050.14.1.1728800050...
+        var sidMatch = val.match( /(?:^|[.$~|])s?(\d{9,12})(?:[.$~|]|$)/ ) || val.match( /\b(\d{9,12})\b/ );
+        if ( sidMatch ) {
+            sid = sidMatch[1];
+        }
+
+        // Match session number ($o14 or GS1 4th dot segment)
+        var snumMatch = val.match( /\$o(\d+)/ ) || val.match( /^GS1\.\d+\.\d+\.(\d+)/ );
+        if ( snumMatch ) {
+            snum = snumMatch[1];
+        }
+
+        return sid ? { sessionId: sid, sessionNumber: snum } : null;
+    }
+
     function collectAttribution() {
-        var gaCookie = getCookie( '_ga' );
+        // 1. Client ID extraction (_ga cookie: GA1.1.<cid>, GA1.2.<cid>, or <cid>)
         var clientId = '';
+        var gaCookie = getCookie( '_ga' );
         if ( gaCookie ) {
-            var parts = gaCookie.split( '.' );
-            if ( parts.length >= 4 ) {
-                clientId = parts[2] + '.' + parts[3];
-            } else if ( parts.length >= 2 ) {
-                clientId = parts.slice( -2 ).join( '.' );
+            var gaParts = gaCookie.match( /^GA\d+\.\d+\.(.+)$/ );
+            if ( gaParts && gaParts[1] ) {
+                clientId = gaParts[1];
+            } else {
+                var parts = gaCookie.split( '.' );
+                if ( parts.length >= 4 ) {
+                    clientId = parts[2] + '.' + parts[3];
+                } else if ( parts.length >= 2 ) {
+                    clientId = parts.slice( -2 ).join( '.' );
+                } else {
+                    clientId = gaCookie;
+                }
+            }
+        }
+        if ( ! clientId && window.sessionStorage ) {
+            try { clientId = sessionStorage.getItem( 'pc_ga_client_id' ) || ''; } catch ( e ) {}
+        }
+        if ( clientId && window.sessionStorage ) {
+            try { sessionStorage.setItem( 'pc_ga_client_id', clientId ); } catch ( e ) {}
+        }
+
+        // 2. GA4 Session ID & Session Number extraction
+        var sessionId = '';
+        var sessionNumber = '';
+        var configuredMid = ( window.pubcrawlsTicketConfig && window.pubcrawlsTicketConfig.ga4MeasurementId )
+            ? window.pubcrawlsTicketConfig.ga4MeasurementId.replace( /^G-/, '' ).toUpperCase()
+            : '';
+
+        // Priority A: Try configured container cookie first if present
+        if ( configuredMid ) {
+            var directCookie = getCookie( '_ga_' + configuredMid );
+            var parsedDirect = parseGa4CookieValue( directCookie );
+            if ( parsedDirect ) {
+                sessionId     = parsedDirect.sessionId;
+                sessionNumber = parsedDirect.sessionNumber;
             }
         }
 
-        // GA4 session id: Support dynamic measurement cookie matching (_ga_<MEASUREMENT_ID>)
-        // Supports the current GS2 format (GS2.1.s<session_id>$o..$t..) and the older GS1 format.
-        var sessionId = '';
-        var configuredMid = ( window.pubcrawlsTicketConfig && window.pubcrawlsTicketConfig.ga4MeasurementId )
-            ? window.pubcrawlsTicketConfig.ga4MeasurementId.replace( /^G-/, '' )
-            : '';
-        var targetCookieName = configuredMid ? ( '_ga_' + configuredMid ) : '';
-        var ga4Cookie = targetCookieName ? getCookie( targetCookieName ) : '';
-        if ( ! ga4Cookie ) {
-            var ga4Match = document.cookie.match( /(?:^|;\s*)(_ga_[A-Z0-9]+)=([^;]*)/ );
-            ga4Cookie = ga4Match ? decodeURIComponent( ga4Match[2] ) : getCookie( '_ga_65M38WNEJH' );
-        }
-        if ( ga4Cookie ) {
-            var sMatch = ga4Cookie.match( /^GS[12]\.\d+\.(?:s)?(\d+)/ ) || ga4Cookie.match( /(?:^|[$~|])s?(\d{9,12})/ );
-            if ( sMatch ) {
-                sessionId = sMatch[1];
+        // Priority B: Scan ALL cookies starting with _ga_ (case-insensitive, all containers)
+        if ( ! sessionId && document.cookie ) {
+            var cookiePairs = document.cookie.split( ';' );
+            var candidates = [];
+            for ( var i = 0; i < cookiePairs.length; i++ ) {
+                var pair = cookiePairs[i].trim();
+                var eqIdx = pair.indexOf( '=' );
+                if ( eqIdx === -1 ) continue;
+                var cName = pair.substring( 0, eqIdx ).trim();
+                var cVal  = pair.substring( eqIdx + 1 ).trim();
+
+                // Match _ga_<CONTAINER_ID> (excluding _ga, _gac_, _gat)
+                if ( /^(_ga_[A-Za-z0-9_]+)$/i.test( cName ) ) {
+                    var parsed = parseGa4CookieValue( cVal );
+                    if ( parsed ) {
+                        candidates.push( { name: cName, parsed: parsed } );
+                    }
+                }
             }
+
+            if ( candidates.length > 0 ) {
+                var selected = candidates[0];
+                for ( var j = 0; j < candidates.length; j++ ) {
+                    if ( configuredMid && candidates[j].name.toUpperCase().indexOf( configuredMid ) !== -1 ) {
+                        selected = candidates[j];
+                        break;
+                    }
+                    if ( Number( candidates[j].parsed.sessionId ) > Number( selected.parsed.sessionId ) ) {
+                        selected = candidates[j];
+                    }
+                }
+                sessionId     = selected.parsed.sessionId;
+                sessionNumber = selected.parsed.sessionNumber;
+            }
+        }
+
+        // Priority C: Fallback to sessionStorage for session continuity
+        if ( ! sessionId && window.sessionStorage ) {
+            try {
+                sessionId     = sessionStorage.getItem( 'pc_ga_session_id' ) || '';
+                sessionNumber = sessionStorage.getItem( 'pc_ga_session_number' ) || '';
+            } catch ( e ) {}
+        }
+
+        // Cache active values in sessionStorage for cross-page / iframe resilience
+        if ( sessionId && window.sessionStorage ) {
+            try {
+                sessionStorage.setItem( 'pc_ga_session_id', sessionId );
+                if ( sessionNumber ) sessionStorage.setItem( 'pc_ga_session_number', sessionNumber );
+            } catch ( e ) {}
         }
 
         var urlParams = ( typeof URLSearchParams !== 'undefined' ) ? new URLSearchParams( window.location.search ) : null;
@@ -91,6 +178,7 @@
             page_url: pageUrl,
             client_id: clientId,
             session_id: sessionId,
+            session_number: sessionNumber,
             fbp: getCookie( '_fbp' ),
             fbc: fbc,
             ttp: getCookie( '_ttp' ),
@@ -101,42 +189,90 @@
         };
     }
 
+    // Ensure shared global registry across single-event-tickets.js and city-events-tickets.js
+    window._pubcrawlsSentAttributionOrders = window._pubcrawlsSentAttributionOrders || {};
+
     function sendAttribution( orderId, eventId ) {
         if ( ! orderId ) return;
+        var cleanOrderId = String( orderId ).replace( /\D/g, '' );
+        if ( ! cleanOrderId ) return;
+
+        // In-memory global check across all scripts on this window
+        if ( window._pubcrawlsSentAttributionOrders[ cleanOrderId ] ) {
+            return;
+        }
+
+        // sessionStorage check to guard across callbacks and embedded navigation
+        try {
+            if ( window.sessionStorage ) {
+                if ( window.sessionStorage.getItem( 'pc_sent_attr_' + cleanOrderId ) ) {
+                    return;
+                }
+                window.sessionStorage.setItem( 'pc_sent_attr_' + cleanOrderId, '1' );
+            }
+        } catch ( e ) {}
+
+        window._pubcrawlsSentAttributionOrders[ cleanOrderId ] = true;
+
         var data = collectAttribution();
-        data.order_id = String( orderId );
+        data.order_id = cleanOrderId;
         data.event_id = String( eventId || '' );
 
         var endpoint = ( window.pubcrawlsTicketConfig && window.pubcrawlsTicketConfig.attributionUrl )
             ? window.pubcrawlsTicketConfig.attributionUrl
             : '/wp-json/pubcrawls/v1/eventbrite/attribution';
 
-        if ( window.fetch ) {
+        var payload = JSON.stringify( data );
+        var beaconSent = false;
+
+        // Method 1: sendBeacon (guaranteed to complete across page unload / navigation)
+        if ( navigator.sendBeacon ) {
+            try {
+                var blob = new Blob( [ payload ], { type: 'application/json' } );
+                beaconSent = navigator.sendBeacon( endpoint, blob );
+            } catch ( e ) {
+                beaconSent = false;
+            }
+        }
+
+        // Method 2: fallback to fetch only if sendBeacon failed or is unavailable
+        if ( ! beaconSent && window.fetch ) {
             fetch( endpoint, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify( data ),
+                body: payload,
                 keepalive: true
             } ).catch( function () {} );
         }
     }
 
-    // Listen to postMessage from Eventbrite embedded checkout iframe
-    window.addEventListener( 'message', function ( event ) {
-        if ( ! event.origin || ( event.origin.indexOf( 'eventbrite.com' ) === -1 && event.origin.indexOf( 'eventbriteapi.com' ) === -1 ) ) {
-            return;
-        }
-        var msg = event.data;
-        if ( typeof msg === 'string' ) {
-            try { msg = JSON.parse( msg ); } catch ( e ) {}
-        }
-        if ( msg && typeof msg === 'object' ) {
-            var orderId = msg.orderId || msg.order_id || ( msg.data && ( msg.data.orderId || msg.data.order_id ) );
-            if ( orderId ) {
-                sendAttribution( orderId, msg.eventId || msg.event_id );
+    window.pubcrawlsSendAttribution = sendAttribution;
+
+    // Listen to postMessage from Eventbrite embedded checkout iframe once globally
+    if ( ! window._pubcrawlsEbMessageListenerAttached ) {
+        window._pubcrawlsEbMessageListenerAttached = true;
+        window.addEventListener( 'message', function ( event ) {
+            if ( ! event.origin || ( event.origin.indexOf( 'eventbrite.com' ) === -1 && event.origin.indexOf( 'eventbriteapi.com' ) === -1 ) ) {
+                return;
             }
-        }
-    } );
+            var msg = event.data;
+            if ( typeof msg === 'string' ) {
+                try { msg = JSON.parse( msg ); } catch ( e ) {}
+            }
+            if ( msg && typeof msg === 'object' ) {
+                var rawId = msg.orderId || msg.order_id || msg.id || ( msg.data && ( msg.data.orderId || msg.data.order_id || msg.data.id ) ) || ( msg.result && ( msg.result.orderId || msg.result.order_id || msg.result.id ) );
+                var orderId = rawId ? String( rawId ).replace( /\D/g, '' ) : '';
+                if ( orderId ) {
+                    var eventId = msg.eventId || msg.event_id || ( msg.data && ( msg.data.eventId || msg.data.event_id ) ) || '';
+                    if ( typeof window.pubcrawlsSendAttribution === 'function' ) {
+                        window.pubcrawlsSendAttribution( orderId, eventId );
+                    } else {
+                        sendAttribution( orderId, eventId );
+                    }
+                }
+            }
+        } );
+    }
 
     function initEBWidget(uid, triggerId, ebId, ebLink) {
         if (!ebId || !triggerId) return;
@@ -150,13 +286,16 @@
                     modal: true,
                     modalTriggerElementId: triggerId,
                     onOrderComplete: function ( response ) {
-                        var orderId = ( response && ( response.orderId || response.order_id || response.id ) ) || '';
+                        var rawId = ( response && ( response.orderId || response.order_id || response.id || ( response.order && ( response.order.id || response.order.order_id ) ) || ( response.data && ( response.data.orderId || response.data.order_id || response.data.id ) ) ) ) || '';
+                        var orderId = rawId ? String( rawId ).replace( /\D/g, '' ) : '';
                         if ( orderId ) {
                             sendAttribution( orderId, ebId );
                         }
                         console.log('EB Order complete:', uid, orderId);
                         if ( window.pubcrawlsTicketConfig && window.pubcrawlsTicketConfig.eventbriteConfirmationUrl ) {
-                            window.location.href = window.pubcrawlsTicketConfig.eventbriteConfirmationUrl;
+                            setTimeout( function () {
+                                window.location.href = window.pubcrawlsTicketConfig.eventbriteConfirmationUrl;
+                            }, 350 );
                         }
                     }
                 });
@@ -218,7 +357,7 @@
                 descriptionEnabled: false,
                 brandingPosition: 'none',
                 autoScrollElementId: 'squadup-checkout',
-                confirmationUrl: cfg.squadupConfirmationUrl || 'https://pubcrawls.com/purchase-confirmation/',
+                confirmationUrl: cfg.squadupConfirmationUrl || ( ( typeof window !== 'undefined' && window.location ? window.location.origin : '' ) + '/purchase-confirmation/' ),
                 orderQuestions: cfg.squadupOrderQuestions || [{
                     question: 'Phone Number for SMS Updates related to your event(s).',
                     type: 'text',
@@ -337,39 +476,89 @@
         });
     }
 
-    // ── Date select change ─────────────────────────────────
-    function initSelectChange(card) {
-        var select  = card.querySelector('.pc-event-date-select');
-        var btnWrap = card.querySelector('.pc-event-card-buttons');
+    // ── Update card ticket state ──────────────────────────
+    function updateCardTicketState(card, data) {
+        var uid      = data.cardUid || card.dataset.cardUid || '';
+        var platform = data.platform || '';
+        var ebId     = data.ebId   || '';
+        var ebLink   = data.ebLink || '';
+        var suId     = data.suId   || '';
 
+        var isEventbrite = platform === 'eventbrite' && Boolean(ebId);
+        var isSquadUp    = platform === 'squadup' && Boolean(suId);
+
+        var btnWrap = card.querySelector('.pc-event-card-buttons');
+        if (btnWrap) {
+            var ebBtn = btnWrap.querySelector('button.pc-event-btn--buy:not(.pc-su-trigger)');
+            var suBtn = btnWrap.querySelector('.pc-su-trigger');
+
+            if (ebBtn) {
+                ebBtn.style.display = isEventbrite ? '' : 'none';
+                ebBtn.dataset.ebId   = ebId;
+                ebBtn.dataset.ebLink = ebLink;
+            }
+            if (suBtn) {
+                suBtn.style.display = isSquadUp ? '' : 'none';
+                suBtn.dataset.suId  = suId;
+            }
+
+            if (isEventbrite && ebBtn) {
+                var newBtn = rebuildEBButton(btnWrap, uid, ebId, ebLink);
+                if (newBtn) initEBWidget(uid, newBtn.id, ebId, ebLink);
+            }
+        }
+    }
+
+    // ── Date buttons click ─────────────────────────────────
+    function initDateButtons(card) {
+        var buttons = card.querySelectorAll('.pc-event-date-btn');
+        if (!buttons.length) return;
+
+        buttons.forEach(function (btn) {
+            btn.addEventListener('click', function (e) {
+                e.preventDefault();
+                if (this.classList.contains('is-selected')) {
+                    return;
+                }
+
+                // Remove selected state from sibling buttons
+                buttons.forEach(function (b) {
+                    b.classList.remove('is-selected');
+                    b.setAttribute('aria-pressed', 'false');
+                });
+
+                // Highlight clicked button
+                this.classList.add('is-selected');
+                this.setAttribute('aria-pressed', 'true');
+
+                // Update Buy Tickets button state
+                updateCardTicketState(card, {
+                    cardUid:  this.dataset.cardUid,
+                    platform: this.dataset.platform,
+                    ebId:     this.dataset.ebId   || '',
+                    ebLink:   this.dataset.ebLink || '',
+                    suId:     this.dataset.suId   || ''
+                });
+            });
+        });
+    }
+
+    // ── Date select change (fallback / backwards compatibility) ──
+    function initSelectChange(card) {
+        var select = card.querySelector('.pc-event-date-select');
         if (!select) return;
 
         select.addEventListener('change', function () {
-            var opt      = this.options[this.selectedIndex];
-            var uid      = this.dataset.cardUid;
-            var platform = opt.dataset.platform;
-            var ebId     = opt.dataset.ebId   || '';
-            var ebLink   = opt.dataset.ebLink || '';
-            var suId     = opt.dataset.suId   || '';
+            var opt = this.options[this.selectedIndex];
+            if (!opt) return;
 
-            var isEventbrite = platform === 'eventbrite' && Boolean(ebId);
-            var isSquadUp    = platform === 'squadup' && Boolean(suId);
-
-            if (btnWrap) {
-                var ebBtn = btnWrap.querySelector('button.pc-event-btn--buy:not(.pc-su-trigger)');
-                var suBtn = btnWrap.querySelector('.pc-su-trigger');
-
-                if (ebBtn) ebBtn.style.display = isEventbrite ? '' : 'none';
-                if (suBtn) {
-                    suBtn.style.display = isSquadUp ? '' : 'none';
-                    suBtn.dataset.suId  = suId;
-                }
-
-                if (isEventbrite && ebBtn) {
-                    var newBtn = rebuildEBButton(btnWrap, uid, ebId, ebLink);
-                    if (newBtn) initEBWidget(uid, newBtn.id, ebId, ebLink);
-                }
-            }
+            updateCardTicketState(card, {
+                cardUid:  this.dataset.cardUid,
+                platform: opt.dataset.platform,
+                ebId:     opt.dataset.ebId   || '',
+                ebLink:   opt.dataset.ebLink || '',
+                suId:     opt.dataset.suId   || ''
+            });
         });
     }
 
@@ -380,17 +569,21 @@
             if (!btn) return;
             e.preventDefault();
 
-            var card   = btn.closest('.pc-event-card');
-            var uid    = btn.dataset.cardUid;
-            var select = card
-                ? card.querySelector('.pc-event-date-select')
-                : (uid ? document.querySelector('.pc-event-date-select[data-card-uid="' + uid + '"]') : null);
-
+            var card = btn.closest('.pc-event-card');
             var suId = btn.dataset.suId || '';
-            if (select && select.selectedIndex >= 0 && select.options[select.selectedIndex]) {
-                var opt = select.options[select.selectedIndex];
-                if (opt.dataset && opt.dataset.suId) {
-                    suId = opt.dataset.suId;
+
+            if (card) {
+                var selectedBtn = card.querySelector('.pc-event-date-btn.is-selected');
+                if (selectedBtn && selectedBtn.dataset.suId) {
+                    suId = selectedBtn.dataset.suId;
+                } else {
+                    var select = card.querySelector('.pc-event-date-select');
+                    if (select && select.selectedIndex >= 0 && select.options[select.selectedIndex]) {
+                        var opt = select.options[select.selectedIndex];
+                        if (opt.dataset && opt.dataset.suId) {
+                            suId = opt.dataset.suId;
+                        }
+                    }
                 }
             }
 
@@ -404,6 +597,7 @@
         if (ebBtn && ebBtn.style.display !== 'none') {
             initEBWidget('', ebBtn.id, ebBtn.dataset.ebId, ebBtn.dataset.ebLink);
         }
+        initDateButtons(card);
         initSelectChange(card);
     }
 
