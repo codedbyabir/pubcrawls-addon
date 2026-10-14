@@ -915,10 +915,14 @@ if (! is_array($disabled_tax)) {
 						<?php esc_html_e( 'Automated background processor with atomic locking, 10-minute stale lock recovery, and WP Engine server cron support.', 'pubcrawls-addon' ); ?>
 					</span>
 				</div>
-				<div style="display:flex;gap:8px;align-items:center;">
+				<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
 					<button type="button" class="button button-primary" id="pubcrawls-process-backlog-btn" style="height:36px;display:flex;align-items:center;gap:6px;">
 						<span class="dashicons dashicons-controls-play" style="font-size:16px;width:16px;height:16px;"></span>
 						<?php esc_html_e( 'Process Backlog Now', 'pubcrawls-addon' ); ?>
+					</button>
+					<button type="button" class="button button-secondary" id="pubcrawls-repair-backlog-btn" style="height:36px;display:flex;align-items:center;gap:6px;">
+						<span class="dashicons dashicons-admin-tools" style="font-size:16px;width:16px;height:16px;"></span>
+						<?php esc_html_e( 'Repair Queue States', 'pubcrawls-addon' ); ?>
 					</button>
 					<button type="button" class="button button-secondary" id="pubcrawls-release-stale-btn" style="height:36px;display:flex;align-items:center;gap:6px;">
 						<span class="dashicons dashicons-unlock" style="font-size:16px;width:16px;height:16px;"></span>
@@ -928,7 +932,7 @@ if (! is_array($disabled_tax)) {
 			</div>
 			<div class="pubcrawls-card__body">
 				<!-- Metrics Summary Tiles -->
-				<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(130px, 1fr));gap:12px;margin-bottom:20px;">
+				<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(130px, 1fr));gap:12px;margin-bottom:14px;">
 					<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px 14px;text-align:center;">
 						<div style="font-size:22px;font-weight:700;color:#0f172a;"><?php echo (int) ( $queue_counts['pending'] ?? 0 ); ?></div>
 						<div style="font-size:11px;font-weight:600;text-transform:uppercase;color:#64748b;margin-top:2px;"><?php esc_html_e( 'Pending / Backlog', 'pubcrawls-addon' ); ?></div>
@@ -955,6 +959,13 @@ if (! is_array($disabled_tax)) {
 					</div>
 				</div>
 
+				<!-- Diagnostic Eligibility Breakdown (Part 12) -->
+				<div style="display:flex;gap:16px;flex-wrap:wrap;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:8px 14px;margin-bottom:16px;font-size:12px;color:#475569;">
+					<div><span class="dashicons dashicons-clock" style="font-size:14px;width:14px;height:14px;vertical-align:text-bottom;color:#0284c7;"></span> <strong><?php esc_html_e( 'Ready Now:', 'pubcrawls-addon' ); ?></strong> <?php echo (int) ( $queue_counts['pending_immediate'] ?? 0 ); ?></div>
+					<div><span class="dashicons dashicons-backup" style="font-size:14px;width:14px;height:14px;vertical-align:text-bottom;color:#d97706;"></span> <strong><?php esc_html_e( 'Scheduled Retry (Backoff):', 'pubcrawls-addon' ); ?></strong> <?php echo (int) ( $queue_counts['retry_scheduled'] ?? 0 ); ?></div>
+					<div><span class="dashicons dashicons-dismiss" style="font-size:14px;width:14px;height:14px;vertical-align:text-bottom;color:#dc2626;"></span> <strong><?php esc_html_e( 'Max Attempts Reached:', 'pubcrawls-addon' ); ?></strong> <?php echo (int) ( $queue_counts['failed'] ?? 0 ); ?></div>
+				</div>
+
 				<!-- Schedule & Runner Status Info -->
 				<div style="display:flex;gap:20px;flex-wrap:wrap;background:#f1f5f9;padding:12px 16px;border-radius:6px;font-size:12px;color:#334155;margin-bottom:16px;">
 					<div><strong><?php esc_html_e( 'Next Cron Run:', 'pubcrawls-addon' ); ?></strong> <?php echo esc_html( $queue_health['next_cron_human'] ?? 'Unknown' ); ?></div>
@@ -975,7 +986,7 @@ if (! is_array($disabled_tax)) {
 						</button>
 					</div>
 					<p class="description" style="margin-top:6px;font-size:11px;">
-						<?php esc_html_e( 'Configure this cron task in WP Engine or Linux crontab. It securely executes the background queue runner every 2 minutes without relying on website visitor traffic.', 'pubcrawls-addon' ); ?>
+						<?php esc_html_e( 'Configure this cron task in WP Engine or Linux crontab. It securely executes the background queue runner every 30 seconds without relying on website visitor traffic.', 'pubcrawls-addon' ); ?>
 					</p>
 				</div>
 

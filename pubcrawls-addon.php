@@ -3,7 +3,7 @@
  * Plugin Name:       Pubcrawls
  * Plugin URI:        https://pubcrawls.com/
  * Description:       Complete standalone solution for PubCrawls — provides Custom Post Types (Cities, Events, Venues, FAQs, Press, City Maps), Taxonomies, Shortcodes, Ticket Integrations (SquadUp & Eventbrite), and 17 native Elementor Widgets with rich content & style controls.
- * Version:           3.4.1
+ * Version:           3.5.1
  * Author:            Nexiby LLC
  * Author URI:        https://nexiby.com/
  * License:           GPL-2.0+
@@ -20,7 +20,7 @@ if (! defined('ABSPATH')) {
 }
 
 // ── Plugin Constants ──────────────────────────────────────────────────────────
-define('PUBCRAWLS_ADDON_VERSION', '3.4.1');
+define('PUBCRAWLS_ADDON_VERSION', '3.5.1');
 define('PUBCRAWLS_ADDON_DIR',     plugin_dir_path(__FILE__));
 define('PUBCRAWLS_ADDON_URL',     plugin_dir_url(__FILE__));
 define('PUBCRAWLS_ADDON_FILE',    __FILE__);

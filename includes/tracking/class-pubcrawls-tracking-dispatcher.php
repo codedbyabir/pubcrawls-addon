@@ -410,6 +410,10 @@ class Pubcrawls_Tracking_Dispatcher {
 			$event_params['session_id'] = $session_id;
 		}
 
+		if ( ! empty( $attribution['session_number'] ) && is_numeric( $attribution['session_number'] ) ) {
+			$event_params['session_number'] = (int) $attribution['session_number'];
+		}
+
 		// When using matched or partial browser attribution, include engagement_time_msec
 		if ( $has_browser_client_id ) {
 			$event_params['engagement_time_msec'] = 100;

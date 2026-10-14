@@ -515,18 +515,19 @@ class Pubcrawls_Eventbrite_Webhook {
 			: esc_url_raw( (string) $raw_page_url );
 
 		$attribution = array(
-			'event_id'   => sanitize_text_field( (string) ( $params['event_id'] ?? '' ) ),
-			'client_id'  => sanitize_text_field( (string) ( $params['client_id'] ?? '' ) ),
-			'session_id' => sanitize_text_field( (string) ( $params['session_id'] ?? '' ) ),
-			'fbp'        => sanitize_text_field( (string) ( $params['fbp'] ?? '' ) ),
-			'fbc'        => sanitize_text_field( (string) ( $params['fbc'] ?? '' ) ),
-			'ttp'        => sanitize_text_field( (string) ( $params['ttp'] ?? '' ) ),
-			'ttclid'     => sanitize_text_field( (string) ( $params['ttclid'] ?? '' ) ),
-			'oai_obref'  => sanitize_text_field( (string) ( $params['oai_obref'] ?? ( $params['obref'] ?? '' ) ) ),
-			'oai_oppref' => sanitize_text_field( (string) ( $params['oai_oppref'] ?? ( $params['oppref'] ?? '' ) ) ),
-			'ip'         => $ip,
-			'user_agent' => sanitize_textarea_field( (string) ( $params['user_agent'] ?? ( $_SERVER['HTTP_USER_AGENT'] ?? '' ) ) ),
-			'page_url'   => $page_url,
+			'event_id'       => sanitize_text_field( (string) ( $params['event_id'] ?? '' ) ),
+			'client_id'      => sanitize_text_field( (string) ( $params['client_id'] ?? '' ) ),
+			'session_id'     => sanitize_text_field( (string) ( $params['session_id'] ?? '' ) ),
+			'session_number' => sanitize_text_field( (string) ( $params['session_number'] ?? '' ) ),
+			'fbp'            => sanitize_text_field( (string) ( $params['fbp'] ?? '' ) ),
+			'fbc'            => sanitize_text_field( (string) ( $params['fbc'] ?? '' ) ),
+			'ttp'            => sanitize_text_field( (string) ( $params['ttp'] ?? '' ) ),
+			'ttclid'         => sanitize_text_field( (string) ( $params['ttclid'] ?? '' ) ),
+			'oai_obref'      => sanitize_text_field( (string) ( $params['oai_obref'] ?? ( $params['obref'] ?? '' ) ) ),
+			'oai_oppref'     => sanitize_text_field( (string) ( $params['oai_oppref'] ?? ( $params['oppref'] ?? '' ) ) ),
+			'ip'             => $ip,
+			'user_agent'     => sanitize_textarea_field( (string) ( $params['user_agent'] ?? ( $_SERVER['HTTP_USER_AGENT'] ?? '' ) ) ),
+			'page_url'       => $page_url,
 		);
 
 		Pubcrawls_Tracking_DB::store_attribution( $order_id, $attribution );
@@ -751,22 +752,48 @@ class Pubcrawls_Eventbrite_Webhook {
 				$code = $normalized->get_error_code();
 
 				$is_rejection = ( 'eb_order_not_completed' === $code || 'eb_order_org_mismatch' === $code );
-				$final_status = $is_rejection ? 'rejected' : 'failed';
-
-				Pubcrawls_Tracking_DB::update_order_data(
-					$order_id,
-					array(
-						'status'     => $final_status,
-						'last_error' => $err,
-					)
-				);
-				Pubcrawls_Tracking_DB::release_order_lock( $order_id, $worker_id, $final_status );
 
 				if ( $is_rejection ) {
+					$final_status = 'rejected';
+					Pubcrawls_Tracking_DB::update_order_data(
+						$order_id,
+						array(
+							'status'        => 'rejected',
+							'last_error'    => $err,
+							'next_retry_at' => null,
+						)
+					);
+					Pubcrawls_Tracking_DB::release_order_lock( $order_id, $worker_id, 'rejected' );
+
 					Pubcrawls_Tracking_DB::update_platform_status( $order_id, 'ga4', 'skipped', 'Order rejected: ' . $err );
 					Pubcrawls_Tracking_DB::update_platform_status( $order_id, 'meta', 'skipped', 'Order rejected: ' . $err );
 					Pubcrawls_Tracking_DB::update_platform_status( $order_id, 'tiktok', 'skipped', 'Order rejected: ' . $err );
 					Pubcrawls_Tracking_DB::update_platform_status( $order_id, 'openai', 'skipped', 'Order rejected: ' . $err );
+				} else {
+					$order_row       = Pubcrawls_Tracking_DB::get_order( $order_id );
+					$current_retries = (int) ( $order_row->retry_count ?? 0 ) + 1;
+					$max_reached     = $current_retries >= Pubcrawls_Tracking_DB::MAX_ATTEMPTS;
+
+					$final_status = 'failed';
+					$next_retry   = $max_reached ? null : Pubcrawls_Tracking_DB::calculate_next_retry( $current_retries );
+
+					Pubcrawls_Tracking_DB::update_order_data(
+						$order_id,
+						array(
+							'status'        => 'failed',
+							'retry_count'   => $current_retries,
+							'next_retry_at' => $next_retry,
+							'last_error'    => $err,
+						)
+					);
+					Pubcrawls_Tracking_DB::release_order_lock( $order_id, $worker_id, 'failed', $next_retry );
+
+					if ( $max_reached ) {
+						Pubcrawls_Tracking_DB::update_platform_status( $order_id, 'ga4', 'failed', 'Max retries exhausted: ' . $err );
+						Pubcrawls_Tracking_DB::update_platform_status( $order_id, 'meta', 'failed', 'Max retries exhausted: ' . $err );
+						Pubcrawls_Tracking_DB::update_platform_status( $order_id, 'tiktok', 'failed', 'Max retries exhausted: ' . $err );
+						Pubcrawls_Tracking_DB::update_platform_status( $order_id, 'openai', 'failed', 'Max retries exhausted: ' . $err );
+					}
 				}
 
 				self::add_log_entry(
@@ -778,9 +805,10 @@ class Pubcrawls_Eventbrite_Webhook {
 				);
 
 				return array(
-					'success'  => false,
-					'order_id' => $order_id,
-					'error'    => $err,
+					'success'        => false,
+					'overall_status' => $final_status,
+					'order_id'       => $order_id,
+					'error'          => $err,
 				);
 			}
 
@@ -819,12 +847,19 @@ class Pubcrawls_Eventbrite_Webhook {
 				'platforms'      => $dispatch_result['platforms'],
 			);
 		} catch ( \Throwable $e ) {
-			Pubcrawls_Tracking_DB::release_order_lock( $order_id, $worker_id, 'failed' );
+			$order_row       = Pubcrawls_Tracking_DB::get_order( $order_id );
+			$current_retries = (int) ( $order_row->retry_count ?? 0 ) + 1;
+			$max_reached     = $current_retries >= Pubcrawls_Tracking_DB::MAX_ATTEMPTS;
+			$next_retry      = $max_reached ? null : Pubcrawls_Tracking_DB::calculate_next_retry( $current_retries );
+
+			Pubcrawls_Tracking_DB::release_order_lock( $order_id, $worker_id, 'failed', $next_retry );
 			Pubcrawls_Tracking_DB::update_order_data(
 				$order_id,
 				array(
-					'status'     => 'failed',
-					'last_error' => 'Processing exception: ' . $e->getMessage(),
+					'status'        => 'failed',
+					'retry_count'   => $current_retries,
+					'next_retry_at' => $next_retry,
+					'last_error'    => 'Processing exception: ' . $e->getMessage(),
 				)
 			);
 			self::add_log_entry(
@@ -835,9 +870,10 @@ class Pubcrawls_Eventbrite_Webhook {
 				)
 			);
 			return array(
-				'success'  => false,
-				'order_id' => $order_id,
-				'error'    => $e->getMessage(),
+				'success'        => false,
+				'overall_status' => 'failed',
+				'order_id'       => $order_id,
+				'error'          => $e->getMessage(),
 			);
 		}
 	}
