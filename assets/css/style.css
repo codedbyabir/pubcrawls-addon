@@ -514,7 +514,7 @@
     text-decoration: none;
 }
 
-/* Event Card Select (Legacy / Fallback) */
+/* Event Card Select  */
 .pc-events-grid .pc-event-date-select {
     width: 100%;
     padding: 0.625rem 2.25rem 0.625rem 0.875rem;
@@ -559,7 +559,7 @@
     -webkit-appearance: none;
 }
 
-/* Event Card Date Buttons (Replaces Dropdown) */
+/* Event Card Date Buttons (V2 Layout) */
 .pc-events-grid .pc-event-date-buttons {
     display: flex;
     flex-wrap: wrap;

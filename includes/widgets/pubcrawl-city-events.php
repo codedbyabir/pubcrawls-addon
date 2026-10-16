@@ -124,6 +124,19 @@ class Pubcrawls_City_Events extends \Elementor\Widget_Base
 		);
 
 		$this->add_control(
+			'pubcrawl_date_layout',
+			[
+				'label'   => esc_html__('Event Date Selection Layout', 'pubcrawls-addon'),
+				'type'    => \Elementor\Controls_Manager::SELECT,
+				'default' => 'v1',
+				'options' => [
+					'v1' => esc_html__('V1 — Dropdown (Classic)', 'pubcrawls-addon'),
+					'v2' => esc_html__('V2 — Date Buttons', 'pubcrawls-addon'),
+				],
+			]
+		);
+
+		$this->add_control(
 			'pubcrawl_select_date_text',
 			[
 				'label'       => esc_html__('Select Date Text', 'pubcrawls-addon'),
@@ -625,7 +638,7 @@ class Pubcrawls_City_Events extends \Elementor\Widget_Base
 		$this->start_controls_section(
 			'section_style_date_select_field',
 			[
-				'label' => esc_html__('Date Selector Buttons', 'pubcrawls-addon'),
+				'label' => esc_html__('Date Select Field', 'pubcrawls-addon'),
 				'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
 			]
 		);
@@ -1113,6 +1126,11 @@ class Pubcrawls_City_Events extends \Elementor\Widget_Base
 			: esc_html__('Select Your Date :', 'pubcrawls-addon');
 		$select_date_icon = ! empty($settings['select_date_icon']) ? $settings['select_date_icon'] : [];
 
+		$date_layout = ! empty($settings['date_layout']) ? sanitize_key($settings['date_layout']) : 'v1';
+		if ($date_layout !== 'v2') {
+			$date_layout = 'v1';
+		}
+
 		$today = gmdate('Ymd');
 
 		// ── City ID — attribute, URL param, or current post ───
@@ -1244,15 +1262,6 @@ class Pubcrawls_City_Events extends \Elementor\Widget_Base
 				if ($has_dates) {
 					foreach ($event_dates as $row) {
 						$date_raw  = $row['eventdate']        ?? '';
-						if (empty($date_raw) || ! strtotime($date_raw)) {
-							continue;
-						}
-
-						// Exclude past dates so only available event dates are selectable
-						if (gmdate('Ymd', strtotime($date_raw)) < $today) {
-							continue;
-						}
-
 						$start_raw = $row['start_time']       ?? '';
 						$end_raw   = $row['end_time']         ?? '';
 						$eb_id     = trim($row['eventbrite_id']   ?? '');
@@ -1270,7 +1279,7 @@ class Pubcrawls_City_Events extends \Elementor\Widget_Base
 							$platform = $default_provider;
 						}
 
-						$ts      = strtotime($date_raw);
+						$ts      = ! empty($date_raw) ? strtotime($date_raw) : null;
 						$d_label = $ts ? gmdate('D, M j', $ts) : '';
 
 						$time_range = '';
@@ -1293,10 +1302,6 @@ class Pubcrawls_City_Events extends \Elementor\Widget_Base
 							'year'     => $ts ? gmdate('Y', $ts) : '',
 						];
 					}
-				}
-
-				if (empty($date_rows)) {
-					continue;
 				}
 
 				$first_row  = $date_rows[0] ?? null;
@@ -1383,35 +1388,58 @@ class Pubcrawls_City_Events extends \Elementor\Widget_Base
 
 							<?php $single_date_class = count($date_rows) === 1 ? 'single-date' : ''; ?>
 
-							<div
-								class="pc-event-date-buttons <?php echo esc_attr($single_date_class); ?>"
-								role="group"
-								aria-label="<?php esc_attr_e('Select event date', 'pubcrawls-addon'); ?>">
+							<?php if ('v2' === $date_layout) : ?>
+								<div
+									class="pc-event-date-buttons <?php echo esc_attr($single_date_class); ?>"
+									role="group"
+									aria-label="<?php esc_attr_e('Select event date', 'pubcrawls-addon'); ?>">
 
-								<?php foreach ($date_rows as $i => $dr) :
-									$is_selected = (0 === $i);
-								?>
-									<button
-										type="button"
-										class="pc-event-date-btn <?php echo $is_selected ? 'is-selected' : ''; ?> <?php echo esc_attr($single_date_class); ?>"
-										data-index="<?php echo absint($i); ?>"
-										data-card-uid="<?php echo esc_attr($card_uid); ?>"
-										data-platform="<?php echo esc_attr($dr['platform']); ?>"
-										data-eb-link="<?php echo esc_url($dr['eb_link']); ?>"
-										data-eb-id="<?php echo esc_attr($dr['eb_id']); ?>"
-										data-su-id="<?php echo esc_attr($dr['su_id']); ?>"
-										data-day="<?php echo esc_attr($dr['day']); ?>"
-										data-month="<?php echo esc_attr($dr['month']); ?>"
-										data-year="<?php echo esc_attr($dr['year']); ?>"
-										aria-pressed="<?php echo $is_selected ? 'true' : 'false'; ?>">
-										<span class="pc-event-date-btn__date"><?php echo esc_html(strtoupper($dr['label'])); ?></span>
-										<?php if (! empty($dr['time'])) : ?>
-											<span class="pc-event-date-btn__time"><?php echo esc_html($dr['time']); ?></span>
-										<?php endif; ?>
-									</button>
-								<?php endforeach; ?>
+									<?php foreach ($date_rows as $i => $dr) :
+										$is_selected = (0 === $i);
+									?>
+										<button
+											type="button"
+											class="pc-event-date-btn <?php echo $is_selected ? 'is-selected' : ''; ?> <?php echo esc_attr($single_date_class); ?>"
+											data-index="<?php echo absint($i); ?>"
+											data-card-uid="<?php echo esc_attr($card_uid); ?>"
+											data-platform="<?php echo esc_attr($dr['platform']); ?>"
+											data-eb-link="<?php echo esc_url($dr['eb_link']); ?>"
+											data-eb-id="<?php echo esc_attr($dr['eb_id']); ?>"
+											data-su-id="<?php echo esc_attr($dr['su_id']); ?>"
+											data-day="<?php echo esc_attr($dr['day']); ?>"
+											data-month="<?php echo esc_attr($dr['month']); ?>"
+											data-year="<?php echo esc_attr($dr['year']); ?>"
+											aria-pressed="<?php echo $is_selected ? 'true' : 'false'; ?>">
+											<span class="pc-event-date-btn__date"><?php echo esc_html(strtoupper($dr['label'])); ?></span>
+											<?php if (! empty($dr['time'])) : ?>
+												<span class="pc-event-date-btn__time"><?php echo esc_html($dr['time']); ?></span>
+											<?php endif; ?>
+										</button>
+									<?php endforeach; ?>
 
-							</div>
+								</div>
+							<?php else : ?>
+								<select
+									class="pc-event-date-select <?php echo esc_attr($single_date_class); ?>"
+									data-card-uid="<?php echo esc_attr($card_uid); ?>"
+									aria-label="<?php esc_attr_e('Select event date', 'pubcrawls-addon'); ?>">
+
+									<?php foreach ($date_rows as $i => $dr) : ?>
+										<option
+											value="<?php echo absint($i); ?>"
+											data-platform="<?php echo esc_attr($dr['platform']); ?>"
+											data-eb-link="<?php echo esc_url($dr['eb_link']); ?>"
+											data-eb-id="<?php echo esc_attr($dr['eb_id']); ?>"
+											data-su-id="<?php echo esc_attr($dr['su_id']); ?>"
+											data-day="<?php echo esc_attr($dr['day']); ?>"
+											data-month="<?php echo esc_attr($dr['month']); ?>"
+											data-year="<?php echo esc_attr($dr['year']); ?>">
+											<?php echo esc_html($dr['label'] . ($dr['time'] ? ' — ' . $dr['time'] : '')); ?>
+										</option>
+									<?php endforeach; ?>
+
+								</select>
+							<?php endif; ?>
 
 							<?php if ($has_ticket) : ?>
 								<div class="pc-event-card-buttons">

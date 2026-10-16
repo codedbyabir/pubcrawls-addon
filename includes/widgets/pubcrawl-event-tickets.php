@@ -91,6 +91,19 @@ class Pubcrawls_Event_Tickets extends \Elementor\Widget_Base
 		);
 
 		$this->add_control(
+			'pubcrawl_date_layout',
+			[
+				'label'   => esc_html__('Event Date Selection Layout', 'pubcrawls-addon'),
+				'type'    => \Elementor\Controls_Manager::SELECT,
+				'default' => 'v1',
+				'options' => [
+					'v1' => esc_html__('V1 — Dropdown (Classic)', 'pubcrawls-addon'),
+					'v2' => esc_html__('V2 — Date Buttons', 'pubcrawls-addon'),
+				],
+			]
+		);
+
+		$this->add_control(
 			'pubcrawl_btn_text',
 			[
 				'label'       => esc_html__('Button Text', 'pubcrawls-addon'),
@@ -265,12 +278,29 @@ class Pubcrawls_Event_Tickets extends \Elementor\Widget_Base
 
 		$this->end_controls_section();
 
-		// ── Style Section: Dropdown ──────────────────────────────
+		// ── Style Section: Date Select / Buttons ────────────────
 		$this->start_controls_section(
 			'section_style_select',
 			[
-				'label' => esc_html__('Date Select Dropdown', 'pubcrawls-addon'),
+				'label' => esc_html__('Date Selector / Buttons', 'pubcrawls-addon'),
 				'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
+			]
+		);
+
+		$this->add_group_control(
+			\Elementor\Group_Control_Typography::get_type(),
+			[
+				'name'     => 'pubcrawl_select_typography',
+				'selector' => '{{WRAPPER}} .pcet-date-select, {{WRAPPER}} .pcet-date-btn',
+			]
+		);
+
+		$this->start_controls_tabs('tabs_select_style');
+
+		$this->start_controls_tab(
+			'tab_select_normal',
+			[
+				'label' => esc_html__('Normal', 'pubcrawls-addon'),
 			]
 		);
 
@@ -280,7 +310,7 @@ class Pubcrawls_Event_Tickets extends \Elementor\Widget_Base
 				'label'     => esc_html__('Text Color', 'pubcrawls-addon'),
 				'type'      => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
-					'{{WRAPPER}} .pcet-date-select' => 'color: {{VALUE}};',
+					'{{WRAPPER}} .pcet-date-select, {{WRAPPER}} .pcet-date-btn' => 'color: {{VALUE}};',
 				],
 			]
 		);
@@ -291,7 +321,7 @@ class Pubcrawls_Event_Tickets extends \Elementor\Widget_Base
 				'label'     => esc_html__('Background Color', 'pubcrawls-addon'),
 				'type'      => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
-					'{{WRAPPER}} .pcet-date-select' => 'background-color: {{VALUE}};',
+					'{{WRAPPER}} .pcet-date-select, {{WRAPPER}} .pcet-date-btn' => 'background-color: {{VALUE}};',
 				],
 			]
 		);
@@ -302,10 +332,98 @@ class Pubcrawls_Event_Tickets extends \Elementor\Widget_Base
 				'label'     => esc_html__('Border Color', 'pubcrawls-addon'),
 				'type'      => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
-					'{{WRAPPER}} .pcet-date-select' => 'border-color: {{VALUE}};',
+					'{{WRAPPER}} .pcet-date-select, {{WRAPPER}} .pcet-date-btn' => 'border-color: {{VALUE}};',
 				],
 			]
 		);
+
+		$this->end_controls_tab();
+
+		$this->start_controls_tab(
+			'tab_select_hover',
+			[
+				'label' => esc_html__('Hover / Focus', 'pubcrawls-addon'),
+			]
+		);
+
+		$this->add_control(
+			'pubcrawl_select_hover_text_color',
+			[
+				'label'     => esc_html__('Text Color', 'pubcrawls-addon'),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'selectors' => [
+					'{{WRAPPER}} .pcet-date-select:hover, {{WRAPPER}} .pcet-date-select:focus, {{WRAPPER}} .pcet-date-btn:hover, {{WRAPPER}} .pcet-date-btn:focus' => 'color: {{VALUE}};',
+				],
+			]
+		);
+
+		$this->add_control(
+			'pubcrawl_select_hover_bg_color',
+			[
+				'label'     => esc_html__('Background Color', 'pubcrawls-addon'),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'selectors' => [
+					'{{WRAPPER}} .pcet-date-select:hover, {{WRAPPER}} .pcet-date-select:focus, {{WRAPPER}} .pcet-date-btn:hover, {{WRAPPER}} .pcet-date-btn:focus' => 'background-color: {{VALUE}};',
+				],
+			]
+		);
+
+		$this->add_control(
+			'pubcrawl_select_hover_border_color',
+			[
+				'label'     => esc_html__('Border Color', 'pubcrawls-addon'),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'selectors' => [
+					'{{WRAPPER}} .pcet-date-select:hover, {{WRAPPER}} .pcet-date-select:focus, {{WRAPPER}} .pcet-date-btn:hover, {{WRAPPER}} .pcet-date-btn:focus' => 'border-color: {{VALUE}};',
+				],
+			]
+		);
+
+		$this->end_controls_tab();
+
+		$this->start_controls_tab(
+			'tab_select_selected',
+			[
+				'label' => esc_html__('Selected', 'pubcrawls-addon'),
+			]
+		);
+
+		$this->add_control(
+			'pubcrawl_select_selected_text_color',
+			[
+				'label'     => esc_html__('Text Color', 'pubcrawls-addon'),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'selectors' => [
+					'{{WRAPPER}} .pcet-date-btn.is-selected' => 'color: {{VALUE}};',
+				],
+			]
+		);
+
+		$this->add_control(
+			'pubcrawl_select_selected_bg_color',
+			[
+				'label'     => esc_html__('Background Color', 'pubcrawls-addon'),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'selectors' => [
+					'{{WRAPPER}} .pcet-date-btn.is-selected' => 'background-color: {{VALUE}};',
+				],
+			]
+		);
+
+		$this->add_control(
+			'pubcrawl_select_selected_border_color',
+			[
+				'label'     => esc_html__('Border Color', 'pubcrawls-addon'),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'selectors' => [
+					'{{WRAPPER}} .pcet-date-btn.is-selected' => 'border-color: {{VALUE}};',
+				],
+			]
+		);
+
+		$this->end_controls_tab();
+
+		$this->end_controls_tabs();
 
 		$this->add_responsive_control(
 			'pubcrawl_select_radius',
@@ -314,16 +432,8 @@ class Pubcrawls_Event_Tickets extends \Elementor\Widget_Base
 				'type'       => \Elementor\Controls_Manager::DIMENSIONS,
 				'size_units' => ['px', '%'],
 				'selectors'  => [
-					'{{WRAPPER}} .pcet-date-select' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+					'{{WRAPPER}} .pcet-date-select, {{WRAPPER}} .pcet-date-btn' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
 				],
-			]
-		);
-
-		$this->add_group_control(
-			\Elementor\Group_Control_Typography::get_type(),
-			[
-				'name'     => 'pubcrawl_select_typography',
-				'selector' => '{{WRAPPER}} .pcet-date-select',
 			]
 		);
 
@@ -538,6 +648,11 @@ class Pubcrawls_Event_Tickets extends \Elementor\Widget_Base
 		}
 		$event_id = ! empty($settings['event_id']) ? absint($settings['event_id']) : get_the_ID();
 
+		$date_layout = ! empty($settings['date_layout']) ? sanitize_key($settings['date_layout']) : 'v1';
+		if ($date_layout !== 'v2') {
+			$date_layout = 'v1';
+		}
+
 
 
 		$dates = function_exists('get_field') ? get_field('event_dates', $event_id) : null;
@@ -638,19 +753,21 @@ class Pubcrawls_Event_Tickets extends \Elementor\Widget_Base
 				<?php // ── Date selector (multi-date only) ──────── 
 				?>
 				<?php if ($multi) : ?>
-					<div class="pcet-select-wrap">
-						<label for="<?php echo esc_attr($id_select); ?>" class="screen-reader-text">
-							<?php esc_html_e('Select event date', 'pubcrawls-addon'); ?>
-						</label>
-						<select
-							id="<?php echo esc_attr($id_select); ?>"
-							class="pcet-date-select"
+					<?php if ('v2' === $date_layout) : ?>
+						<div
+							class="pcet-date-buttons"
+							role="group"
 							aria-label="<?php esc_attr_e('Select event date', 'pubcrawls-addon'); ?>"
-							data-pcet-select="<?php echo esc_attr($data_uid); ?>">
+							data-pcet-buttons="<?php echo esc_attr($data_uid); ?>">
 
-							<?php foreach ($rows as $index => $row) : ?>
-								<option
-									value="<?php echo absint($index); ?>"
+							<?php foreach ($rows as $index => $row) :
+								$is_selected = (0 === $index);
+							?>
+								<button
+									type="button"
+									class="pcet-date-btn <?php echo $is_selected ? 'is-selected' : ''; ?>"
+									data-index="<?php echo absint($index); ?>"
+									data-pcet-btn-date="<?php echo esc_attr($data_uid); ?>"
 									data-eb-id="<?php echo esc_attr($row['eb_id']); ?>"
 									data-eb-link="<?php echo esc_url($row['eb_link']); ?>"
 									data-date="<?php echo esc_attr($row['date_full']); ?>"
@@ -662,13 +779,48 @@ class Pubcrawls_Event_Tickets extends \Elementor\Widget_Base
 									data-date-iso="<?php echo esc_attr($row['date_iso']); ?>"
 									data-su-id="<?php echo esc_attr($row['su_id']); ?>"
 									data-provider="<?php echo esc_attr($row['provider']); ?>"
-									<?php selected($index, 0); ?>>
-									<?php echo esc_html($row['date_label'] . ' — ' . $row['time']); ?>
-								</option>
+									aria-pressed="<?php echo $is_selected ? 'true' : 'false'; ?>">
+									<span class="pcet-date-btn__date"><?php echo esc_html(strtoupper($row['date_label'])); ?></span>
+									<?php if (! empty($row['time'])) : ?>
+										<span class="pcet-date-btn__time"><?php echo esc_html($row['time']); ?></span>
+									<?php endif; ?>
+								</button>
 							<?php endforeach; ?>
 
-						</select>
-					</div>
+						</div>
+					<?php else : ?>
+						<div class="pcet-select-wrap">
+							<label for="<?php echo esc_attr($id_select); ?>" class="screen-reader-text">
+								<?php esc_html_e('Select event date', 'pubcrawls-addon'); ?>
+							</label>
+							<select
+								id="<?php echo esc_attr($id_select); ?>"
+								class="pcet-date-select"
+								aria-label="<?php esc_attr_e('Select event date', 'pubcrawls-addon'); ?>"
+								data-pcet-select="<?php echo esc_attr($data_uid); ?>">
+
+								<?php foreach ($rows as $index => $row) : ?>
+									<option
+										value="<?php echo absint($index); ?>"
+										data-eb-id="<?php echo esc_attr($row['eb_id']); ?>"
+										data-eb-link="<?php echo esc_url($row['eb_link']); ?>"
+										data-date="<?php echo esc_attr($row['date_full']); ?>"
+										data-time="<?php echo esc_attr($row['time']); ?>"
+										data-day="<?php echo esc_attr($row['date_day']); ?>"
+										data-month="<?php echo esc_attr($row['date_month']); ?>"
+										data-year="<?php echo esc_attr($row['date_year']); ?>"
+										data-date-short="<?php echo esc_attr($row['date_short']); ?>"
+										data-date-iso="<?php echo esc_attr($row['date_iso']); ?>"
+										data-su-id="<?php echo esc_attr($row['su_id']); ?>"
+										data-provider="<?php echo esc_attr($row['provider']); ?>"
+										<?php selected($index, 0); ?>>
+										<?php echo esc_html($row['date_label'] . ' — ' . $row['time']); ?>
+									</option>
+								<?php endforeach; ?>
+
+							</select>
+						</div>
+					<?php endif; ?>
 				<?php endif; ?>
 
 				<?php // ── Buy Tickets button area ────────────────── 
