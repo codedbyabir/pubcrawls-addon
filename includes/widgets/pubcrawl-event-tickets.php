@@ -278,12 +278,15 @@ class Pubcrawls_Event_Tickets extends \Elementor\Widget_Base
 
 		$this->end_controls_section();
 
-		// ── Style Section: Date Select / Buttons ────────────────
+		// ── Style Section: Date Select Dropdown (V1) ─────────────
 		$this->start_controls_section(
 			'section_style_select',
 			[
-				'label' => esc_html__('Date Selector / Buttons', 'pubcrawls-addon'),
-				'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
+				'label'     => esc_html__('Date Select Dropdown (V1)', 'pubcrawls-addon'),
+				'tab'       => \Elementor\Controls_Manager::TAB_STYLE,
+				'condition' => [
+					'pubcrawl_date_layout' => 'v1',
+				],
 			]
 		);
 
@@ -291,7 +294,7 @@ class Pubcrawls_Event_Tickets extends \Elementor\Widget_Base
 			\Elementor\Group_Control_Typography::get_type(),
 			[
 				'name'     => 'pubcrawl_select_typography',
-				'selector' => '{{WRAPPER}} .pcet-date-select, {{WRAPPER}} .pcet-date-btn',
+				'selector' => '{{WRAPPER}} .pcet-date-select',
 			]
 		);
 
@@ -310,7 +313,7 @@ class Pubcrawls_Event_Tickets extends \Elementor\Widget_Base
 				'label'     => esc_html__('Text Color', 'pubcrawls-addon'),
 				'type'      => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
-					'{{WRAPPER}} .pcet-date-select, {{WRAPPER}} .pcet-date-btn' => 'color: {{VALUE}};',
+					'{{WRAPPER}} .pcet-date-select' => 'color: {{VALUE}};',
 				],
 			]
 		);
@@ -321,7 +324,7 @@ class Pubcrawls_Event_Tickets extends \Elementor\Widget_Base
 				'label'     => esc_html__('Background Color', 'pubcrawls-addon'),
 				'type'      => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
-					'{{WRAPPER}} .pcet-date-select, {{WRAPPER}} .pcet-date-btn' => 'background-color: {{VALUE}};',
+					'{{WRAPPER}} .pcet-date-select' => 'background-color: {{VALUE}};',
 				],
 			]
 		);
@@ -332,7 +335,7 @@ class Pubcrawls_Event_Tickets extends \Elementor\Widget_Base
 				'label'     => esc_html__('Border Color', 'pubcrawls-addon'),
 				'type'      => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
-					'{{WRAPPER}} .pcet-date-select, {{WRAPPER}} .pcet-date-btn' => 'border-color: {{VALUE}};',
+					'{{WRAPPER}} .pcet-date-select' => 'border-color: {{VALUE}};',
 				],
 			]
 		);
@@ -352,7 +355,7 @@ class Pubcrawls_Event_Tickets extends \Elementor\Widget_Base
 				'label'     => esc_html__('Text Color', 'pubcrawls-addon'),
 				'type'      => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
-					'{{WRAPPER}} .pcet-date-select:hover, {{WRAPPER}} .pcet-date-select:focus, {{WRAPPER}} .pcet-date-btn:hover, {{WRAPPER}} .pcet-date-btn:focus' => 'color: {{VALUE}};',
+					'{{WRAPPER}} .pcet-date-select:hover, {{WRAPPER}} .pcet-date-select:focus' => 'color: {{VALUE}};',
 				],
 			]
 		);
@@ -363,7 +366,7 @@ class Pubcrawls_Event_Tickets extends \Elementor\Widget_Base
 				'label'     => esc_html__('Background Color', 'pubcrawls-addon'),
 				'type'      => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
-					'{{WRAPPER}} .pcet-date-select:hover, {{WRAPPER}} .pcet-date-select:focus, {{WRAPPER}} .pcet-date-btn:hover, {{WRAPPER}} .pcet-date-btn:focus' => 'background-color: {{VALUE}};',
+					'{{WRAPPER}} .pcet-date-select:hover, {{WRAPPER}} .pcet-date-select:focus' => 'background-color: {{VALUE}};',
 				],
 			]
 		);
@@ -374,22 +377,256 @@ class Pubcrawls_Event_Tickets extends \Elementor\Widget_Base
 				'label'     => esc_html__('Border Color', 'pubcrawls-addon'),
 				'type'      => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
-					'{{WRAPPER}} .pcet-date-select:hover, {{WRAPPER}} .pcet-date-select:focus, {{WRAPPER}} .pcet-date-btn:hover, {{WRAPPER}} .pcet-date-btn:focus' => 'border-color: {{VALUE}};',
+					'{{WRAPPER}} .pcet-date-select:hover, {{WRAPPER}} .pcet-date-select:focus' => 'border-color: {{VALUE}};',
 				],
 			]
 		);
 
 		$this->end_controls_tab();
 
+		$this->end_controls_tabs();
+
+		$this->add_group_control(
+			\Elementor\Group_Control_Border::get_type(),
+			[
+				'name'      => 'pubcrawl_select_border',
+				'selector'  => '{{WRAPPER}} .pcet-date-select',
+				'separator' => 'before',
+			]
+		);
+
+		$this->add_responsive_control(
+			'pubcrawl_select_radius',
+			[
+				'label'      => esc_html__('Border Radius', 'pubcrawls-addon'),
+				'type'       => \Elementor\Controls_Manager::DIMENSIONS,
+				'size_units' => ['px', '%'],
+				'selectors'  => [
+					'{{WRAPPER}} .pcet-date-select' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				],
+			]
+		);
+
+		$this->add_responsive_control(
+			'pubcrawl_select_padding',
+			[
+				'label'      => esc_html__('Padding', 'pubcrawls-addon'),
+				'type'       => \Elementor\Controls_Manager::DIMENSIONS,
+				'size_units' => ['px', 'em'],
+				'selectors'  => [
+					'{{WRAPPER}} .pcet-date-select' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				],
+			]
+		);
+
+		$this->add_responsive_control(
+			'pubcrawl_select_spacing',
+			[
+				'label'      => esc_html__('Bottom Spacing', 'pubcrawls-addon'),
+				'type'       => \Elementor\Controls_Manager::SLIDER,
+				'size_units' => ['px', 'em', 'rem'],
+				'range'      => [
+					'px' => ['min' => 0, 'max' => 60],
+				],
+				'selectors'  => [
+					'{{WRAPPER}} .pcet-date-select' => 'margin-bottom: {{SIZE}}{{UNIT}};',
+				],
+			]
+		);
+
+		$this->end_controls_section();
+
+		// ── Style Section: Date Buttons (V2) ─────────────────────
+		$this->start_controls_section(
+			'section_style_date_buttons_v2',
+			[
+				'label'     => esc_html__('Date Buttons (V2)', 'pubcrawls-addon'),
+				'tab'       => \Elementor\Controls_Manager::TAB_STYLE,
+				'condition' => [
+					'pubcrawl_date_layout' => 'v2',
+				],
+			]
+		);
+
+		$this->add_group_control(
+			\Elementor\Group_Control_Typography::get_type(),
+			[
+				'name'     => 'pubcrawl_date_btn_typography',
+				'label'    => esc_html__('Button Typography', 'pubcrawls-addon'),
+				'selector' => '{{WRAPPER}} .pcet-date-btn',
+			]
+		);
+
+		$this->add_group_control(
+			\Elementor\Group_Control_Typography::get_type(),
+			[
+				'name'     => 'pubcrawl_date_btn_time_typography',
+				'label'    => esc_html__('Time Typography', 'pubcrawls-addon'),
+				'selector' => '{{WRAPPER}} .pcet-date-btn__time',
+			]
+		);
+
+		$this->add_responsive_control(
+			'pubcrawl_date_btn_gap',
+			[
+				'label'      => esc_html__('Gap Between Buttons', 'pubcrawls-addon'),
+				'type'       => \Elementor\Controls_Manager::SLIDER,
+				'size_units' => ['px', 'em', 'rem'],
+				'range'      => [
+					'px' => ['min' => 0, 'max' => 40],
+				],
+				'selectors'  => [
+					'{{WRAPPER}} .pcet-date-buttons' => 'gap: {{SIZE}}{{UNIT}};',
+				],
+			]
+		);
+
+		$this->add_responsive_control(
+			'pubcrawl_date_btn_padding',
+			[
+				'label'      => esc_html__('Padding', 'pubcrawls-addon'),
+				'type'       => \Elementor\Controls_Manager::DIMENSIONS,
+				'size_units' => ['px', 'em', 'rem', '%'],
+				'selectors'  => [
+					'{{WRAPPER}} .pcet-date-btn' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				],
+			]
+		);
+
+		$this->add_responsive_control(
+			'pubcrawl_date_btn_radius',
+			[
+				'label'      => esc_html__('Border Radius', 'pubcrawls-addon'),
+				'type'       => \Elementor\Controls_Manager::DIMENSIONS,
+				'size_units' => ['px', '%', 'em', 'rem'],
+				'selectors'  => [
+					'{{WRAPPER}} .pcet-date-btn' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				],
+			]
+		);
+
+		$this->add_group_control(
+			\Elementor\Group_Control_Border::get_type(),
+			[
+				'name'     => 'pubcrawl_date_btn_border',
+				'selector' => '{{WRAPPER}} .pcet-date-btn',
+			]
+		);
+
+		$this->start_controls_tabs('tabs_date_btn_style');
+
+		// Normal Tab
 		$this->start_controls_tab(
-			'tab_select_selected',
+			'tab_date_btn_normal',
+			[
+				'label' => esc_html__('Normal', 'pubcrawls-addon'),
+			]
+		);
+
+		$this->add_control(
+			'pubcrawl_date_btn_text_color',
+			[
+				'label'     => esc_html__('Text Color', 'pubcrawls-addon'),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'selectors' => [
+					'{{WRAPPER}} .pcet-date-btn' => 'color: {{VALUE}};',
+				],
+			]
+		);
+
+		$this->add_control(
+			'pubcrawl_date_btn_bg_color',
+			[
+				'label'     => esc_html__('Background Color', 'pubcrawls-addon'),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'selectors' => [
+					'{{WRAPPER}} .pcet-date-btn' => 'background-color: {{VALUE}};',
+				],
+			]
+		);
+
+		$this->add_control(
+			'pubcrawl_date_btn_border_color',
+			[
+				'label'     => esc_html__('Border Color', 'pubcrawls-addon'),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'selectors' => [
+					'{{WRAPPER}} .pcet-date-btn' => 'border-color: {{VALUE}};',
+				],
+			]
+		);
+
+		$this->add_group_control(
+			\Elementor\Group_Control_Box_Shadow::get_type(),
+			[
+				'name'     => 'pubcrawl_date_btn_box_shadow',
+				'selector' => '{{WRAPPER}} .pcet-date-btn',
+			]
+		);
+
+		$this->end_controls_tab();
+
+		// Hover Tab
+		$this->start_controls_tab(
+			'tab_date_btn_hover',
+			[
+				'label' => esc_html__('Hover / Focus', 'pubcrawls-addon'),
+			]
+		);
+
+		$this->add_control(
+			'pubcrawl_date_btn_hover_text_color',
+			[
+				'label'     => esc_html__('Text Color', 'pubcrawls-addon'),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'selectors' => [
+					'{{WRAPPER}} .pcet-date-btn:hover, {{WRAPPER}} .pcet-date-btn:focus' => 'color: {{VALUE}};',
+				],
+			]
+		);
+
+		$this->add_control(
+			'pubcrawl_date_btn_hover_bg_color',
+			[
+				'label'     => esc_html__('Background Color', 'pubcrawls-addon'),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'selectors' => [
+					'{{WRAPPER}} .pcet-date-btn:hover, {{WRAPPER}} .pcet-date-btn:focus' => 'background-color: {{VALUE}};',
+				],
+			]
+		);
+
+		$this->add_control(
+			'pubcrawl_date_btn_hover_border_color',
+			[
+				'label'     => esc_html__('Border Color', 'pubcrawls-addon'),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'selectors' => [
+					'{{WRAPPER}} .pcet-date-btn:hover, {{WRAPPER}} .pcet-date-btn:focus' => 'border-color: {{VALUE}};',
+				],
+			]
+		);
+
+		$this->add_group_control(
+			\Elementor\Group_Control_Box_Shadow::get_type(),
+			[
+				'name'     => 'pubcrawl_date_btn_hover_box_shadow',
+				'selector' => '{{WRAPPER}} .pcet-date-btn:hover, {{WRAPPER}} .pcet-date-btn:focus',
+			]
+		);
+
+		$this->end_controls_tab();
+
+		// Selected Tab
+		$this->start_controls_tab(
+			'tab_date_btn_selected',
 			[
 				'label' => esc_html__('Selected', 'pubcrawls-addon'),
 			]
 		);
 
 		$this->add_control(
-			'pubcrawl_select_selected_text_color',
+			'pubcrawl_date_btn_selected_text_color',
 			[
 				'label'     => esc_html__('Text Color', 'pubcrawls-addon'),
 				'type'      => \Elementor\Controls_Manager::COLOR,
@@ -400,7 +637,7 @@ class Pubcrawls_Event_Tickets extends \Elementor\Widget_Base
 		);
 
 		$this->add_control(
-			'pubcrawl_select_selected_bg_color',
+			'pubcrawl_date_btn_selected_bg_color',
 			[
 				'label'     => esc_html__('Background Color', 'pubcrawls-addon'),
 				'type'      => \Elementor\Controls_Manager::COLOR,
@@ -411,7 +648,7 @@ class Pubcrawls_Event_Tickets extends \Elementor\Widget_Base
 		);
 
 		$this->add_control(
-			'pubcrawl_select_selected_border_color',
+			'pubcrawl_date_btn_selected_border_color',
 			[
 				'label'     => esc_html__('Border Color', 'pubcrawls-addon'),
 				'type'      => \Elementor\Controls_Manager::COLOR,
@@ -421,18 +658,29 @@ class Pubcrawls_Event_Tickets extends \Elementor\Widget_Base
 			]
 		);
 
+		$this->add_group_control(
+			\Elementor\Group_Control_Box_Shadow::get_type(),
+			[
+				'name'     => 'pubcrawl_date_btn_selected_box_shadow',
+				'selector' => '{{WRAPPER}} .pcet-date-btn.is-selected',
+			]
+		);
+
 		$this->end_controls_tab();
 
 		$this->end_controls_tabs();
 
 		$this->add_responsive_control(
-			'pubcrawl_select_radius',
+			'pubcrawl_date_btn_spacing',
 			[
-				'label'      => esc_html__('Border Radius', 'pubcrawls-addon'),
-				'type'       => \Elementor\Controls_Manager::DIMENSIONS,
-				'size_units' => ['px', '%'],
+				'label'      => esc_html__('Bottom Spacing', 'pubcrawls-addon'),
+				'type'       => \Elementor\Controls_Manager::SLIDER,
+				'size_units' => ['px', 'em', 'rem'],
+				'range'      => [
+					'px' => ['min' => 0, 'max' => 60],
+				],
 				'selectors'  => [
-					'{{WRAPPER}} .pcet-date-select, {{WRAPPER}} .pcet-date-btn' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+					'{{WRAPPER}} .pcet-date-buttons' => 'margin-bottom: {{SIZE}}{{UNIT}};',
 				],
 			]
 		);

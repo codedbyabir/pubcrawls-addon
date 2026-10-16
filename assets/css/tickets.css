@@ -270,18 +270,99 @@
     display: flex;
     gap: 24px;
     align-items: stretch;
-
 }
 
 .pcet-sticky-bar select {
     flex: 5;
 }
 
+.pcet-sticky-bar .pcet-date-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    flex: 5;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+.pcet-sticky-bar .pcet-btn-wrap {
+    flex: 2;
+    display: flex;
+}
+
 .pcet-sticky-bar .pcet-btn--sticky {
     white-space: nowrap;
-    flex: 2;
     width: 100%;
     border: none;
+}
+
+.pcet-sticky-bar .pcet-date-btn {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 1px solid #2E3440;
+    background: #0F1115;
+    color: #ffffff;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    font-family: inherit;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+    box-sizing: border-box;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    user-select: none;
+    line-height: 1.25;
+}
+
+.pcet-sticky-bar .pcet-date-btn:hover {
+    background: #1A1D24;
+    border-color: #E6B325;
+    color: #ffffff;
+}
+
+.pcet-sticky-bar .pcet-date-btn:focus-visible {
+    outline: 2px solid #E6B325;
+    outline-offset: 2px;
+}
+
+.pcet-sticky-bar .pcet-date-btn.is-selected {
+    background: #E6B325;
+    border-color: #E6B325;
+    color: #000000;
+}
+
+.pcet-sticky-bar .pcet-date-btn.is-selected:hover {
+    background: #C9971E;
+    border-color: #C9971E;
+    color: #000000;
+}
+
+.pcet-sticky-bar .pcet-date-btn.is-selected:focus-visible {
+    outline: 2px solid #ffffff;
+    outline-offset: 2px;
+}
+
+.pcet-sticky-bar .pcet-date-btn__date {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    line-height: 1.25;
+}
+
+.pcet-sticky-bar .pcet-date-btn__time {
+    display: block;
+    font-size: 0.72rem;
+    opacity: 0.85;
+    margin-top: 2px;
+    line-height: 1.2;
 }
 
 .pcet-single-date {
@@ -290,10 +371,7 @@
     color: #fff;
     text-align: center;
     flex: 2;
-
 }
-
-
 
 /* ── Responsive ─────────────────────────────────────────── */
 @media (max-width: 500px) {
@@ -312,5 +390,17 @@
 
     .pcet-sticky-bar {
         flex-direction: column;
+    }
+
+    .pcet-sticky-bar .pcet-date-buttons {
+        width: 100%;
+    }
+
+    .pcet-sticky-bar .pcet-date-btn {
+        flex: 1 1 calc(50% - 8px);
+    }
+
+    .pcet-sticky-bar .pcet-btn-wrap {
+        width: 100%;
     }
 }
