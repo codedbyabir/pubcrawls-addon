@@ -297,6 +297,16 @@ class Pubcrawls_Admin
 				'default'           => array(),
 			)
 		);
+
+		register_setting(
+			'pubcrawls_settings_group',
+			self::SLUGS_KEY,
+			array(
+				'type'              => 'array',
+				'sanitize_callback' => array( $this, 'sanitize_slug_overrides' ),
+				'default'           => array(),
+			)
+		);
 	}
 
 	/**
@@ -458,6 +468,75 @@ class Pubcrawls_Admin
 				'label'      => 'OpenAI Conversions API',
 				'configured' => (! empty($oai_pix) && ! empty($oai_key)),
 				'is_const'   => ($oai_key_const || $oai_pix_const),
+			),
+		);
+	}
+
+	/**
+	 * Mask a secret string for safe display in the admin interface.
+	 *
+	 * @param string $secret Secret string.
+	 * @param int    $visible_trailing Number of trailing characters to show.
+	 * @return string Masked string.
+	 */
+	public static function mask_secret( string $secret, int $visible_trailing = 4 ): string {
+		$secret = trim( $secret );
+		if ( empty( $secret ) ) {
+			return '';
+		}
+
+		$len = strlen( $secret );
+		if ( $len <= $visible_trailing ) {
+			return str_repeat( '•', $len );
+		}
+
+		return str_repeat( '•', 8 ) . substr( $secret, -$visible_trailing );
+	}
+
+	/**
+	 * Get status indicators for all tracking platforms.
+	 *
+	 * @return array Platform configuration statuses.
+	 */
+	public static function get_platform_statuses(): array {
+		$eb_const = defined( 'PUBCRAWLS_EB_API_TOKEN' ) && ! empty( PUBCRAWLS_EB_API_TOKEN );
+		$eb_token = $eb_const ? PUBCRAWLS_EB_API_TOKEN : self::get_setting( 'eb_api_token', '' );
+
+		$ga4_mid_const = defined( 'PUBCRAWLS_GA4_MEASUREMENT_ID' ) && ! empty( PUBCRAWLS_GA4_MEASUREMENT_ID );
+		$ga4_mid       = $ga4_mid_const ? PUBCRAWLS_GA4_MEASUREMENT_ID : self::get_setting( 'ga4_measurement_id', '' );
+		$ga4_sec_const = defined( 'PUBCRAWLS_GA4_API_SECRET' ) && ! empty( PUBCRAWLS_GA4_API_SECRET );
+		$ga4_sec       = $ga4_sec_const ? PUBCRAWLS_GA4_API_SECRET : self::get_setting( 'ga4_api_secret', '' );
+
+		$meta_pix_const = defined( 'PUBCRAWLS_META_PIXEL_ID' ) && ! empty( PUBCRAWLS_META_PIXEL_ID );
+		$meta_pix       = $meta_pix_const ? PUBCRAWLS_META_PIXEL_ID : self::get_setting( 'meta_pixel_id', '' );
+		$meta_tok_const = defined( 'PUBCRAWLS_META_CAPI_TOKEN' ) && ! empty( PUBCRAWLS_META_CAPI_TOKEN );
+		$meta_tok       = $meta_tok_const ? PUBCRAWLS_META_CAPI_TOKEN : self::get_setting( 'meta_capi_token', '' );
+
+		$tt_pix_const = defined( 'PUBCRAWLS_TIKTOK_PIXEL_ID' ) && ! empty( PUBCRAWLS_TIKTOK_PIXEL_ID );
+		$tt_pix       = $tt_pix_const ? PUBCRAWLS_TIKTOK_PIXEL_ID : self::get_setting( 'tiktok_pixel_id', '' );
+		$tt_tok_const = defined( 'PUBCRAWLS_TIKTOK_ACCESS_TOKEN' ) && ! empty( PUBCRAWLS_TIKTOK_ACCESS_TOKEN );
+		$tt_tok       = $tt_tok_const ? PUBCRAWLS_TIKTOK_ACCESS_TOKEN : self::get_setting( 'tiktok_access_token', '' );
+
+		return array(
+			'eventbrite' => array(
+				'label'      => 'Eventbrite API',
+				'configured' => ! empty( $eb_token ),
+				'is_const'   => $eb_const,
+			),
+			'ga4'        => array(
+				'label'      => 'GA4 Measurement Protocol',
+				'configured' => ( ! empty( $ga4_mid ) && ! empty( $ga4_sec ) ),
+				'is_const'   => ( $ga4_mid_const || $ga4_sec_const ),
+			),
+			'meta'       => array(
+				'label'      => 'Meta CAPI',
+				'configured' => ( ! empty( $meta_pix ) && ! empty( $meta_tok ) ),
+				'is_const'   => ( $meta_pix_const || $meta_tok_const ),
+			),
+			'tiktok'     => array(
+				'label'      => 'TikTok Events API',
+				'configured' => ( ! empty( $tt_pix ) && ! empty( $tt_tok ) ),
+				'is_const'   => ( $tt_pix_const || $tt_tok_const ),
 			),
 		);
 	}
@@ -658,6 +737,55 @@ class Pubcrawls_Admin
 			}
 		}
 
+		// Schema & SEO settings
+		if ( isset( $input['schema_settings_submitted'] ) ) {
+			$clean['enable_event_schema']       = ! empty( $input['enable_event_schema'] ) ? '1' : '0';
+			$clean['schema_organizer_name']     = isset( $input['schema_organizer_name'] ) ? sanitize_text_field( $input['schema_organizer_name'] ) : '';
+			$clean['schema_organizer_url']      = isset( $input['schema_organizer_url'] ) ? esc_url_raw( $input['schema_organizer_url'] ) : '';
+			$clean['schema_organizer_logo']     = isset( $input['schema_organizer_logo'] ) ? esc_url_raw( $input['schema_organizer_logo'] ) : '';
+			$clean['schema_currency']           = ! empty( $input['schema_currency'] ) ? strtoupper( sanitize_text_field( $input['schema_currency'] ) ) : 'USD';
+			$clean['schema_default_price']      = isset( $input['schema_default_price'] ) && '' !== trim( (string) $input['schema_default_price'] ) ? sanitize_text_field( trim( (string) $input['schema_default_price'] ) ) : '';
+			$clean['schema_country_code']       = ! empty( $input['schema_country_code'] ) ? strtoupper( sanitize_text_field( trim( (string) $input['schema_country_code'] ) ) ) : 'US';
+			$clean['schema_event_status']       = ! empty( $input['schema_event_status'] ) ? esc_url_raw( $input['schema_event_status'] ) : 'https://schema.org/EventScheduled';
+			$clean['schema_attendance_mode']    = ! empty( $input['schema_attendance_mode'] ) ? esc_url_raw( $input['schema_attendance_mode'] ) : 'https://schema.org/OfflineEventAttendanceMode';
+			$clean['schema_date_suffix_format'] = isset( $input['schema_date_suffix_format'] ) ? sanitize_text_field( $input['schema_date_suffix_format'] ) : 'M j, Y';
+			$clean['enable_faq_schema_global']  = ! empty( $input['enable_faq_schema_global'] ) ? '1' : '0';
+		} else {
+			if ( isset( $input['enable_event_schema'] ) ) {
+				$clean['enable_event_schema'] = ! empty( $input['enable_event_schema'] ) ? '1' : '0';
+			}
+			if ( isset( $input['schema_organizer_name'] ) ) {
+				$clean['schema_organizer_name'] = sanitize_text_field( $input['schema_organizer_name'] );
+			}
+			if ( isset( $input['schema_organizer_url'] ) ) {
+				$clean['schema_organizer_url'] = esc_url_raw( $input['schema_organizer_url'] );
+			}
+			if ( isset( $input['schema_organizer_logo'] ) ) {
+				$clean['schema_organizer_logo'] = esc_url_raw( $input['schema_organizer_logo'] );
+			}
+			if ( isset( $input['schema_currency'] ) ) {
+				$clean['schema_currency'] = strtoupper( sanitize_text_field( $input['schema_currency'] ) );
+			}
+			if ( isset( $input['schema_default_price'] ) ) {
+				$clean['schema_default_price'] = sanitize_text_field( trim( (string) $input['schema_default_price'] ) );
+			}
+			if ( isset( $input['schema_country_code'] ) ) {
+				$clean['schema_country_code'] = strtoupper( sanitize_text_field( trim( (string) $input['schema_country_code'] ) ) );
+			}
+			if ( isset( $input['schema_event_status'] ) ) {
+				$clean['schema_event_status'] = esc_url_raw( $input['schema_event_status'] );
+			}
+			if ( isset( $input['schema_attendance_mode'] ) ) {
+				$clean['schema_attendance_mode'] = esc_url_raw( $input['schema_attendance_mode'] );
+			}
+			if ( isset( $input['schema_date_suffix_format'] ) ) {
+				$clean['schema_date_suffix_format'] = sanitize_text_field( $input['schema_date_suffix_format'] );
+			}
+			if ( isset( $input['enable_faq_schema_global'] ) ) {
+				$clean['enable_faq_schema_global'] = ! empty( $input['enable_faq_schema_global'] ) ? '1' : '0';
+			}
+		}
+
 		return $clean;
 	}
 
@@ -805,6 +933,100 @@ class Pubcrawls_Admin
 			}
 			$rewrite = is_array($obj->rewrite) && ! empty($obj->rewrite['slug']) ? $obj->rewrite['slug'] : '';
 			if ($rewrite === $slug) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Sanitize URL slug overrides. Only values that differ from the source-code default are stored.
+	 * Invalid or conflicting values are rejected (the previous value is kept) with an admin notice.
+	 *
+	 * @param mixed $input Raw input: [ 'post_types' => [ key => slug ], 'taxonomies' => [ key => slug ] ].
+	 * @return array
+	 */
+	public function sanitize_slug_overrides( $input ): array {
+		$stored = get_option( self::SLUGS_KEY, array() );
+		$stored = is_array( $stored ) ? $stored : array();
+		if ( ! is_array( $input ) ) {
+			return $stored; // Not submitted: keep.
+		}
+
+		$labels = array(
+			'post_types' => self::get_post_types_manifest(),
+			'taxonomies' => self::get_taxonomies_manifest(),
+		);
+
+		// Effective slug of every item after this save, used for duplicate detection.
+		$effective = array();
+		$result    = array( 'post_types' => array(), 'taxonomies' => array() );
+
+		foreach ( $labels as $kind => $manifest ) {
+			foreach ( $manifest as $key => $item ) {
+				$default = self::get_default_slug( $kind, $key );
+				$raw     = isset( $input[ $kind ][ $key ] ) && is_string( $input[ $kind ][ $key ] ) ? trim( wp_unslash( $input[ $kind ][ $key ] ) ) : '';
+				$slug    = '' === $raw ? $default : sanitize_title( $raw );
+				$error   = '';
+
+				if ( '' === $slug ) {
+					$error = __( 'contains no valid characters (use letters, numbers, hyphens or underscores).', 'pubcrawls-addon' );
+				} elseif ( in_array( $slug, self::RESERVED_SLUGS, true ) ) {
+					/* translators: %s: slug */
+					$error = sprintf( __( '"%s" is reserved by WordPress.', 'pubcrawls-addon' ), $slug );
+				} elseif ( isset( $effective[ $slug ] ) ) {
+					/* translators: 1: slug, 2: other item label */
+					$error = sprintf( __( '"%1$s" is already used by %2$s.', 'pubcrawls-addon' ), $slug, $effective[ $slug ] );
+				} elseif ( $slug !== $default && self::slug_used_elsewhere( $slug ) ) {
+					/* translators: %s: slug */
+					$error = sprintf( __( '"%s" is already used by another post type or taxonomy.', 'pubcrawls-addon' ), $slug );
+				}
+
+				if ( '' !== $error ) {
+					add_settings_error(
+						self::SLUGS_KEY,
+						'pubcrawls_slug_' . $key,
+						/* translators: 1: item title, 2: reason */
+						sprintf( __( 'Slug for %1$s was not changed: %2$s', 'pubcrawls-addon' ), $item['title'], $error ),
+						'error'
+					);
+					// Keep the previously saved value (or default).
+					$prev = isset( $stored[ $kind ][ $key ] ) && is_string( $stored[ $kind ][ $key ] ) ? sanitize_title( $stored[ $kind ][ $key ] ) : '';
+					$slug = '' !== $prev ? $prev : $default;
+				}
+
+				$effective[ $slug ] = $item['title'];
+				if ( $slug !== $default ) {
+					$result[ $kind ][ $key ] = $slug;
+				}
+			}
+		}
+		return $result;
+	}
+
+	/**
+	 * Whether a rewrite slug is already used by a post type / taxonomy not managed by this plugin.
+	 *
+	 * @param string $slug Candidate slug.
+	 */
+	private static function slug_used_elsewhere( string $slug ): bool {
+		$own_pt  = array_keys( self::DEFAULT_SLUGS['post_types'] );
+		$own_tax = array_keys( self::DEFAULT_SLUGS['taxonomies'] );
+		foreach ( get_post_types( array(), 'objects' ) as $name => $obj ) {
+			if ( in_array( $name, $own_pt, true ) ) {
+				continue;
+			}
+			$rewrite = is_array( $obj->rewrite ) && ! empty( $obj->rewrite['slug'] ) ? $obj->rewrite['slug'] : ( $obj->public ? $name : '' );
+			if ( $rewrite === $slug ) {
+				return true;
+			}
+		}
+		foreach ( get_taxonomies( array(), 'objects' ) as $name => $obj ) {
+			if ( in_array( $name, $own_tax, true ) ) {
+				continue;
+			}
+			$rewrite = is_array( $obj->rewrite ) && ! empty( $obj->rewrite['slug'] ) ? $obj->rewrite['slug'] : '';
+			if ( $rewrite === $slug ) {
 				return true;
 			}
 		}
@@ -1084,6 +1306,13 @@ class Pubcrawls_Admin
 				'file'        => 'pubcrawl-author-box.php',
 				'class'       => 'Pubcrawls_Author_Box',
 				'description' => esc_html__('Displays a card with author image, name, bio, and social media profiles powered by ACF User meta.', 'pubcrawls-addon'),
+			),
+			'pc-gravity-forms'   => array(
+				'title'       => esc_html__( 'Gravity Forms', 'pubcrawls-addon' ),
+				'icon'        => 'eicon-form-horizontal',
+				'file'        => 'pubcrawl-gravity-forms.php',
+				'class'       => 'Pubcrawls_Gravity_Forms',
+				'description' => esc_html__( 'Embeds and provides full Elementor styling controls for any active Gravity Form.', 'pubcrawls-addon' ),
 			),
 		);
 	}
