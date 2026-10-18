@@ -33,6 +33,12 @@ Pubcrawl is the complete, standalone Elementor solution for PubCrawls. It replac
 15. **Page / Post FAQs** (`pc-page-faqs`) — FAQs with dual-mode support: dynamic ACF repeater or custom Elementor repeater with rich text answers. Replaces `[pubcrawl_page_faqs]`.
 16. **Social Share Icons** (`pc-social-share`) — Social share buttons for Facebook, Twitter/X, LinkedIn, WhatsApp, etc.
 17. **AI Quick Links** (`pc-ai-quick-links`) — Direct query buttons for ChatGPT, Perplexity, Google AI, and Microsoft Copilot with inline SVGs and custom styling.
+18. **Gravity Forms** (`pc-gravity-forms`) — Embeds and styles active Gravity Forms.
+19. **Steps Timeline** (`pc-timeline`) — Interactive vertical timeline with scroll line fill progress and step cards.
+20. **Taxonomy Terms Grid** (`pc-taxonomy-terms`) — Taxonomy terms display with post count and card styling.
+21. **Venue Archive Grid** (`pc-venue-archive`) — Grid of venues with category filter and directions links, matching City Venues layout for venue category archives.
+22. **Post Content** (`pc-post-content`) — Full-featured Gutenberg content styler with pixel-perfect controls for headings (global + H1–H6), paragraphs, drop caps, images, video embeds, lists, complete table suite, blockquotes, code blocks, separators, buttons, and highlight boxes.
+23. **Author Box** (`pc-author-box`) — Displays an author profile card featuring author photo, display name, bio, and circular social profile buttons (Facebook, Instagram, X, LinkedIn) driven by ACF User fields or custom inputs. Also available as shortcode `[pc_author_box]`.
 
 = Modular Helpers & Bulk Tools =
 * **FAQ & SEO Bulk Importer** — Fast batch import of ACF `faqs` repeaters and Yoast / Rank Math / All In One SEO title & meta description across city and events post types using structured JSON. Features dry-run simulation, 25-item chunking to prevent server timeouts, live database counts, and dynamic ACF field key auto-discovery for multi-site portability.

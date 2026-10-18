@@ -55,22 +55,26 @@ class Pubcrawls_Eventbrite_Queue {
 		// Admin AJAX handlers
 		add_action( 'wp_ajax_pubcrawls_process_eb_backlog', array( __CLASS__, 'ajax_process_backlog' ) );
 		add_action( 'wp_ajax_pubcrawls_release_stale_locks', array( __CLASS__, 'ajax_release_stale_locks' ) );
+		add_action( 'wp_ajax_pubcrawls_repair_backlog', array( __CLASS__, 'ajax_repair_backlog' ) );
 		add_action( 'wp_ajax_pubcrawls_get_queue_health', array( __CLASS__, 'ajax_get_queue_health' ) );
 	}
 
 	/**
-	 * Register 5-minute interval for WP-Cron.
+	 * Register 30-second interval for WP-Cron.
 	 *
 	 * @param array $schedules Existing schedules.
 	 * @return array
 	 */
 	public static function add_cron_interval( array $schedules ): array {
-		if ( ! isset( $schedules['pubcrawls_two_minutes'] ) ) {
-			$schedules['pubcrawls_two_minutes'] = array(
-				'interval' => 300,
-				'display'  => esc_html__( 'Every 5 Minutes (PubCrawls Queue)', 'pubcrawls-addon' ),
-			);
-		}
+		$schedules['pubcrawls_thirty_seconds'] = array(
+			'interval' => 30,
+			'display'  => esc_html__( 'Every 30 Seconds (PubCrawls Queue)', 'pubcrawls-addon' ),
+		);
+		// Keep alias for backwards compatibility
+		$schedules['pubcrawls_two_minutes'] = array(
+			'interval' => 30,
+			'display'  => esc_html__( 'Every 30 Seconds (PubCrawls Queue)', 'pubcrawls-addon' ),
+		);
 		return $schedules;
 	}
 
@@ -78,17 +82,22 @@ class Pubcrawls_Eventbrite_Queue {
 	 * Ensure the recurring queue worker is scheduled in WP-Cron and Action Scheduler.
 	 */
 	public static function ensure_cron_scheduled(): void {
-		// WP-Cron recurring schedule
+		// WP-Cron recurring schedule: ensure 30-second schedule
+		$current_schedule = wp_get_schedule( self::CRON_HOOK );
+		if ( $current_schedule && 'pubcrawls_thirty_seconds' !== $current_schedule ) {
+			wp_clear_scheduled_hook( self::CRON_HOOK );
+		}
+
 		if ( ! wp_next_scheduled( self::CRON_HOOK ) ) {
-			wp_schedule_event( time() + 60, 'pubcrawls_two_minutes', self::CRON_HOOK );
+			wp_schedule_event( time() + 30, 'pubcrawls_thirty_seconds', self::CRON_HOOK );
 		}
 
 		// Action Scheduler recurring schedule (if available)
 		if ( function_exists( 'as_has_scheduled_action' ) && function_exists( 'as_schedule_recurring_action' ) ) {
 			if ( ! as_has_scheduled_action( self::AS_HOOK, array(), self::AS_GROUP ) ) {
 				as_schedule_recurring_action(
-					time() + 60,
-					120,
+					time() + 30,
+					30,
 					self::AS_HOOK,
 					array(),
 					self::AS_GROUP
@@ -204,6 +213,7 @@ class Pubcrawls_Eventbrite_Queue {
 			'ga4_sent'        => 0,
 			'meta_sent'       => 0,
 			'tiktok_sent'     => 0,
+			'openai_sent'     => 0,
 			'details'         => array(),
 			'duration_ms'     => 0,
 		);
@@ -249,6 +259,9 @@ class Pubcrawls_Eventbrite_Queue {
 				if ( ! empty( $res['platforms']['tiktok']['success'] ) && empty( $res['platforms']['tiktok']['skipped'] ) ) {
 					$summary['tiktok_sent']++;
 				}
+				if ( ! empty( $res['platforms']['openai']['success'] ) && empty( $res['platforms']['openai']['skipped'] ) ) {
+					$summary['openai_sent']++;
+				}
 
 				$summary['details'][] = array(
 					'order_id' => $order_id,
@@ -257,12 +270,19 @@ class Pubcrawls_Eventbrite_Queue {
 				);
 			} catch ( \Throwable $e ) {
 				$summary['failed']++;
-				Pubcrawls_Tracking_DB::release_order_lock( $order_id, $worker_id, 'failed' );
+				$order_row       = Pubcrawls_Tracking_DB::get_order( $order_id );
+				$current_retries = (int) ( $order_row->retry_count ?? 0 ) + 1;
+				$max_reached     = $current_retries >= Pubcrawls_Tracking_DB::MAX_ATTEMPTS;
+				$next_retry      = $max_reached ? null : Pubcrawls_Tracking_DB::calculate_next_retry( $current_retries );
+
+				Pubcrawls_Tracking_DB::release_order_lock( $order_id, $worker_id, 'failed', $next_retry );
 				Pubcrawls_Tracking_DB::update_order_data(
 					$order_id,
 					array(
-						'status'     => 'failed',
-						'last_error' => 'Queue worker exception: ' . $e->getMessage(),
+						'status'        => 'failed',
+						'retry_count'   => $current_retries,
+						'next_retry_at' => $next_retry,
+						'last_error'    => 'Queue worker exception: ' . $e->getMessage(),
 					)
 				);
 				$summary['details'][] = array(
@@ -330,6 +350,29 @@ class Pubcrawls_Eventbrite_Queue {
 	}
 
 	/**
+	 * AJAX Handler: Admin manually triggers safe backlog repair and state realignment.
+	 */
+	public static function ajax_repair_backlog(): void {
+		check_ajax_referer( 'pubcrawls_admin_nonce', 'nonce' );
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => 'Unauthorized' ), 403 );
+		}
+
+		$result = Pubcrawls_Tracking_DB::repair_backlog_states();
+		wp_send_json_success(
+			array(
+				'repair_result' => $result,
+				'message'       => sprintf(
+					/* translators: 1: Stale locks released, 2: Max attempts realigned */
+					esc_html__( 'Backlog repaired: %1$d stale locks recovered, %2$d max-attempt rows realigned.', 'pubcrawls-addon' ),
+					$result['stale_released'],
+					$result['max_exhausted_fixed']
+				),
+			)
+		);
+	}
+
+	/**
 	 * AJAX Handler: Fetch real-time queue health diagnostics.
 	 */
 	public static function ajax_get_queue_health(): void {
@@ -356,7 +399,7 @@ class Pubcrawls_Eventbrite_Queue {
 		$cron_disabled = defined( 'DISABLE_WP_CRON' ) && DISABLE_WP_CRON;
 
 		$endpoint_url = rest_url( sprintf( '%s/eventbrite/process-queue?secret=%s', Pubcrawls_Eventbrite_Webhook::REST_NAMESPACE, rawurlencode( $secret ) ) );
-		$cron_command = sprintf( '*/2 * * * * curl -fsS -m 60 "%s" >/dev/null 2>&1', $endpoint_url );
+		$cron_command = sprintf( '* * * * * curl -fsS -m 25 "%1$s" >/dev/null 2>&1; sleep 30; curl -fsS -m 25 "%1$s" >/dev/null 2>&1', $endpoint_url );
 
 		$worker_status = 'active';
 		if ( $counts['stale_locks'] > 0 ) {

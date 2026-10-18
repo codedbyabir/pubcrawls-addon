@@ -390,13 +390,21 @@
 	display: none !important;
 }
 
-/* Checkbox Buttons / Pills Mode */
+/* Checkbox / Radio Buttons / Pills Mode */
 .elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gfield_checkbox,
+.elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gfield_radio,
+.elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gfield--type-checkbox .ginput_container_checkbox,
+.elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gfield--type-radio .ginput_container_radio,
 .pc-gravity-form-wrap.pc-gf-checkbox-pills .gfield_checkbox,
+.pc-gravity-form-wrap.pc-gf-checkbox-pills .gfield_radio,
 .elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gform_wrapper .gfield_checkbox,
+.elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gform_wrapper .gfield_radio,
 .pc-gravity-form-wrap.pc-gf-checkbox-pills .gform_wrapper .gfield_checkbox,
+.pc-gravity-form-wrap.pc-gf-checkbox-pills .gform_wrapper .gfield_radio,
 .elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gform_wrapper.gravity-theme .gfield_checkbox,
-.pc-gravity-form-wrap.pc-gf-checkbox-pills .gform_wrapper.gravity-theme .gfield_checkbox {
+.elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gform_wrapper.gravity-theme .gfield_radio,
+.pc-gravity-form-wrap.pc-gf-checkbox-pills .gform_wrapper.gravity-theme .gfield_checkbox,
+.pc-gravity-form-wrap.pc-gf-checkbox-pills .gform_wrapper.gravity-theme .gfield_radio {
 	display: flex !important;
 	flex-direction: row !important;
 	flex-wrap: wrap !important;
@@ -404,11 +412,19 @@
 }
 
 .elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gfield_checkbox .gchoice,
+.elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gfield_radio .gchoice,
+.elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gchoice,
 .pc-gravity-form-wrap.pc-gf-checkbox-pills .gfield_checkbox .gchoice,
+.pc-gravity-form-wrap.pc-gf-checkbox-pills .gfield_radio .gchoice,
+.pc-gravity-form-wrap.pc-gf-checkbox-pills .gchoice,
 .elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gform_wrapper .gfield_checkbox .gchoice,
+.elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gform_wrapper .gfield_radio .gchoice,
 .pc-gravity-form-wrap.pc-gf-checkbox-pills .gform_wrapper .gfield_checkbox .gchoice,
+.pc-gravity-form-wrap.pc-gf-checkbox-pills .gform_wrapper .gfield_radio .gchoice,
 .elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gform_wrapper.gravity-theme .gfield_checkbox .gchoice,
-.pc-gravity-form-wrap.pc-gf-checkbox-pills .gform_wrapper.gravity-theme .gfield_checkbox .gchoice {
+.elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gform_wrapper.gravity-theme .gfield_radio .gchoice,
+.pc-gravity-form-wrap.pc-gf-checkbox-pills .gform_wrapper.gravity-theme .gfield_checkbox .gchoice,
+.pc-gravity-form-wrap.pc-gf-checkbox-pills .gform_wrapper.gravity-theme .gfield_radio .gchoice {
 	margin: 0 !important;
 	padding: 0 !important;
 	display: inline-flex !important;
@@ -417,10 +433,17 @@
 }
 
 .elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gfield_checkbox input[type="checkbox"],
+.elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gfield_radio input[type="radio"],
+.elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gchoice input[type="checkbox"],
+.elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gchoice input[type="radio"],
 .pc-gravity-form-wrap.pc-gf-checkbox-pills .gfield_checkbox input[type="checkbox"],
+.pc-gravity-form-wrap.pc-gf-checkbox-pills .gfield_radio input[type="radio"],
+.pc-gravity-form-wrap.pc-gf-checkbox-pills .gchoice input[type="checkbox"],
+.pc-gravity-form-wrap.pc-gf-checkbox-pills .gchoice input[type="radio"],
 .elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gform_wrapper .gfield_checkbox input[type="checkbox"],
-.pc-gravity-form-wrap.pc-gf-checkbox-pills .gform_wrapper .gfield_checkbox input[type="checkbox"] {
-	display: none !important;
+.elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gform_wrapper .gfield_radio input[type="radio"],
+.pc-gravity-form-wrap.pc-gf-checkbox-pills .gform_wrapper .gfield_checkbox input[type="checkbox"],
+.pc-gravity-form-wrap.pc-gf-checkbox-pills .gform_wrapper .gfield_radio input[type="radio"] {
 	opacity: 0 !important;
 	position: absolute !important;
 	pointer-events: none !important;
@@ -430,16 +453,26 @@
 }
 
 .elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gfield_checkbox .gfield-choice-input::before,
-.pc-gravity-form-wrap.pc-gf-checkbox-pills .gfield_checkbox .gfield-choice-input::before {
+.elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gfield_radio .gfield-choice-input::before,
+.pc-gravity-form-wrap.pc-gf-checkbox-pills .gfield_checkbox .gfield-choice-input::before,
+.pc-gravity-form-wrap.pc-gf-checkbox-pills .gfield_radio .gfield-choice-input::before {
 	color: #fff;
 }
 
 .elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gfield_checkbox label,
+.elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gfield_radio label,
+.elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gchoice label,
 .pc-gravity-form-wrap.pc-gf-checkbox-pills .gfield_checkbox label,
+.pc-gravity-form-wrap.pc-gf-checkbox-pills .gfield_radio label,
+.pc-gravity-form-wrap.pc-gf-checkbox-pills .gchoice label,
 .elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gfield_checkbox .gchoice label,
+.elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gfield_radio .gchoice label,
 .pc-gravity-form-wrap.pc-gf-checkbox-pills .gfield_checkbox .gchoice label,
+.pc-gravity-form-wrap.pc-gf-checkbox-pills .gfield_radio .gchoice label,
 .elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gform_wrapper.gravity-theme .gfield_checkbox label,
-.pc-gravity-form-wrap.pc-gf-checkbox-pills .gform_wrapper.gravity-theme .gfield_checkbox label {
+.elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gform_wrapper.gravity-theme .gfield_radio label,
+.pc-gravity-form-wrap.pc-gf-checkbox-pills .gform_wrapper.gravity-theme .gfield_checkbox label,
+.pc-gravity-form-wrap.pc-gf-checkbox-pills .gform_wrapper.gravity-theme .gfield_radio label {
 	display: inline-flex !important;
 	align-items: center !important;
 	justify-content: center !important;
@@ -448,35 +481,38 @@
 	border-radius: 999px;
 	padding: 6px 12px;
 	background-color: #1b1f27;
-	color: #B8BDC7 !important;
+	color: #B8BDC7;
 	cursor: pointer !important;
-	transition: all 0.3s ease !important;
+	transition: all 0.25s ease !important;
 	margin: 0 !important;
 	user-select: none;
 	line-height: 1.4;
 }
 
-.elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gfield_checkbox label:hover,
-.pc-gravity-form-wrap.pc-gf-checkbox-pills .gfield_checkbox label:hover,
-.elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gfield_checkbox .gchoice label:hover,
-.pc-gravity-form-wrap.pc-gf-checkbox-pills .gfield_checkbox .gchoice label:hover {
+/* Fallback hover when no Elementor custom hover is set */
+.elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gchoice label:hover,
+.pc-gravity-form-wrap.pc-gf-checkbox-pills .gchoice label:hover {
 	border-color: #4b5563;
 }
 
-.elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gfield_checkbox input[type="checkbox"]:checked + label,
-.elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gfield_checkbox input[type="checkbox"]:checked ~ label,
-.elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gfield_checkbox .gchoice input[type="checkbox"]:checked + label,
-.elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gfield_checkbox .gchoice input[type="checkbox"]:checked ~ label,
-.pc-gravity-form-wrap.pc-gf-checkbox-pills .gfield_checkbox input[type="checkbox"]:checked + label,
-.pc-gravity-form-wrap.pc-gf-checkbox-pills .gfield_checkbox input[type="checkbox"]:checked ~ label,
-.pc-gravity-form-wrap.pc-gf-checkbox-pills .gfield_checkbox .gchoice input[type="checkbox"]:checked + label,
-.pc-gravity-form-wrap.pc-gf-checkbox-pills .gfield_checkbox .gchoice input[type="checkbox"]:checked ~ label,
-.elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gform_wrapper.gravity-theme .gfield_checkbox input[type="checkbox"]:checked + label,
-.pc-gravity-form-wrap.pc-gf-checkbox-pills .gform_wrapper.gravity-theme .gfield_checkbox input[type="checkbox"]:checked + label {
-	border-color: #E6B325 !important;
-	color: #E6B325 !important;
-	background-color: rgba(230, 179, 37, 0.1) !important;
+/* Fallback checked when no Elementor custom checked is set */
+.elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gchoice input:checked + label,
+.elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gchoice input:checked ~ label,
+.pc-gravity-form-wrap.pc-gf-checkbox-pills .gchoice input:checked + label,
+.pc-gravity-form-wrap.pc-gf-checkbox-pills .gchoice input:checked ~ label {
+	border-color: #E6B325;
+	color: #E6B325;
+	background-color: rgba(230, 179, 37, 0.1);
 }
+
+/* Interaction feedback when hovering over an already checked pill */
+.elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gchoice input:checked + label:hover,
+.elementor-widget-pc-gravity-forms.pc-gf-checkbox-pills-yes .gchoice:hover input:checked + label,
+.pc-gravity-form-wrap.pc-gf-checkbox-pills .gchoice input:checked + label:hover,
+.pc-gravity-form-wrap.pc-gf-checkbox-pills .gchoice:hover input:checked + label {
+	filter: brightness(1.12);
+}
+
 
 /* Notice for editor placeholder */
 .pc-gf-placeholder-notice {

@@ -106,6 +106,10 @@
             }
         }
 
+        // OpenAI attribution cookies (__obref: browser ID, __oppref: ad click ID)
+        var oai_obref = getCookie( '__obref' ) || ( urlParams ? ( urlParams.get( '__obref' ) || urlParams.get( 'obref' ) ) : '' ) || '';
+        var oai_oppref = getCookie( '__oppref' ) || ( urlParams ? ( urlParams.get( '__oppref' ) || urlParams.get( 'oppref' ) ) : '' ) || '';
+
         return {
             page_url: pageUrl,
             client_id: clientId,
@@ -114,6 +118,8 @@
             fbc: fbc,
             ttp: getCookie( '_ttp' ),
             ttclid: ttclid,
+            oai_obref: oai_obref,
+            oai_oppref: oai_oppref,
             user_agent: navigator.userAgent || ''
         };
     }
@@ -298,6 +304,7 @@
     function rebuildButton( uid, wrap, data, callback ) {
         var oldBtn = wrap.querySelector( '[data-pcet-trigger]' );
         var cls    = oldBtn ? oldBtn.className : 'pcet-btn pcet-btn--primary';
+        var txt    = oldBtn ? oldBtn.textContent : 'Buy Tickets';
         if ( oldBtn ) wrap.removeChild( oldBtn );
 
         var b               = document.createElement( 'button' );
@@ -309,7 +316,7 @@
         b.dataset.ebId      = data.ebId  || '';
         b.dataset.ebLink    = data.ebLink || '';
         b.dataset.suId      = data.suId  || '';
-        b.textContent       = 'Buy Tickets';
+        b.textContent       = txt;
         wrap.appendChild( b );
 
         if ( typeof callback === 'function' ) callback( b );
@@ -331,20 +338,94 @@
         };
     }
 
+    function readDateBtn( btn ) {
+        return {
+            provider : btn.dataset.provider  || 'eventbrite',
+            ebId     : btn.dataset.ebId      || '',
+            ebLink   : btn.dataset.ebLink    || '',
+            suId     : btn.dataset.suId      || '',
+            date     : btn.dataset.date      || '',
+            time     : btn.dataset.time      || '',
+            day      : btn.dataset.day       || '',
+            month    : btn.dataset.month     || '',
+            year     : btn.dataset.year      || '',
+            short    : btn.dataset.dateShort || '',
+            iso      : btn.dataset.dateIso   || ''
+        };
+    }
+
+    function syncOtherInstances( d, sourceEl ) {
+        // Sync other select dropdowns
+        document.querySelectorAll( '[data-pcet-select]' ).forEach( function ( other ) {
+            if ( other === sourceEl ) return;
+            Array.from( other.options ).forEach( function ( oOpt, index ) {
+                if ( oOpt.dataset.dateIso !== d.iso ) return;
+                other.selectedIndex = index;
+
+                var oUid  = other.dataset.pcetSelect;
+                var oInst = document.querySelector( '[data-pcet-instance="' + oUid + '"]' );
+                if ( ! oInst ) return;
+
+                var od = readOption( oOpt );
+                updateDisplay( oInst, od.date, od.time );
+
+                var oWrap = oInst.querySelector( '[data-pcet-btn-wrap="' + oUid + '"]' );
+                if ( oWrap ) {
+                    rebuildButton( oUid, oWrap, od, function ( nb ) {
+                        wireButton( oUid, nb );
+                    } );
+                }
+            } );
+        } );
+
+        // Sync other date button groups
+        document.querySelectorAll( '[data-pcet-buttons]' ).forEach( function ( oButtons ) {
+            var otherBtns = oButtons.querySelectorAll( '.pcet-date-btn' );
+            otherBtns.forEach( function ( oBtn ) {
+                if ( oBtn === sourceEl ) return;
+                if ( oBtn.dataset.dateIso === d.iso ) {
+                    otherBtns.forEach( function ( b ) {
+                        b.classList.remove( 'is-selected' );
+                        b.setAttribute( 'aria-pressed', 'false' );
+                    } );
+                    oBtn.classList.add( 'is-selected' );
+                    oBtn.setAttribute( 'aria-pressed', 'true' );
+
+                    var oUid  = oButtons.dataset.pcetButtons;
+                    var oInst = document.querySelector( '[data-pcet-instance="' + oUid + '"]' );
+                    if ( ! oInst ) return;
+
+                    var od = readDateBtn( oBtn );
+                    updateDisplay( oInst, od.date, od.time );
+
+                    var oWrap = oInst.querySelector( '[data-pcet-btn-wrap="' + oUid + '"]' );
+                    if ( oWrap ) {
+                        rebuildButton( oUid, oWrap, od, function ( nb ) {
+                            wireButton( oUid, nb );
+                        } );
+                    }
+                }
+            } );
+        } );
+    }
+
     // ── Per-instance init ──────────────────────────────────
     function initInstance( instance ) {
         var uid = instance.dataset.pcetInstance;
         if ( ! uid ) return;
 
-        var select  = instance.querySelector( '[data-pcet-select="' + uid + '"]' );
-        var btnWrap = instance.querySelector( '[data-pcet-btn-wrap="' + uid + '"]' );
-        var btn     = instance.querySelector( '[data-pcet-trigger="' + uid + '"]' );
+        var select   = instance.querySelector( '[data-pcet-select="' + uid + '"]' );
+        var btnWrap  = instance.querySelector( '[data-pcet-btn-wrap="' + uid + '"]' );
+        var btn      = instance.querySelector( '[data-pcet-trigger="' + uid + '"]' );
+        var dateBtns = instance.querySelectorAll( '.pcet-date-btn[data-pcet-btn-date="' + uid + '"]' );
 
         wireButton( uid, btn );
 
         // Broadcast first date.
         if ( select && select.options.length > 0 ) {
             broadcastDateChange( fromOpt( select.options[0] ) );
+        } else if ( dateBtns && dateBtns.length > 0 ) {
+            broadcastDateChange( fromBtn( dateBtns[0] ) );
         } else {
             var dEl = instance.querySelector( '[data-pcet-field="date"]' );
             var tEl = instance.querySelector( '[data-pcet-field="time"]' );
@@ -355,48 +436,61 @@
             } );
         }
 
+        function handleDateSelection( d, sourceEl ) {
+            updateDisplay( instance, d.date, d.time );
+
+            if ( btnWrap ) {
+                rebuildButton( uid, btnWrap, d, function ( newBtn ) {
+                    wireButton( uid, newBtn );
+                } );
+            }
+
+            syncOtherInstances( d, sourceEl );
+            broadcastDateChange( d );
+        }
+
+        // V1 Dropdown change
         if ( select ) {
             select.addEventListener( 'change', function () {
                 var d = readOption( this.options[ this.selectedIndex ] );
+                handleDateSelection( d, select );
+            } );
+        }
 
-                updateDisplay( instance, d.date, d.time );
+        // V2 Date Buttons click
+        if ( dateBtns && dateBtns.length > 0 ) {
+            dateBtns.forEach( function ( dBtn ) {
+                dBtn.addEventListener( 'click', function ( e ) {
+                    e.preventDefault();
+                    if ( this.classList.contains( 'is-selected' ) ) {
+                        return;
+                    }
 
-                if ( btnWrap ) {
-                    rebuildButton( uid, btnWrap, d, function ( newBtn ) {
-                        wireButton( uid, newBtn );
+                    dateBtns.forEach( function ( b ) {
+                        b.classList.remove( 'is-selected' );
+                        b.setAttribute( 'aria-pressed', 'false' );
                     } );
-                }
 
-                // Sync other instances by matching ISO date.
-                document.querySelectorAll( '[data-pcet-select]' ).forEach( function ( other ) {
-                    if ( other === select ) return;
-                    Array.from( other.options ).forEach( function ( oOpt, index ) {
-                        if ( oOpt.dataset.dateIso !== d.iso ) return;
-                        other.selectedIndex = index;
+                    this.classList.add( 'is-selected' );
+                    this.setAttribute( 'aria-pressed', 'true' );
 
-                        var oUid  = other.dataset.pcetSelect;
-                        var oInst = document.querySelector( '[data-pcet-instance="' + oUid + '"]' );
-                        if ( ! oInst ) return;
-
-                        var od = readOption( oOpt );
-                        updateDisplay( oInst, od.date, od.time );
-
-                        var oWrap = oInst.querySelector( '[data-pcet-btn-wrap="' + oUid + '"]' );
-                        if ( oWrap ) {
-                            rebuildButton( oUid, oWrap, od, function ( nb ) {
-                                wireButton( oUid, nb );
-                            } );
-                        }
-                    } );
+                    var d = readDateBtn( this );
+                    handleDateSelection( d, this );
                 } );
-
-                broadcastDateChange( d );
             } );
         }
     }
 
     function fromOpt( opt ) {
         var d = readOption( opt );
+        return {
+            date: d.date, time: d.time, dateShort: d.short,
+            day: d.day, month: d.month, year: d.year, iso: d.iso
+        };
+    }
+
+    function fromBtn( btn ) {
+        var d = readDateBtn( btn );
         return {
             date: d.date, time: d.time, dateShort: d.short,
             day: d.day, month: d.month, year: d.year, iso: d.iso

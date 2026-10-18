@@ -4,7 +4,7 @@
  * Plugin Name:       Pubcrawls
  * Plugin URI:        https://pubcrawls.com/
  * Description:       Complete standalone solution for PubCrawls — provides Custom Post Types (Cities, Events, Venues, FAQs, Press, City Maps), Taxonomies, Shortcodes, Ticket Integrations (SquadUp & Eventbrite), and 17 native Elementor Widgets with rich content & style controls.
- * Version:           3.0.0
+ * Version:           3.5.5
  * Author:            Nexiby LLC
  * Author URI:        https://nexiby.com/
  * License:           GPL-2.0+
@@ -21,7 +21,7 @@ if (! defined('ABSPATH')) {
 }
 
 // ── Plugin Constants ──────────────────────────────────────────────────────────
-define('PUBCRAWLS_ADDON_VERSION', '3.0.0');
+define('PUBCRAWLS_ADDON_VERSION', '3.5.5');
 define('PUBCRAWLS_ADDON_DIR',     plugin_dir_path(__FILE__));
 define('PUBCRAWLS_ADDON_URL',     plugin_dir_url(__FILE__));
 define('PUBCRAWLS_ADDON_FILE',    __FILE__);
@@ -62,6 +62,8 @@ Pubcrawls_Event_Schema::init();
 // ── Load Server-Side Tracking & Eventbrite Webhook ────────────────────────────
 require_once PUBCRAWLS_ADDON_DIR . 'includes/tracking/class-pubcrawls-tracking-db.php';
 require_once PUBCRAWLS_ADDON_DIR . 'includes/tracking/class-pubcrawls-eventbrite-api.php';
+// Read-only ticket-class pricing enriches Event JSON-LD; checkout and tracking are untouched.
+require_once PUBCRAWLS_ADDON_DIR . 'includes/class-pubcrawls-ticket-price-schema.php';
 require_once PUBCRAWLS_ADDON_DIR . 'includes/tracking/class-pubcrawls-tracking-dispatcher.php';
 require_once PUBCRAWLS_ADDON_DIR . 'includes/tracking/class-pubcrawls-eventbrite-webhook.php';
 require_once PUBCRAWLS_ADDON_DIR . 'includes/tracking/class-pubcrawls-eventbrite-queue.php';
@@ -97,6 +99,39 @@ add_action('wp_enqueue_scripts', function () {
 	wp_register_style(
 		'pc-gravity-forms',
 		PUBCRAWLS_ADDON_URL . 'assets/css/gravity-forms.css',
+		[],
+		PUBCRAWLS_ADDON_VERSION
+	);
+
+	// Steps Timeline Widget Styles (Registered for get_style_depends)
+	wp_register_style(
+		'pc-timeline-css',
+		PUBCRAWLS_ADDON_URL . 'assets/css/timeline.css',
+		[],
+		PUBCRAWLS_ADDON_VERSION
+	);
+
+	// Steps Timeline Widget Script (Registered for get_script_depends)
+	wp_register_script(
+		'pc-timeline-js',
+		PUBCRAWLS_ADDON_URL . 'assets/js/timeline.js',
+		['jquery'],
+		PUBCRAWLS_ADDON_VERSION,
+		true
+	);
+
+	// Taxonomy Terms Widget Styles (Registered for get_style_depends)
+	wp_register_style(
+		'pc-taxonomy-terms-css',
+		PUBCRAWLS_ADDON_URL . 'assets/css/taxonomy-terms.css',
+		[],
+		PUBCRAWLS_ADDON_VERSION
+	);
+
+	// Author Box Widget Styles (Registered for get_style_depends)
+	wp_register_style(
+		'pc-author-box-css',
+		PUBCRAWLS_ADDON_URL . 'assets/css/author-box.css',
 		[],
 		PUBCRAWLS_ADDON_VERSION
 	);

@@ -369,7 +369,7 @@ class Pubcrawls_FAQ_Grid extends \Elementor\Widget_Base
 				'label'     => esc_html__('Hover Color', 'pubcrawls-addon'),
 				'type'      => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
-					'{{WRAPPER}} .pubcrawls-faq-item:hover .pubcrawls-faq-answer p' => 'color: {{VALUE}};',
+					'{{WRAPPER}} .pubcrawls-faq-item:hover .pubcrawls-faq-answer p, {{WRAPPER}} .pubcrawls-faq-item:hover .pubcrawls-faq-answer p *, {{WRAPPER}} .pubcrawls-faq-answer p:hover' => 'color: {{VALUE}};',
 				],
 			]
 		);

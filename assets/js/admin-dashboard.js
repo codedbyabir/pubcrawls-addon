@@ -423,6 +423,37 @@
 				}
 			});
 		});
+
+		// ── Repair Queue States Action ─────────────────────────
+		$('#pubcrawls-repair-backlog-btn').on('click', function (e) {
+			e.preventDefault();
+			if (typeof pubcrawlsAdminData === 'undefined') return;
+
+			var $btn = $(this);
+			$btn.prop('disabled', true).text('Repairing...');
+
+			$.ajax({
+				url: pubcrawlsAdminData.ajax_url,
+				method: 'POST',
+				data: {
+					action: 'pubcrawls_repair_backlog',
+					nonce: pubcrawlsAdminData.nonce
+				},
+				success: function (res) {
+					$btn.prop('disabled', false).html('<span class="dashicons dashicons-admin-tools" style="font-size:16px;width:16px;height:16px;"></span> Repair Queue States');
+					if (res.success && res.data) {
+						alert(res.data.message || 'Queue states repaired successfully.');
+						window.location.reload();
+					} else {
+						alert('Failed to repair queue states.');
+					}
+				},
+				error: function (xhr) {
+					$btn.prop('disabled', false).html('<span class="dashicons dashicons-admin-tools" style="font-size:16px;width:16px;height:16px;"></span> Repair Queue States');
+					alert('AJAX Error: HTTP ' + xhr.status);
+				}
+			});
+		});
 	});
 
 })(jQuery);

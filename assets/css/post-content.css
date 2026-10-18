@@ -1,0 +1,412 @@
+/**
+ * PubCrawls - Post Content Widget Base Styles
+ *
+ * Provides clean structural defaults and Gutenberg layout primitives (alignment,
+ * responsive tables, media embeds, blockquotes, code blocks, lists, captions).
+ * Colors, typography, borders, and spacing are controlled via Elementor style tab controls.
+ *
+ * @package Pubcrawl_Addon
+ */
+
+.pubcrawl-post-content,
+.wk-post-content {
+	width: 100%;
+	position: relative;
+	box-sizing: border-box;
+}
+
+.pubcrawl-post-content *,
+.pubcrawl-post-content *::before,
+.pubcrawl-post-content *::after,
+.wk-post-content *,
+.wk-post-content *::before,
+.wk-post-content *::after {
+	box-sizing: border-box;
+}
+
+/* ── Headings Base ─────────────────────────────────────────── */
+.pubcrawl-post-content h1,
+.pubcrawl-post-content h2,
+.pubcrawl-post-content h3,
+.pubcrawl-post-content h4,
+.pubcrawl-post-content h5,
+.pubcrawl-post-content h6,
+.wk-post-content h1,
+.wk-post-content h2,
+.wk-post-content h3,
+.wk-post-content h4,
+.wk-post-content h5,
+.wk-post-content h6 {
+	margin-top: 0;
+	clear: both;
+}
+
+/* ── Paragraphs & Links ────────────────────────────────────── */
+.pubcrawl-post-content p,
+.wk-post-content p {
+	margin-top: 0;
+}
+
+.pubcrawl-post-content a,
+.wk-post-content a {
+	transition: color 0.2s ease, text-decoration-color 0.2s ease;
+}
+
+/* ── Images & Figures ──────────────────────────────────────── */
+.pubcrawl-post-content img,
+.wk-post-content img {
+	max-width: 100%;
+	height: auto;
+	display: block;
+}
+
+.pubcrawl-post-content figure,
+.wk-post-content figure {
+	margin: 0 0 1.5em;
+}
+
+.pubcrawl-post-content figure.aligncenter,
+.pubcrawl-post-content .aligncenter,
+.wk-post-content figure.aligncenter,
+.wk-post-content .aligncenter {
+	margin-left: auto;
+	margin-right: auto;
+	text-align: center;
+}
+
+.pubcrawl-post-content figure.aligncenter img,
+.wk-post-content figure.aligncenter img {
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.pubcrawl-post-content figure.alignleft,
+.pubcrawl-post-content .alignleft,
+.wk-post-content figure.alignleft,
+.wk-post-content .alignleft {
+	float: left;
+	margin-right: 1.5em;
+	margin-bottom: 1em;
+}
+
+.pubcrawl-post-content figure.alignright,
+.pubcrawl-post-content .alignright,
+.wk-post-content figure.alignright,
+.wk-post-content .alignright {
+	float: right;
+	margin-left: 1.5em;
+	margin-bottom: 1em;
+}
+
+.pubcrawl-post-content figcaption,
+.pubcrawl-post-content .wp-caption-text,
+.wk-post-content figcaption,
+.wk-post-content .wp-caption-text {
+	margin-top: 0.5em;
+	font-size: 0.875em;
+	color: #64748b;
+}
+
+/* ── Videos & Video Embeds ─────────────────────────────────── */
+.pubcrawl-post-content video,
+.wk-post-content video {
+	max-width: 100%;
+	height: auto;
+	display: block;
+}
+
+.pubcrawl-post-content figure.wp-block-video,
+.pubcrawl-post-content figure.wp-block-embed,
+.wk-post-content figure.wp-block-video,
+.wk-post-content figure.wp-block-embed {
+	margin: 0 0 1.5em;
+}
+
+.pubcrawl-post-content figure.wp-block-video video,
+.wk-post-content figure.wp-block-video video {
+	max-width: 100%;
+	height: auto;
+	display: block;
+}
+
+.pubcrawl-post-content .wp-block-embed__wrapper,
+.wk-post-content .wp-block-embed__wrapper {
+	position: relative;
+	max-width: 100%;
+}
+
+.pubcrawl-post-content figure.wp-block-embed iframe,
+.wk-post-content figure.wp-block-embed iframe {
+	max-width: 100%;
+	border: 0;
+	display: block;
+}
+
+.pubcrawl-post-content figure.aligncenter video,
+.pubcrawl-post-content figure.aligncenter .wp-block-embed__wrapper,
+.wk-post-content figure.aligncenter video,
+.wk-post-content figure.aligncenter .wp-block-embed__wrapper {
+	margin-left: auto;
+	margin-right: auto;
+}
+
+/* ── Lists ─────────────────────────────────────────────────── */
+.pubcrawl-post-content ul,
+.pubcrawl-post-content ol,
+.wk-post-content ul,
+.wk-post-content ol {
+	padding-left: 1.5em;
+	margin-top: 0;
+	margin-bottom: 1.5em;
+}
+
+.pubcrawl-post-content li,
+.wk-post-content li {
+	margin-bottom: 0.5em;
+}
+
+.pubcrawl-post-content li:last-child,
+.wk-post-content li:last-child {
+	margin-bottom: 0;
+}
+
+.pubcrawl-post-content ul ul,
+.pubcrawl-post-content ol ol,
+.pubcrawl-post-content ul ol,
+.pubcrawl-post-content ol ul,
+.wk-post-content ul ul,
+.wk-post-content ol ol,
+.wk-post-content ul ol,
+.wk-post-content ol ul {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+/* ── Drop Caps ─────────────────────────────────────────────── */
+.pubcrawl-post-content .has-drop-cap:not(:focus):first-letter,
+.wk-post-content .has-drop-cap:not(:focus):first-letter {
+	float: left;
+	font-size: 3.5em;
+	line-height: 0.85;
+	font-weight: 700;
+	margin: 0.1em 0.15em 0 0;
+	text-transform: uppercase;
+	font-style: normal;
+}
+
+/* ── Tables Structure ──────────────────────────────────────── */
+.pubcrawl-post-content .wp-block-table,
+.wk-post-content .wp-block-table {
+	margin: 0 0 1.75em;
+	width: 100%;
+	box-sizing: border-box;
+}
+
+.pubcrawl-post-content .pubcrawl-table-scroll-wrap,
+.pubcrawl-post-content .wk-table-scroll-wrap,
+.wk-post-content .pubcrawl-table-scroll-wrap,
+.wk-post-content .wk-table-scroll-wrap {
+	width: 100%;
+	margin: 0 0 1.75em;
+}
+
+/* Responsive Table Scroll */
+.pubcrawl-post-content.pubcrawl-has-table-scroll .wp-block-table,
+.pubcrawl-post-content.pubcrawl-has-table-scroll .pubcrawl-table-scroll-wrap,
+.pubcrawl-post-content.pubcrawl-has-table-scroll .wk-table-scroll-wrap,
+.pubcrawl-post-content.wk-has-table-scroll .wp-block-table,
+.pubcrawl-post-content.wk-has-table-scroll .wk-table-scroll-wrap,
+.wk-post-content.wk-has-table-scroll .wp-block-table,
+.wk-post-content.wk-has-table-scroll .wk-table-scroll-wrap {
+	overflow-x: auto;
+	-webkit-overflow-scrolling: touch;
+}
+
+.pubcrawl-post-content table,
+.wk-post-content table {
+	width: 100%;
+	border-collapse: collapse;
+	margin: 0;
+	text-align: left;
+}
+
+.pubcrawl-post-content table th,
+.pubcrawl-post-content table td,
+.wk-post-content table th,
+.wk-post-content table td {
+	padding: 12px 16px;
+	vertical-align: middle;
+}
+
+.pubcrawl-post-content table thead th,
+.wk-post-content table thead th {
+	font-weight: 600;
+	text-align: left;
+}
+
+/* Sticky Header on Scroll */
+.pubcrawl-post-content.pubcrawl-table-sticky-head table thead th,
+.pubcrawl-post-content.wk-table-sticky-head table thead th,
+.wk-post-content.wk-table-sticky-head table thead th {
+	position: sticky;
+	top: 0;
+	z-index: 2;
+}
+
+/* ── Blockquote ────────────────────────────────────────────── */
+.pubcrawl-post-content blockquote,
+.pubcrawl-post-content .wp-block-quote,
+.wk-post-content blockquote,
+.wk-post-content .wp-block-quote {
+	margin: 1.5em 0;
+	padding: 1em 1.5em;
+	border-left: 4px solid #2563eb;
+	background-color: #f8fafc;
+}
+
+.pubcrawl-post-content blockquote p,
+.wk-post-content blockquote p {
+	margin-bottom: 0.5em;
+}
+
+.pubcrawl-post-content blockquote p:last-child,
+.wk-post-content blockquote p:last-child {
+	margin-bottom: 0;
+}
+
+.pubcrawl-post-content blockquote cite,
+.wk-post-content blockquote cite {
+	display: block;
+	font-size: 0.875em;
+	font-style: italic;
+	color: #64748b;
+	margin-top: 0.5em;
+}
+
+/* ── Pre / Code ────────────────────────────────────────────── */
+.pubcrawl-post-content pre,
+.pubcrawl-post-content .wp-block-code,
+.wk-post-content pre,
+.wk-post-content .wp-block-code {
+	background: #1e293b;
+	color: #f8fafc;
+	padding: 1em 1.25em;
+	border-radius: 6px;
+	overflow-x: auto;
+	font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+	font-size: 0.875em;
+	line-height: 1.6;
+	margin: 1.5em 0;
+}
+
+.pubcrawl-post-content code,
+.wk-post-content code {
+	font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+	font-size: 0.875em;
+	background: #f1f5f9;
+	color: #0f172a;
+	padding: 0.2em 0.4em;
+	border-radius: 4px;
+}
+
+.pubcrawl-post-content pre code,
+.wk-post-content pre code {
+	background: transparent;
+	color: inherit;
+	padding: 0;
+}
+
+/* ── Separator / Divider ───────────────────────────────────── */
+.pubcrawl-post-content hr,
+.pubcrawl-post-content hr.wp-block-separator,
+.wk-post-content hr,
+.wk-post-content hr.wp-block-separator {
+	border: 0;
+	border-top: 1px solid #e2e8f0;
+	margin: 2em 0;
+	clear: both;
+}
+
+/* ── Buttons ───────────────────────────────────────────────── */
+.pubcrawl-post-content .wp-block-buttons,
+.wk-post-content .wp-block-buttons {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+	margin: 1.5em 0;
+}
+
+.pubcrawl-post-content .wp-block-button__link,
+.wk-post-content .wp-block-button__link {
+	display: inline-block;
+	padding: 12px 24px;
+	text-decoration: none;
+	border-radius: 6px;
+	background-color: #e6b325;
+	color: #000000;
+	font-weight: 700;
+	transition: all 0.25s ease;
+}
+
+.pubcrawl-post-content .wp-block-button__link:hover,
+.wk-post-content .wp-block-button__link:hover {
+	background-color: #c9971e;
+	color: #000000;
+	transform: translateY(-1px);
+}
+
+/* ── Custom Highlight Box (.wk-highlight-box / .pubcrawl-highlight-box) ── */
+.pubcrawl-post-content .pubcrawl-highlight-box,
+.pubcrawl-post-content .wk-highlight-box,
+.wk-post-content .pubcrawl-highlight-box,
+.wk-post-content .wk-highlight-box {
+	padding: 20px 24px;
+	margin: 1.5em 0;
+	background-color: #1a1d24;
+	border: 1px solid #2e3440;
+	border-radius: 8px;
+	color: #b8bdc7;
+	box-sizing: border-box;
+}
+
+.pubcrawl-post-content .pubcrawl-highlight-box > :first-child,
+.pubcrawl-post-content .wk-highlight-box > :first-child,
+.wk-post-content .pubcrawl-highlight-box > :first-child,
+.wk-post-content .wk-highlight-box > :first-child {
+	margin-top: 0;
+}
+
+.pubcrawl-post-content .pubcrawl-highlight-box > :last-child,
+.pubcrawl-post-content .wk-highlight-box > :last-child,
+.wk-post-content .pubcrawl-highlight-box > :last-child,
+.wk-post-content .wk-highlight-box > :last-child {
+	margin-bottom: 0;
+}
+
+/* ── Custom Highlight Box V2 (.wk-highlight-box-v2 / .pubcrawl-highlight-box-v2) ── */
+.pubcrawl-post-content .pubcrawl-highlight-box-v2,
+.pubcrawl-post-content .wk-highlight-box-v2,
+.wk-post-content .pubcrawl-highlight-box-v2,
+.wk-post-content .wk-highlight-box-v2 {
+	padding: 20px 24px;
+	margin: 1.5em 0;
+	background-color: #222631;
+	border: 1px solid #2e3440;
+	border-radius: 8px;
+	color: #b8bdc7;
+	box-sizing: border-box;
+}
+
+.pubcrawl-post-content .pubcrawl-highlight-box-v2 > :first-child,
+.pubcrawl-post-content .wk-highlight-box-v2 > :first-child,
+.wk-post-content .pubcrawl-highlight-box-v2 > :first-child,
+.wk-post-content .wk-highlight-box-v2 > :first-child {
+	margin-top: 0;
+}
+
+.pubcrawl-post-content .pubcrawl-highlight-box-v2 > :last-child,
+.pubcrawl-post-content .wk-highlight-box-v2 > :last-child,
+.wk-post-content .pubcrawl-highlight-box-v2 > :last-child,
+.wk-post-content .wk-highlight-box-v2 > :last-child {
+	margin-bottom: 0;
+}

@@ -1,0 +1,224 @@
+/**
+ * PubCrawls - Steps Timeline Widget Styles
+ *
+ * @package Pubcrawl_Addon
+ */
+
+.pc-timeline {
+    --pc-items-gap: 48px;
+    --pc-content-gap: 28px;
+    --pc-line-width: 3px;
+    --pc-line-base-color: #d1d5db;
+    --pc-line-fill-color: #FF0028;
+    --pc-line-radius: 2px;
+    --pc-badge-size: 56px;
+    --pc-badge-border-width: 3px;
+    --pc-badge-radius: 50%;
+    --pc-badge-border-color: #FF0028;
+    --pc-badge-bg-color: #ffffff;
+    --pc-badge-icon-color: #0F1115;
+    --pc-badge-active-border-color: #FF0028;
+    --pc-badge-active-bg-color: #ffffff;
+    --pc-badge-active-icon-color: #0F1115;
+    --pc-badge-active-scale: 1;
+    --pc-icon-size: 20px;
+    --pc-step-color: #FF0028;
+    --pc-step-active-color: #FF0028;
+    --pc-step-gap: 6px;
+    --pc-title-color: #0F1115;
+    --pc-title-active-color: #0F1115;
+    --pc-title-gap: 8px;
+    --pc-desc-color: #4B5563;
+    --pc-desc-active-color: #4B5563;
+
+    position: relative;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.pc-timeline *,
+.pc-timeline *::before,
+.pc-timeline *::after {
+    box-sizing: border-box;
+}
+
+/* ── Items Container ────────────────────────────────────────── */
+.pc-timeline__items {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--pc-items-gap, 48px);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    z-index: 2;
+}
+
+/* ── Vertical Connecting Line Track & Scroll Fill ────────────── */
+.pc-timeline__line-track {
+    position: absolute;
+    left: calc(var(--pc-badge-size, 56px) / 2);
+    top: calc(var(--pc-badge-size, 56px) / 2);
+    bottom: calc(var(--pc-badge-size, 56px) / 2);
+    width: var(--pc-line-width, 3px);
+    transform: translateX(-50%);
+    background-color: var(--pc-line-base-color, #d1d5db);
+    border-radius: var(--pc-line-radius, 2px);
+    z-index: 1;
+    overflow: hidden;
+    pointer-events: none;
+    transition: background-color 0.3s ease;
+}
+
+.pc-timeline__line-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 0%;
+    background: var(--pc-line-fill-color, #FF0028);
+    border-radius: inherit;
+    transition: height 0.08s ease-out, background 0.3s ease;
+    will-change: height;
+}
+
+/* ── Timeline Item Row ───────────────────────────────────────── */
+.pc-timeline__item {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: var(--pc-content-gap, 28px);
+    transition: transform 0.25s ease;
+}
+
+/* ── Node & Circular Badge ───────────────────────────────────── */
+.pc-timeline__node {
+    position: relative;
+    flex-shrink: 0;
+    width: var(--pc-badge-size, 56px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2;
+}
+
+.pc-timeline__badge {
+    position: relative;
+    width: var(--pc-badge-size, 56px);
+    height: var(--pc-badge-size, 56px);
+    border-radius: var(--pc-badge-radius, 50%);
+    border: var(--pc-badge-border-width, 3px) solid var(--pc-badge-border-color, #FF0028);
+    background-color: var(--pc-badge-bg-color, #ffffff);
+    color: var(--pc-badge-icon-color, #0F1115);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--pc-badge-shadow, none);
+    transition: border-color 0.3s ease, background-color 0.3s ease, color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+    z-index: 2;
+}
+
+.pc-timeline__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--pc-icon-size, 20px);
+    line-height: 1;
+    color: inherit;
+    transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.pc-timeline__icon i {
+    font-size: var(--pc-icon-size, 20px);
+    line-height: 1;
+    color: inherit;
+}
+
+.pc-timeline__icon svg {
+    width: var(--pc-icon-size, 20px);
+    height: var(--pc-icon-size, 20px);
+    fill: currentColor;
+    display: block;
+}
+
+/* ── Active State (When Scrolled / In View) ───────────────────── */
+.pc-timeline__item--active .pc-timeline__badge {
+    border-color: var(--pc-badge-active-border-color, #FF0028);
+    background-color: var(--pc-badge-active-bg-color, #ffffff);
+    color: var(--pc-badge-active-icon-color, #0F1115);
+    transform: scale(var(--pc-badge-active-scale, 1.05));
+    box-shadow: var(--pc-badge-active-shadow, 0 4px 14px rgba(0, 0, 0, 0.08));
+}
+
+.pc-timeline__item--active .pc-timeline__step {
+    color: var(--pc-step-active-color, #FF0028);
+}
+
+.pc-timeline__item--active .pc-timeline__title {
+    color: var(--pc-title-active-color, #0F1115);
+}
+
+.pc-timeline__item--active .pc-timeline__description {
+    color: var(--pc-desc-active-color, #4B5563);
+}
+
+/* ── Text Content ────────────────────────────────────────────── */
+.pc-timeline__content {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    padding-top: calc((var(--pc-badge-size, 56px) - 26px) / 2);
+    transition: color 0.3s ease;
+}
+
+.pc-timeline__step {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--pc-step-color, #FF0028);
+    margin-bottom: var(--pc-step-gap, 6px);
+    line-height: 1.2;
+    transition: color 0.3s ease;
+}
+
+.pc-timeline__title {
+    margin: 0 0 var(--pc-title-gap, 8px) 0;
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.3;
+    color: var(--pc-title-color, #0F1115);
+    transition: color 0.3s ease;
+}
+
+.pc-timeline__description {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--pc-desc-color, #4B5563);
+    transition: color 0.3s ease;
+}
+
+/* ── Responsive ──────────────────────────────────────────────── */
+@media (max-width: 767px) {
+    .pc-timeline {
+        --pc-items-gap: 36px;
+        --pc-content-gap: 20px;
+        --pc-badge-size: 46px;
+        --pc-icon-size: 17px;
+    }
+
+    .pc-timeline__content {
+        padding-top: 0;
+    }
+
+    .pc-timeline__title {
+        font-size: 19px;
+    }
+
+    .pc-timeline__description {
+        font-size: 14px;
+    }
+}

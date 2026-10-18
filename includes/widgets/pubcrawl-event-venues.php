@@ -245,7 +245,7 @@ class Pubcrawls_Event_Venues extends \Elementor\Widget_Base
 			\Elementor\Group_Control_Typography::get_type(),
 			[
 				'name'     => 'pubcrawl_title_typography',
-				'selector' => '{{WRAPPER}} .pubcrawl-venue-title a',
+				'selector' => '{{WRAPPER}} .pubcrawl-event-venues .pubcrawl-venue-title a, {{WRAPPER}} .pubcrawl-event-venues .pubcrawl-venue-title',
 			]
 		);
 

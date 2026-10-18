@@ -672,6 +672,19 @@ if (! is_array($disabled_tax)) {
 								</td>
 							</tr>
 
+							<!-- Default Event Start Time -->
+							<tr>
+								<th scope="row">
+									<label for="schema_default_start_time"><?php esc_html_e('Default Event Start Time', 'pubcrawls-addon'); ?></label>
+								</th>
+								<td>
+									<input type="text" name="<?php echo esc_attr(Pubcrawls_Admin::SETTINGS_KEY); ?>[schema_default_start_time]" id="schema_default_start_time" value="<?php echo esc_attr($settings['schema_default_start_time'] ?? '4:00 PM'); ?>" placeholder="4:00 PM" class="regular-text" style="width: 150px;" />
+									<p class="description">
+										<?php esc_html_e('Fallback start time used when an event date row does not specify a start time (e.g. 4:00 PM, 5:00 PM, 16:00). Default is 4:00 PM.', 'pubcrawls-addon'); ?>
+									</p>
+								</td>
+							</tr>
+
 							<!-- Venue Country Code -->
 							<tr>
 								<th scope="row">
@@ -902,10 +915,14 @@ if (! is_array($disabled_tax)) {
 						<?php esc_html_e( 'Automated background processor with atomic locking, 10-minute stale lock recovery, and WP Engine server cron support.', 'pubcrawls-addon' ); ?>
 					</span>
 				</div>
-				<div style="display:flex;gap:8px;align-items:center;">
+				<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
 					<button type="button" class="button button-primary" id="pubcrawls-process-backlog-btn" style="height:36px;display:flex;align-items:center;gap:6px;">
 						<span class="dashicons dashicons-controls-play" style="font-size:16px;width:16px;height:16px;"></span>
 						<?php esc_html_e( 'Process Backlog Now', 'pubcrawls-addon' ); ?>
+					</button>
+					<button type="button" class="button button-secondary" id="pubcrawls-repair-backlog-btn" style="height:36px;display:flex;align-items:center;gap:6px;">
+						<span class="dashicons dashicons-admin-tools" style="font-size:16px;width:16px;height:16px;"></span>
+						<?php esc_html_e( 'Repair Queue States', 'pubcrawls-addon' ); ?>
 					</button>
 					<button type="button" class="button button-secondary" id="pubcrawls-release-stale-btn" style="height:36px;display:flex;align-items:center;gap:6px;">
 						<span class="dashicons dashicons-unlock" style="font-size:16px;width:16px;height:16px;"></span>
@@ -915,7 +932,7 @@ if (! is_array($disabled_tax)) {
 			</div>
 			<div class="pubcrawls-card__body">
 				<!-- Metrics Summary Tiles -->
-				<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(130px, 1fr));gap:12px;margin-bottom:20px;">
+				<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(130px, 1fr));gap:12px;margin-bottom:14px;">
 					<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px 14px;text-align:center;">
 						<div style="font-size:22px;font-weight:700;color:#0f172a;"><?php echo (int) ( $queue_counts['pending'] ?? 0 ); ?></div>
 						<div style="font-size:11px;font-weight:600;text-transform:uppercase;color:#64748b;margin-top:2px;"><?php esc_html_e( 'Pending / Backlog', 'pubcrawls-addon' ); ?></div>
@@ -942,6 +959,13 @@ if (! is_array($disabled_tax)) {
 					</div>
 				</div>
 
+				<!-- Diagnostic Eligibility Breakdown (Part 12) -->
+				<div style="display:flex;gap:16px;flex-wrap:wrap;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:8px 14px;margin-bottom:16px;font-size:12px;color:#475569;">
+					<div><span class="dashicons dashicons-clock" style="font-size:14px;width:14px;height:14px;vertical-align:text-bottom;color:#0284c7;"></span> <strong><?php esc_html_e( 'Ready Now:', 'pubcrawls-addon' ); ?></strong> <?php echo (int) ( $queue_counts['pending_immediate'] ?? 0 ); ?></div>
+					<div><span class="dashicons dashicons-backup" style="font-size:14px;width:14px;height:14px;vertical-align:text-bottom;color:#d97706;"></span> <strong><?php esc_html_e( 'Scheduled Retry (Backoff):', 'pubcrawls-addon' ); ?></strong> <?php echo (int) ( $queue_counts['retry_scheduled'] ?? 0 ); ?></div>
+					<div><span class="dashicons dashicons-dismiss" style="font-size:14px;width:14px;height:14px;vertical-align:text-bottom;color:#dc2626;"></span> <strong><?php esc_html_e( 'Max Attempts Reached:', 'pubcrawls-addon' ); ?></strong> <?php echo (int) ( $queue_counts['failed'] ?? 0 ); ?></div>
+				</div>
+
 				<!-- Schedule & Runner Status Info -->
 				<div style="display:flex;gap:20px;flex-wrap:wrap;background:#f1f5f9;padding:12px 16px;border-radius:6px;font-size:12px;color:#334155;margin-bottom:16px;">
 					<div><strong><?php esc_html_e( 'Next Cron Run:', 'pubcrawls-addon' ); ?></strong> <?php echo esc_html( $queue_health['next_cron_human'] ?? 'Unknown' ); ?></div>
@@ -962,7 +986,7 @@ if (! is_array($disabled_tax)) {
 						</button>
 					</div>
 					<p class="description" style="margin-top:6px;font-size:11px;">
-						<?php esc_html_e( 'Configure this cron task in WP Engine or Linux crontab. It securely executes the background queue runner every 2 minutes without relying on website visitor traffic.', 'pubcrawls-addon' ); ?>
+						<?php esc_html_e( 'Configure this cron task in WP Engine or Linux crontab. It securely executes the background queue runner every 30 seconds without relying on website visitor traffic.', 'pubcrawls-addon' ); ?>
 					</p>
 				</div>
 
@@ -1283,7 +1307,85 @@ if (! is_array($disabled_tax)) {
 				</div>
 			</div>
 
-			<!-- Card 6: Order Tester & Simulator -->
+			<!-- Card 6: OpenAI Conversions API -->
+			<div class="pubcrawls-card" style="margin-bottom: 24px;">
+				<div class="pubcrawls-card__header">
+					<h2>
+						<span class="dashicons dashicons-chart-line"></span> <?php esc_html_e( 'OpenAI Conversions API', 'pubcrawls-addon' ); ?>
+						<?php if ( ! empty( $settings['openai_validate_only'] ) && '1' === (string) $settings['openai_validate_only'] ) : ?>
+							<span style="margin-left:12px;font-size:11px;font-weight:700;background:#fef3c7;color:#92400e;padding:3px 8px;border-radius:4px;border:1px solid #fde68a;">⚠️ <?php
+								esc_html_e( 'VALIDATE ONLY TEST MODE ACTIVE', 'pubcrawls-addon' );
+							?></span>
+						<?php endif; ?>
+					</h2>
+					<span class="pubcrawls-card__subtitle"><?php esc_html_e( 'Sends server-side order_created purchase events directly to OpenAI Bazaar endpoint with order total in cents and hashed customer match parameters.', 'pubcrawls-addon' ); ?></span>
+				</div>
+				<div class="pubcrawls-card__body">
+					<table class="form-table" role="presentation">
+						<tbody>
+							<tr>
+								<th scope="row"><?php esc_html_e( 'Enable OpenAI Tracking', 'pubcrawls-addon' ); ?></th>
+								<td>
+									<label for="enable_openai_tracking">
+										<input type="checkbox" name="<?php echo esc_attr( Pubcrawls_Admin::SETTINGS_KEY ); ?>[enable_openai_tracking]" id="enable_openai_tracking" value="1" <?php checked( '1', $settings['enable_openai_tracking'] ?? '1' ); ?> />
+										<?php esc_html_e( 'Dispatch server-side purchase events to OpenAI Conversions API', 'pubcrawls-addon' ); ?>
+									</label>
+								</td>
+							</tr>
+							<tr>
+								<th scope="row">
+									<label for="openai_pixel_id"><?php esc_html_e( 'OpenAI Pixel ID', 'pubcrawls-addon' ); ?></label>
+								</th>
+								<td>
+									<?php
+									$oai_pix_const = ( ( defined( 'PC_OPENAI_PIXEL_ID' ) && ! empty( PC_OPENAI_PIXEL_ID ) ) || ( defined( 'PUBCRAWLS_OPENAI_PIXEL_ID' ) && ! empty( PUBCRAWLS_OPENAI_PIXEL_ID ) ) );
+									$oai_pix_val   = $oai_pix_const ? ( defined( 'PC_OPENAI_PIXEL_ID' ) ? PC_OPENAI_PIXEL_ID : PUBCRAWLS_OPENAI_PIXEL_ID ) : ( $settings['openai_pixel_id'] ?? 'JoAtsPLnsm5Jfs1GnaGpxo' );
+									?>
+									<?php if ( $oai_pix_const ) : ?>
+										<input type="text" readonly value="<?php echo esc_attr( $oai_pix_val ); ?>" class="regular-text code" style="background:#f1f5f9;" />
+										<span style="margin-left:8px;font-size:12px;color:#16a34a;font-weight:600;"><?php esc_html_e( 'Defined in wp-config.php', 'pubcrawls-addon' ); ?></span>
+									<?php else : ?>
+										<input type="text" name="<?php echo esc_attr( Pubcrawls_Admin::SETTINGS_KEY ); ?>[openai_pixel_id]" id="openai_pixel_id" value="<?php echo esc_attr( $oai_pix_val ); ?>" class="regular-text code" placeholder="JoAtsPLnsm5Jfs1GnaGpxo" />
+										<p class="description"><?php esc_html_e( 'OpenAI Pixel identifier (default: JoAtsPLnsm5Jfs1GnaGpxo). Included in endpoint URL query ?pid=...', 'pubcrawls-addon' ); ?></p>
+									<?php endif; ?>
+								</td>
+							</tr>
+							<tr>
+								<th scope="row">
+									<label for="openai_capi_key"><?php esc_html_e( 'OpenAI Conversions API Key', 'pubcrawls-addon' ); ?></label>
+								</th>
+								<td>
+									<?php
+									$oai_key_const = ( ( defined( 'PC_OPENAI_CAPI_KEY' ) && ! empty( PC_OPENAI_CAPI_KEY ) ) || ( defined( 'PUBCRAWLS_OPENAI_CAPI_KEY' ) && ! empty( PUBCRAWLS_OPENAI_CAPI_KEY ) ) );
+									$oai_key_val   = $oai_key_const ? ( defined( 'PC_OPENAI_CAPI_KEY' ) ? PC_OPENAI_CAPI_KEY : PUBCRAWLS_OPENAI_CAPI_KEY ) : ( $settings['openai_capi_key'] ?? '' );
+									?>
+									<?php if ( $oai_key_const ) : ?>
+										<input type="text" readonly value="<?php echo esc_attr( Pubcrawls_Admin::mask_secret( $oai_key_val ) ); ?>" class="large-text code" style="background:#f1f5f9;" />
+										<span style="display:inline-block;margin-top:6px;font-size:12px;color:#16a34a;font-weight:600;"><?php esc_html_e( 'Defined in wp-config.php (PC_OPENAI_CAPI_KEY)', 'pubcrawls-addon' ); ?></span>
+									<?php else : ?>
+										<input type="password" name="<?php echo esc_attr( Pubcrawls_Admin::SETTINGS_KEY ); ?>[openai_capi_key]" id="openai_capi_key" value="" class="large-text code" placeholder="<?php echo ! empty( $settings['openai_capi_key'] ) ? esc_attr( Pubcrawls_Admin::mask_secret( $settings['openai_capi_key'] ) ) : 'Enter OpenAI Conversions API Key...'; ?>" autocomplete="new-password" />
+										<p class="description"><?php esc_html_e( 'Bearer token for https://bzr.openai.com/v1/events. Can also be set in wp-config.php via define("PC_OPENAI_CAPI_KEY", "YOUR_KEY").', 'pubcrawls-addon' ); ?></p>
+									<?php endif; ?>
+								</td>
+							</tr>
+							<tr>
+								<th scope="row">
+									<label for="openai_validate_only"><?php esc_html_e( 'Validate Only (Test Mode)', 'pubcrawls-addon' ); ?></label>
+								</th>
+								<td>
+									<label for="openai_validate_only">
+										<input type="checkbox" name="<?php echo esc_attr( Pubcrawls_Admin::SETTINGS_KEY ); ?>[openai_validate_only]" id="openai_validate_only" value="1" <?php checked( '1', $settings['openai_validate_only'] ?? '0' ); ?> />
+										<?php esc_html_e( 'Enable validate_only parameter (validates schema with OpenAI without recording conversions)', 'pubcrawls-addon' ); ?>
+									</label>
+									<p class="description"><?php esc_html_e( 'When active, requests include "validate_only": true. Uncheck for live production tracking.', 'pubcrawls-addon' ); ?></p>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+			<!-- Card 7: Order Tester & Simulator -->
 		<div class="pubcrawls-card" style="margin-bottom: 24px;">
 			<div class="pubcrawls-card__header">
 				<h2><span class="dashicons dashicons-hammer"></span> <?php esc_html_e( 'Live Order Simulator & Pipeline Tester', 'pubcrawls-addon' ); ?></h2>
@@ -1328,6 +1430,7 @@ if (! is_array($disabled_tax)) {
 									<th style="width:115px;"><?php esc_html_e( 'GA4 Delivery', 'pubcrawls-addon' ); ?></th>
 									<th style="width:115px;"><?php esc_html_e( 'Meta CAPI', 'pubcrawls-addon' ); ?></th>
 									<th style="width:115px;"><?php esc_html_e( 'TikTok Events', 'pubcrawls-addon' ); ?></th>
+									<th style="width:115px;"><?php esc_html_e( 'OpenAI CAPI', 'pubcrawls-addon' ); ?></th>
 									<th style="width:90px;"><?php esc_html_e( 'Action', 'pubcrawls-addon' ); ?></th>
 								</tr>
 							</thead>
@@ -1337,8 +1440,8 @@ if (! is_array($disabled_tax)) {
 										<td><small><?php echo esc_html( $ord->created_at ); ?></small></td>
 										<td>
 											<code><?php echo esc_html( $ord->order_id ); ?></code>
-											<?php if ( ! empty( $ord->client_id ) ) : ?>
-												<br><span style="display:inline-flex;align-items:center;gap:3px;font-size:10px;background:#e0f2fe;color:#0369a1;padding:1px 5px;border-radius:4px;font-weight:600;" title="<?php esc_attr_e( 'Browser attribution captured: client_id and session attached', 'pubcrawls-addon' ); ?>">
+											<?php if ( ! empty( $ord->client_id ) || ! empty( $ord->fbp ) || ! empty( $ord->oai_obref ) || ! empty( $ord->oai_oppref ) ) : ?>
+												<br><span style="display:inline-flex;align-items:center;gap:3px;font-size:10px;background:#e0f2fe;color:#0369a1;padding:1px 5px;border-radius:4px;font-weight:600;" title="<?php esc_attr_e( 'Browser attribution captured: client_id, meta, or OpenAI references attached', 'pubcrawls-addon' ); ?>">
 													<span class="dashicons dashicons-visibility" style="font-size:12px;width:12px;height:12px;line-height:12px;"></span> <?php esc_html_e( 'Attributed', 'pubcrawls-addon' ); ?>
 												</span>
 											<?php endif; ?>
@@ -1417,6 +1520,22 @@ if (! is_array($disabled_tax)) {
 												echo '<span style="font-size:11px;padding:2px 6px;background:#f1f5f9;color:#64748b;border-radius:4px;">Skipped</span>';
 											} elseif ( 'failed' === $tt_st ) {
 												echo '<span style="font-size:11px;padding:2px 6px;background:#fee2e2;color:#991b1b;border-radius:4px;">Failed (' . esc_html( $tt_info ) . ')</span>';
+											} else {
+												echo '<span style="font-size:11px;padding:2px 6px;background:#e0f2fe;color:#0369a1;border-radius:4px;">Pending</span>';
+											}
+											?>
+										</td>
+										<td>
+											<?php
+											$oai_st   = $ord->openai_status ?? 'pending';
+											$oai_code = isset( $ord->openai_code ) && null !== $ord->openai_code ? (int) $ord->openai_code : null;
+											$oai_info = $oai_code ? sprintf( 'Code %d, try %d', $oai_code, (int) ( $ord->openai_attempts ?? 0 ) ) : sprintf( '%d tries', (int) ( $ord->openai_attempts ?? 0 ) );
+											if ( 'success' === $oai_st ) {
+												echo '<span style="font-size:11px;padding:2px 6px;background:#dcfce7;color:#166534;border-radius:4px;font-weight:600;">Success (' . esc_html( $oai_info ) . ')</span>';
+											} elseif ( 'skipped' === $oai_st ) {
+												echo '<span style="font-size:11px;padding:2px 6px;background:#f1f5f9;color:#64748b;border-radius:4px;">Skipped</span>';
+											} elseif ( 'failed' === $oai_st ) {
+												echo '<span style="font-size:11px;padding:2px 6px;background:#fee2e2;color:#991b1b;border-radius:4px;">Failed (' . esc_html( $oai_info ) . ')</span>';
 											} else {
 												echo '<span style="font-size:11px;padding:2px 6px;background:#e0f2fe;color:#0369a1;border-radius:4px;">Pending</span>';
 											}

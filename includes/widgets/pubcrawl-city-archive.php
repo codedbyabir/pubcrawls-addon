@@ -125,6 +125,20 @@ class Pubcrawls_City_Archive extends \Elementor\Widget_Base
 			]
 		);
 
+		$this->add_control(
+			'pubcrawl_default_image',
+			[
+				'label'       => esc_html__('Default Thumbnail Image', 'pubcrawls-addon'),
+				'type'        => \Elementor\Controls_Manager::MEDIA,
+				'default'     => [
+					'url' => class_exists('\Elementor\Utils') && method_exists('\Elementor\Utils', 'get_placeholder_image_src')
+						? \Elementor\Utils::get_placeholder_image_src()
+						: '',
+				],
+				'description' => esc_html__('Fallback image used when a city does not have a featured image.', 'pubcrawls-addon'),
+			]
+		);
+
 		$this->end_controls_section();
 
 		$this->start_controls_section(
@@ -567,6 +581,15 @@ class Pubcrawls_City_Archive extends \Elementor\Widget_Base
 		$category = sanitize_text_field($category);
 		$city_ids = isset($settings['city_ids']) ? $settings['city_ids'] : '';
 
+		$default_image_id  = ! empty($settings['pubcrawl_default_image']['id']) ? intval($settings['pubcrawl_default_image']['id']) : 0;
+		$default_image_url = ! empty($settings['pubcrawl_default_image']['url']) ? $settings['pubcrawl_default_image']['url'] : '';
+
+		if (empty($default_image_url) && empty($default_image_id)) {
+			if (class_exists('\Elementor\Utils') && method_exists('\Elementor\Utils', 'get_placeholder_image_src')) {
+				$default_image_url = \Elementor\Utils::get_placeholder_image_src();
+			}
+		}
+
 		$today = gmdate('Ymd');
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -619,6 +642,19 @@ class Pubcrawls_City_Archive extends \Elementor\Widget_Base
 					? add_query_arg('crawl_cat', $category_slug, get_permalink($city_id))
 					: get_permalink($city_id);
 				$thumb      = get_the_post_thumbnail($city_id, 'full');
+				if (empty($thumb)) {
+					if (! empty($default_image_id)) {
+						$thumb = wp_get_attachment_image($default_image_id, 'full', false, [
+							'alt' => esc_attr($city_title),
+						]);
+					} elseif (! empty($default_image_url)) {
+						$thumb = sprintf(
+							'<img src="%s" class="attachment-full size-full wp-post-image" alt="%s">',
+							esc_url($default_image_url),
+							esc_attr($city_title)
+						);
+					}
+				}
 
 				$event_args = [
 					'post_type'      => 'tribe_events',

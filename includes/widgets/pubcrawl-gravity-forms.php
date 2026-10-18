@@ -1030,12 +1030,12 @@ class Pubcrawls_Gravity_Forms extends \Elementor\Widget_Base
 				'default'      => '',
 				'return_value' => 'yes',
 				'prefix_class' => 'pc-gf-checkbox-pills-',
-				'description'  => esc_html__('Convert standard checkboxes into modern badge / pill buttons.', 'pubcrawls-addon'),
+				'description'  => esc_html__('Convert standard checkboxes and radio buttons into modern badge / pill buttons.', 'pubcrawls-addon'),
 				'selectors'    => [
-					'{{WRAPPER}} .gfield_checkbox, {{WRAPPER}} .gform_wrapper.gravity-theme .gfield_checkbox' => 'display: flex !important; flex-direction: row !important; flex-wrap: wrap !important;',
-					'{{WRAPPER}} .gfield_checkbox .gchoice, {{WRAPPER}} .gform_wrapper.gravity-theme .gfield_checkbox .gchoice' => 'margin: 0 !important; display: inline-flex !important; align-items: stretch !important; gap: 0 !important;',
-					'{{WRAPPER}} .gfield_checkbox input[type="checkbox"]' => 'display: none !important;',
-					'{{WRAPPER}} .gfield_checkbox label, {{WRAPPER}} .gfield_checkbox .gchoice label, {{WRAPPER}} .gform_wrapper.gravity-theme .gfield_checkbox label' => 'display: inline-flex !important; align-items: center !important; justify-content: center !important; text-align: center !important; cursor: pointer !important; transition: all 0.3s ease !important; margin: 0 !important; user-select: none;',
+					'{{WRAPPER}} .gfield_checkbox, {{WRAPPER}} .gfield_radio, {{WRAPPER}} .gfield--type-checkbox .ginput_container_checkbox, {{WRAPPER}} .gfield--type-radio .ginput_container_radio, {{WRAPPER}} .gform_wrapper.gravity-theme .gfield_checkbox, {{WRAPPER}} .gform_wrapper.gravity-theme .gfield_radio' => 'display: flex !important; flex-direction: row !important; flex-wrap: wrap !important;',
+					'{{WRAPPER}} .gfield_checkbox .gchoice, {{WRAPPER}} .gfield_radio .gchoice, {{WRAPPER}} .gchoice, {{WRAPPER}} .gform_wrapper.gravity-theme .gfield_checkbox .gchoice, {{WRAPPER}} .gform_wrapper.gravity-theme .gfield_radio .gchoice' => 'margin: 0 !important; display: inline-flex !important; align-items: stretch !important; gap: 0 !important;',
+					'{{WRAPPER}} .gfield_checkbox input[type="checkbox"], {{WRAPPER}} .gfield_radio input[type="radio"], {{WRAPPER}} .gchoice input[type="checkbox"], {{WRAPPER}} .gchoice input[type="radio"], {{WRAPPER}} .gchoice .gfield-choice-input' => 'opacity: 0 !important; position: absolute !important; pointer-events: none !important; width: 0 !important; height: 0 !important; margin: 0 !important;',
+					'{{WRAPPER}} .gfield_checkbox label, {{WRAPPER}} .gfield_radio label, {{WRAPPER}} .gchoice label, {{WRAPPER}} .gfield_checkbox .gchoice label, {{WRAPPER}} .gfield_radio .gchoice label, {{WRAPPER}} .gform_wrapper.gravity-theme .gfield_checkbox label, {{WRAPPER}} .gform_wrapper.gravity-theme .gfield_radio label, {{WRAPPER}} .gform_wrapper.gravity-theme .gchoice label' => 'display: inline-flex !important; align-items: center !important; justify-content: center !important; text-align: center !important; cursor: pointer !important; transition: all 0.25s ease !important; margin: 0 !important; user-select: none;',
 				],
 			]
 		);
@@ -1050,7 +1050,7 @@ class Pubcrawls_Gravity_Forms extends \Elementor\Widget_Base
 				'default'    => ['size' => 8, 'unit' => 'px'],
 				'condition'  => ['checkbox_pill_style' => 'yes'],
 				'selectors'  => [
-					'{{WRAPPER}} .gfield_checkbox, {{WRAPPER}} .gform_wrapper.gravity-theme .gfield_checkbox' => 'gap: {{SIZE}}{{UNIT}} !important;',
+					'{{WRAPPER}} .gfield_checkbox, {{WRAPPER}} .gfield_radio, {{WRAPPER}} .gfield--type-checkbox .ginput_container_checkbox, {{WRAPPER}} .gfield--type-radio .ginput_container_radio, {{WRAPPER}} .gform_wrapper.gravity-theme .gfield_checkbox, {{WRAPPER}} .gform_wrapper.gravity-theme .gfield_radio' => 'gap: {{SIZE}}{{UNIT}} !important;',
 				],
 			]
 		);
@@ -1071,7 +1071,7 @@ class Pubcrawls_Gravity_Forms extends \Elementor\Widget_Base
 				],
 				'condition'  => ['checkbox_pill_style' => 'yes'],
 				'selectors'  => [
-					'{{WRAPPER}} .gfield_checkbox label, {{WRAPPER}} .gfield_checkbox .gchoice label, {{WRAPPER}} .gform_wrapper.gravity-theme .gfield_checkbox label' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}} !important;',
+					'{{WRAPPER}} .gfield_checkbox label, {{WRAPPER}} .gfield_radio label, {{WRAPPER}} .gchoice label, {{WRAPPER}} .gfield_checkbox .gchoice label, {{WRAPPER}} .gfield_radio .gchoice label, {{WRAPPER}} .gform_wrapper.gravity-theme .gfield_checkbox label, {{WRAPPER}} .gform_wrapper.gravity-theme .gfield_radio label, {{WRAPPER}} .gform_wrapper.gravity-theme .gchoice label' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}} !important;',
 				],
 			]
 		);
@@ -1092,7 +1092,7 @@ class Pubcrawls_Gravity_Forms extends \Elementor\Widget_Base
 				],
 				'condition'  => ['checkbox_pill_style' => 'yes'],
 				'selectors'  => [
-					'{{WRAPPER}} .gfield_checkbox label, {{WRAPPER}} .gfield_checkbox .gchoice label, {{WRAPPER}} .gform_wrapper.gravity-theme .gfield_checkbox label' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}} !important;',
+					'{{WRAPPER}} .gfield_checkbox label, {{WRAPPER}} .gfield_radio label, {{WRAPPER}} .gchoice label, {{WRAPPER}} .gfield_checkbox .gchoice label, {{WRAPPER}} .gfield_radio .gchoice label, {{WRAPPER}} .gform_wrapper.gravity-theme .gfield_checkbox label, {{WRAPPER}} .gform_wrapper.gravity-theme .gfield_radio label, {{WRAPPER}} .gform_wrapper.gravity-theme .gchoice label' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}} !important;',
 				],
 			]
 		);
@@ -1101,7 +1101,7 @@ class Pubcrawls_Gravity_Forms extends \Elementor\Widget_Base
 			\Elementor\Group_Control_Typography::get_type(),
 			[
 				'name'      => 'checkbox_pill_typography',
-				'selector'  => '{{WRAPPER}} .gfield_checkbox label, {{WRAPPER}} .gfield_checkbox .gchoice label, {{WRAPPER}} .gform_wrapper.gravity-theme .gfield_checkbox label',
+				'selector'  => '{{WRAPPER}} .gfield_checkbox label, {{WRAPPER}} .gfield_radio label, {{WRAPPER}} .gchoice label, {{WRAPPER}} .gfield_checkbox .gchoice label, {{WRAPPER}} .gfield_radio .gchoice label, {{WRAPPER}} .gform_wrapper.gravity-theme .gfield_checkbox label, {{WRAPPER}} .gform_wrapper.gravity-theme .gfield_radio label, {{WRAPPER}} .gform_wrapper.gravity-theme .gchoice label',
 				'condition' => ['checkbox_pill_style' => 'yes'],
 			]
 		);
@@ -1111,6 +1111,7 @@ class Pubcrawls_Gravity_Forms extends \Elementor\Widget_Base
 			'condition' => ['checkbox_pill_style' => 'yes'],
 		]);
 
+		// ── Normal Tab ────────────────────────────────────────────────────────
 		$this->start_controls_tab(
 			'tab_checkbox_pill_normal',
 			[
@@ -1127,7 +1128,20 @@ class Pubcrawls_Gravity_Forms extends \Elementor\Widget_Base
 				'default'   => '#B8BDC7',
 				'condition' => ['checkbox_pill_style' => 'yes'],
 				'selectors' => [
-					'{{WRAPPER}} .gfield_checkbox label, {{WRAPPER}} .gfield_checkbox .gchoice label, {{WRAPPER}} .gform_wrapper.gravity-theme .gfield_checkbox label' => 'color: {{VALUE}} !important;',
+					'{{WRAPPER}} .pc-gf-checkbox-pills-yes .gchoice label, ' .
+					'{{WRAPPER}}.pc-gf-checkbox-pills-yes .gchoice label, ' .
+					'{{WRAPPER}} .pc-gf-checkbox-pills-yes .gfield_checkbox label, ' .
+					'{{WRAPPER}}.pc-gf-checkbox-pills-yes .gfield_checkbox label, ' .
+					'{{WRAPPER}} .pc-gf-checkbox-pills-yes .gfield_radio label, ' .
+					'{{WRAPPER}}.pc-gf-checkbox-pills-yes .gfield_radio label, ' .
+					'{{WRAPPER}} .gfield_checkbox label, ' .
+					'{{WRAPPER}} .gfield_radio label, ' .
+					'{{WRAPPER}} .gchoice label, ' .
+					'{{WRAPPER}} .gfield_checkbox .gchoice label, ' .
+					'{{WRAPPER}} .gfield_radio .gchoice label, ' .
+					'{{WRAPPER}} .gform_wrapper.gravity-theme .gfield_checkbox label, ' .
+					'{{WRAPPER}} .gform_wrapper.gravity-theme .gfield_radio label, ' .
+					'{{WRAPPER}} .gform_wrapper.gravity-theme .gchoice label' => 'color: {{VALUE}} !important;',
 				],
 			]
 		);
@@ -1140,7 +1154,20 @@ class Pubcrawls_Gravity_Forms extends \Elementor\Widget_Base
 				'default'   => '#1b1f27',
 				'condition' => ['checkbox_pill_style' => 'yes'],
 				'selectors' => [
-					'{{WRAPPER}} .gfield_checkbox label, {{WRAPPER}} .gfield_checkbox .gchoice label, {{WRAPPER}} .gform_wrapper.gravity-theme .gfield_checkbox label' => 'background-color: {{VALUE}} !important;',
+					'{{WRAPPER}} .pc-gf-checkbox-pills-yes .gchoice label, ' .
+					'{{WRAPPER}}.pc-gf-checkbox-pills-yes .gchoice label, ' .
+					'{{WRAPPER}} .pc-gf-checkbox-pills-yes .gfield_checkbox label, ' .
+					'{{WRAPPER}}.pc-gf-checkbox-pills-yes .gfield_checkbox label, ' .
+					'{{WRAPPER}} .pc-gf-checkbox-pills-yes .gfield_radio label, ' .
+					'{{WRAPPER}}.pc-gf-checkbox-pills-yes .gfield_radio label, ' .
+					'{{WRAPPER}} .gfield_checkbox label, ' .
+					'{{WRAPPER}} .gfield_radio label, ' .
+					'{{WRAPPER}} .gchoice label, ' .
+					'{{WRAPPER}} .gfield_checkbox .gchoice label, ' .
+					'{{WRAPPER}} .gfield_radio .gchoice label, ' .
+					'{{WRAPPER}} .gform_wrapper.gravity-theme .gfield_checkbox label, ' .
+					'{{WRAPPER}} .gform_wrapper.gravity-theme .gfield_radio label, ' .
+					'{{WRAPPER}} .gform_wrapper.gravity-theme .gchoice label' => 'background-color: {{VALUE}} !important;',
 				],
 			]
 		);
@@ -1149,7 +1176,20 @@ class Pubcrawls_Gravity_Forms extends \Elementor\Widget_Base
 			\Elementor\Group_Control_Border::get_type(),
 			[
 				'name'           => 'checkbox_pill_border',
-				'selector'       => '{{WRAPPER}} .gfield_checkbox label, {{WRAPPER}} .gfield_checkbox .gchoice label, {{WRAPPER}} .gform_wrapper.gravity-theme .gfield_checkbox label',
+				'selector'       => '{{WRAPPER}} .pc-gf-checkbox-pills-yes .gchoice label, ' .
+					'{{WRAPPER}}.pc-gf-checkbox-pills-yes .gchoice label, ' .
+					'{{WRAPPER}} .pc-gf-checkbox-pills-yes .gfield_checkbox label, ' .
+					'{{WRAPPER}}.pc-gf-checkbox-pills-yes .gfield_checkbox label, ' .
+					'{{WRAPPER}} .pc-gf-checkbox-pills-yes .gfield_radio label, ' .
+					'{{WRAPPER}}.pc-gf-checkbox-pills-yes .gfield_radio label, ' .
+					'{{WRAPPER}} .gfield_checkbox label, ' .
+					'{{WRAPPER}} .gfield_radio label, ' .
+					'{{WRAPPER}} .gchoice label, ' .
+					'{{WRAPPER}} .gfield_checkbox .gchoice label, ' .
+					'{{WRAPPER}} .gfield_radio .gchoice label, ' .
+					'{{WRAPPER}} .gform_wrapper.gravity-theme .gfield_checkbox label, ' .
+					'{{WRAPPER}} .gform_wrapper.gravity-theme .gfield_radio label, ' .
+					'{{WRAPPER}} .gform_wrapper.gravity-theme .gchoice label',
 				'condition'      => ['checkbox_pill_style' => 'yes'],
 				'fields_options' => [
 					'border' => [
@@ -1175,13 +1215,18 @@ class Pubcrawls_Gravity_Forms extends \Elementor\Widget_Base
 			\Elementor\Group_Control_Box_Shadow::get_type(),
 			[
 				'name'      => 'checkbox_pill_box_shadow',
-				'selector'  => '{{WRAPPER}} .gfield_checkbox label, {{WRAPPER}} .gfield_checkbox .gchoice label, {{WRAPPER}} .gform_wrapper.gravity-theme .gfield_checkbox label',
+				'selector'  => '{{WRAPPER}} .pc-gf-checkbox-pills-yes .gchoice label, ' .
+					'{{WRAPPER}}.pc-gf-checkbox-pills-yes .gchoice label, ' .
+					'{{WRAPPER}} .gfield_checkbox label, ' .
+					'{{WRAPPER}} .gfield_radio label, ' .
+					'{{WRAPPER}} .gchoice label',
 				'condition' => ['checkbox_pill_style' => 'yes'],
 			]
 		);
 
 		$this->end_controls_tab();
 
+		// ── Hover Tab ─────────────────────────────────────────────────────────
 		$this->start_controls_tab(
 			'tab_checkbox_pill_hover',
 			[
@@ -1195,9 +1240,25 @@ class Pubcrawls_Gravity_Forms extends \Elementor\Widget_Base
 			[
 				'label'     => esc_html__('Text Color', 'pubcrawls-addon'),
 				'type'      => \Elementor\Controls_Manager::COLOR,
+				'default'   => '#FFFFFF',
 				'condition' => ['checkbox_pill_style' => 'yes'],
 				'selectors' => [
-					'{{WRAPPER}} .gfield_checkbox label:hover, {{WRAPPER}} .gfield_checkbox .gchoice label:hover, {{WRAPPER}} .gform_wrapper.gravity-theme .gfield_checkbox label:hover' => 'color: {{VALUE}} !important;',
+					'{{WRAPPER}} .gchoice input:not(:checked) + label:hover, ' .
+					'{{WRAPPER}} .gchoice input:not(:checked) ~ label:hover, ' .
+					'{{WRAPPER}} .gchoice:hover input:not(:checked) + label, ' .
+					'{{WRAPPER}} .gchoice:hover input:not(:checked) ~ label, ' .
+					'{{WRAPPER}} .gfield_checkbox input:not(:checked) + label:hover, ' .
+					'{{WRAPPER}} .gfield_radio input:not(:checked) + label:hover, ' .
+					'{{WRAPPER}} .gfield_checkbox .gchoice label:hover, ' .
+					'{{WRAPPER}} .gfield_checkbox .gchoice:hover label, ' .
+					'{{WRAPPER}} .gfield_radio .gchoice label:hover, ' .
+					'{{WRAPPER}} .gfield_radio .gchoice:hover label, ' .
+					'{{WRAPPER}} .gchoice label:hover, ' .
+					'{{WRAPPER}} .gchoice:hover label, ' .
+					'{{WRAPPER}} .pc-gf-checkbox-pills-yes .gchoice label:hover, ' .
+					'{{WRAPPER}}.pc-gf-checkbox-pills-yes .gchoice label:hover, ' .
+					'{{WRAPPER}} .gform_wrapper.gravity-theme .gchoice label:hover, ' .
+					'{{WRAPPER}} .gform_wrapper.gravity-theme .gchoice:hover label' => 'color: {{VALUE}} !important;',
 				],
 			]
 		);
@@ -1207,9 +1268,25 @@ class Pubcrawls_Gravity_Forms extends \Elementor\Widget_Base
 			[
 				'label'     => esc_html__('Background Color', 'pubcrawls-addon'),
 				'type'      => \Elementor\Controls_Manager::COLOR,
+				'default'   => '#242933',
 				'condition' => ['checkbox_pill_style' => 'yes'],
 				'selectors' => [
-					'{{WRAPPER}} .gfield_checkbox label:hover, {{WRAPPER}} .gfield_checkbox .gchoice label:hover, {{WRAPPER}} .gform_wrapper.gravity-theme .gfield_checkbox label:hover' => 'background-color: {{VALUE}} !important;',
+					'{{WRAPPER}} .gchoice input:not(:checked) + label:hover, ' .
+					'{{WRAPPER}} .gchoice input:not(:checked) ~ label:hover, ' .
+					'{{WRAPPER}} .gchoice:hover input:not(:checked) + label, ' .
+					'{{WRAPPER}} .gchoice:hover input:not(:checked) ~ label, ' .
+					'{{WRAPPER}} .gfield_checkbox input:not(:checked) + label:hover, ' .
+					'{{WRAPPER}} .gfield_radio input:not(:checked) + label:hover, ' .
+					'{{WRAPPER}} .gfield_checkbox .gchoice label:hover, ' .
+					'{{WRAPPER}} .gfield_checkbox .gchoice:hover label, ' .
+					'{{WRAPPER}} .gfield_radio .gchoice label:hover, ' .
+					'{{WRAPPER}} .gfield_radio .gchoice:hover label, ' .
+					'{{WRAPPER}} .gchoice label:hover, ' .
+					'{{WRAPPER}} .gchoice:hover label, ' .
+					'{{WRAPPER}} .pc-gf-checkbox-pills-yes .gchoice label:hover, ' .
+					'{{WRAPPER}}.pc-gf-checkbox-pills-yes .gchoice label:hover, ' .
+					'{{WRAPPER}} .gform_wrapper.gravity-theme .gchoice label:hover, ' .
+					'{{WRAPPER}} .gform_wrapper.gravity-theme .gchoice:hover label' => 'background-color: {{VALUE}} !important;',
 				],
 			]
 		);
@@ -1219,9 +1296,25 @@ class Pubcrawls_Gravity_Forms extends \Elementor\Widget_Base
 			[
 				'label'     => esc_html__('Border Color', 'pubcrawls-addon'),
 				'type'      => \Elementor\Controls_Manager::COLOR,
+				'default'   => '#4b5563',
 				'condition' => ['checkbox_pill_style' => 'yes'],
 				'selectors' => [
-					'{{WRAPPER}} .gfield_checkbox label:hover, {{WRAPPER}} .gfield_checkbox .gchoice label:hover, {{WRAPPER}} .gform_wrapper.gravity-theme .gfield_checkbox label:hover' => 'border-color: {{VALUE}} !important;',
+					'{{WRAPPER}} .gchoice input:not(:checked) + label:hover, ' .
+					'{{WRAPPER}} .gchoice input:not(:checked) ~ label:hover, ' .
+					'{{WRAPPER}} .gchoice:hover input:not(:checked) + label, ' .
+					'{{WRAPPER}} .gchoice:hover input:not(:checked) ~ label, ' .
+					'{{WRAPPER}} .gfield_checkbox input:not(:checked) + label:hover, ' .
+					'{{WRAPPER}} .gfield_radio input:not(:checked) + label:hover, ' .
+					'{{WRAPPER}} .gfield_checkbox .gchoice label:hover, ' .
+					'{{WRAPPER}} .gfield_checkbox .gchoice:hover label, ' .
+					'{{WRAPPER}} .gfield_radio .gchoice label:hover, ' .
+					'{{WRAPPER}} .gfield_radio .gchoice:hover label, ' .
+					'{{WRAPPER}} .gchoice label:hover, ' .
+					'{{WRAPPER}} .gchoice:hover label, ' .
+					'{{WRAPPER}} .pc-gf-checkbox-pills-yes .gchoice label:hover, ' .
+					'{{WRAPPER}}.pc-gf-checkbox-pills-yes .gchoice label:hover, ' .
+					'{{WRAPPER}} .gform_wrapper.gravity-theme .gchoice label:hover, ' .
+					'{{WRAPPER}} .gform_wrapper.gravity-theme .gchoice:hover label' => 'border-color: {{VALUE}} !important;',
 				],
 			]
 		);
@@ -1230,13 +1323,17 @@ class Pubcrawls_Gravity_Forms extends \Elementor\Widget_Base
 			\Elementor\Group_Control_Box_Shadow::get_type(),
 			[
 				'name'      => 'checkbox_pill_hover_box_shadow',
-				'selector'  => '{{WRAPPER}} .gfield_checkbox label:hover, {{WRAPPER}} .gfield_checkbox .gchoice label:hover, {{WRAPPER}} .gform_wrapper.gravity-theme .gfield_checkbox label:hover',
+				'selector'  => '{{WRAPPER}} .gchoice input:not(:checked) + label:hover, ' .
+					'{{WRAPPER}} .gchoice:hover input:not(:checked) + label, ' .
+					'{{WRAPPER}} .gchoice label:hover, ' .
+					'{{WRAPPER}} .gchoice:hover label',
 				'condition' => ['checkbox_pill_style' => 'yes'],
 			]
 		);
 
 		$this->end_controls_tab();
 
+		// ── Checked Tab ───────────────────────────────────────────────────────
 		$this->start_controls_tab(
 			'tab_checkbox_pill_checked',
 			[
@@ -1253,12 +1350,28 @@ class Pubcrawls_Gravity_Forms extends \Elementor\Widget_Base
 				'default'   => '#E6B325',
 				'condition' => ['checkbox_pill_style' => 'yes'],
 				'selectors' => [
+					'{{WRAPPER}} .gchoice input[type="checkbox"]:checked + label, ' .
+					'{{WRAPPER}} .gchoice input[type="checkbox"]:checked ~ label, ' .
+					'{{WRAPPER}} .gchoice input[type="radio"]:checked + label, ' .
+					'{{WRAPPER}} .gchoice input[type="radio"]:checked ~ label, ' .
+					'{{WRAPPER}} .gchoice .gfield-choice-input:checked + label, ' .
+					'{{WRAPPER}} .gchoice .gfield-choice-input:checked ~ label, ' .
 					'{{WRAPPER}} .gfield_checkbox input[type="checkbox"]:checked + label, ' .
 					'{{WRAPPER}} .gfield_checkbox input[type="checkbox"]:checked ~ label, ' .
 					'{{WRAPPER}} .gfield_checkbox .gchoice input[type="checkbox"]:checked + label, ' .
 					'{{WRAPPER}} .gfield_checkbox .gchoice input[type="checkbox"]:checked ~ label, ' .
+					'{{WRAPPER}} .gfield_radio input[type="radio"]:checked + label, ' .
+					'{{WRAPPER}} .gfield_radio input[type="radio"]:checked ~ label, ' .
+					'{{WRAPPER}} .gfield_radio .gchoice input[type="radio"]:checked + label, ' .
+					'{{WRAPPER}} .gfield_radio .gchoice input[type="radio"]:checked ~ label, ' .
+					'{{WRAPPER}} .pc-gf-checkbox-pills-yes .gchoice input:checked + label, ' .
+					'{{WRAPPER}}.pc-gf-checkbox-pills-yes .gchoice input:checked + label, ' .
 					'{{WRAPPER}} .gform_wrapper.gravity-theme .gfield_checkbox input[type="checkbox"]:checked + label, ' .
-					'{{WRAPPER}} .gform_wrapper.gravity-theme .gfield_checkbox input[type="checkbox"]:checked ~ label' => 'color: {{VALUE}} !important;',
+					'{{WRAPPER}} .gform_wrapper.gravity-theme .gfield_checkbox input[type="checkbox"]:checked ~ label, ' .
+					'{{WRAPPER}} .gform_wrapper.gravity-theme .gfield_radio input[type="radio"]:checked + label, ' .
+					'{{WRAPPER}} .gform_wrapper.gravity-theme .gfield_radio input[type="radio"]:checked ~ label, ' .
+					'{{WRAPPER}} .gform_wrapper.gravity-theme .gchoice input:checked + label, ' .
+					'{{WRAPPER}} .gform_wrapper.gravity-theme .gchoice input:checked ~ label' => 'color: {{VALUE}} !important;',
 				],
 			]
 		);
@@ -1271,12 +1384,28 @@ class Pubcrawls_Gravity_Forms extends \Elementor\Widget_Base
 				'default'   => '#E6B3251A',
 				'condition' => ['checkbox_pill_style' => 'yes'],
 				'selectors' => [
+					'{{WRAPPER}} .gchoice input[type="checkbox"]:checked + label, ' .
+					'{{WRAPPER}} .gchoice input[type="checkbox"]:checked ~ label, ' .
+					'{{WRAPPER}} .gchoice input[type="radio"]:checked + label, ' .
+					'{{WRAPPER}} .gchoice input[type="radio"]:checked ~ label, ' .
+					'{{WRAPPER}} .gchoice .gfield-choice-input:checked + label, ' .
+					'{{WRAPPER}} .gchoice .gfield-choice-input:checked ~ label, ' .
 					'{{WRAPPER}} .gfield_checkbox input[type="checkbox"]:checked + label, ' .
 					'{{WRAPPER}} .gfield_checkbox input[type="checkbox"]:checked ~ label, ' .
 					'{{WRAPPER}} .gfield_checkbox .gchoice input[type="checkbox"]:checked + label, ' .
 					'{{WRAPPER}} .gfield_checkbox .gchoice input[type="checkbox"]:checked ~ label, ' .
+					'{{WRAPPER}} .gfield_radio input[type="radio"]:checked + label, ' .
+					'{{WRAPPER}} .gfield_radio input[type="radio"]:checked ~ label, ' .
+					'{{WRAPPER}} .gfield_radio .gchoice input[type="radio"]:checked + label, ' .
+					'{{WRAPPER}} .gfield_radio .gchoice input[type="radio"]:checked ~ label, ' .
+					'{{WRAPPER}} .pc-gf-checkbox-pills-yes .gchoice input:checked + label, ' .
+					'{{WRAPPER}}.pc-gf-checkbox-pills-yes .gchoice input:checked + label, ' .
 					'{{WRAPPER}} .gform_wrapper.gravity-theme .gfield_checkbox input[type="checkbox"]:checked + label, ' .
-					'{{WRAPPER}} .gform_wrapper.gravity-theme .gfield_checkbox input[type="checkbox"]:checked ~ label' => 'background-color: {{VALUE}} !important;',
+					'{{WRAPPER}} .gform_wrapper.gravity-theme .gfield_checkbox input[type="checkbox"]:checked ~ label, ' .
+					'{{WRAPPER}} .gform_wrapper.gravity-theme .gfield_radio input[type="radio"]:checked + label, ' .
+					'{{WRAPPER}} .gform_wrapper.gravity-theme .gfield_radio input[type="radio"]:checked ~ label, ' .
+					'{{WRAPPER}} .gform_wrapper.gravity-theme .gchoice input:checked + label, ' .
+					'{{WRAPPER}} .gform_wrapper.gravity-theme .gchoice input:checked ~ label' => 'background-color: {{VALUE}} !important;',
 				],
 			]
 		);
@@ -1289,12 +1418,28 @@ class Pubcrawls_Gravity_Forms extends \Elementor\Widget_Base
 				'default'   => '#E6B325',
 				'condition' => ['checkbox_pill_style' => 'yes'],
 				'selectors' => [
+					'{{WRAPPER}} .gchoice input[type="checkbox"]:checked + label, ' .
+					'{{WRAPPER}} .gchoice input[type="checkbox"]:checked ~ label, ' .
+					'{{WRAPPER}} .gchoice input[type="radio"]:checked + label, ' .
+					'{{WRAPPER}} .gchoice input[type="radio"]:checked ~ label, ' .
+					'{{WRAPPER}} .gchoice .gfield-choice-input:checked + label, ' .
+					'{{WRAPPER}} .gchoice .gfield-choice-input:checked ~ label, ' .
 					'{{WRAPPER}} .gfield_checkbox input[type="checkbox"]:checked + label, ' .
 					'{{WRAPPER}} .gfield_checkbox input[type="checkbox"]:checked ~ label, ' .
 					'{{WRAPPER}} .gfield_checkbox .gchoice input[type="checkbox"]:checked + label, ' .
 					'{{WRAPPER}} .gfield_checkbox .gchoice input[type="checkbox"]:checked ~ label, ' .
+					'{{WRAPPER}} .gfield_radio input[type="radio"]:checked + label, ' .
+					'{{WRAPPER}} .gfield_radio input[type="radio"]:checked ~ label, ' .
+					'{{WRAPPER}} .gfield_radio .gchoice input[type="radio"]:checked + label, ' .
+					'{{WRAPPER}} .gfield_radio .gchoice input[type="radio"]:checked ~ label, ' .
+					'{{WRAPPER}} .pc-gf-checkbox-pills-yes .gchoice input:checked + label, ' .
+					'{{WRAPPER}}.pc-gf-checkbox-pills-yes .gchoice input:checked + label, ' .
 					'{{WRAPPER}} .gform_wrapper.gravity-theme .gfield_checkbox input[type="checkbox"]:checked + label, ' .
-					'{{WRAPPER}} .gform_wrapper.gravity-theme .gfield_checkbox input[type="checkbox"]:checked ~ label' => 'border-color: {{VALUE}} !important;',
+					'{{WRAPPER}} .gform_wrapper.gravity-theme .gfield_checkbox input[type="checkbox"]:checked ~ label, ' .
+					'{{WRAPPER}} .gform_wrapper.gravity-theme .gfield_radio input[type="radio"]:checked + label, ' .
+					'{{WRAPPER}} .gform_wrapper.gravity-theme .gfield_radio input[type="radio"]:checked ~ label, ' .
+					'{{WRAPPER}} .gform_wrapper.gravity-theme .gchoice input:checked + label, ' .
+					'{{WRAPPER}} .gform_wrapper.gravity-theme .gchoice input:checked ~ label' => 'border-color: {{VALUE}} !important;',
 				],
 			]
 		);
@@ -1303,7 +1448,109 @@ class Pubcrawls_Gravity_Forms extends \Elementor\Widget_Base
 			\Elementor\Group_Control_Box_Shadow::get_type(),
 			[
 				'name'      => 'checkbox_pill_checked_box_shadow',
-				'selector'  => '{{WRAPPER}} .gfield_checkbox input[type="checkbox"]:checked + label, {{WRAPPER}} .gfield_checkbox input[type="checkbox"]:checked ~ label, {{WRAPPER}} .gfield_checkbox .gchoice input[type="checkbox"]:checked + label, {{WRAPPER}} .gfield_checkbox .gchoice input[type="checkbox"]:checked ~ label',
+				'selector'  => '{{WRAPPER}} .gchoice input:checked + label, ' .
+					'{{WRAPPER}} .gchoice input:checked ~ label, ' .
+					'{{WRAPPER}} .gchoice .gfield-choice-input:checked + label, ' .
+					'{{WRAPPER}} .gfield_checkbox input:checked + label, ' .
+					'{{WRAPPER}} .gfield_radio input:checked + label',
+				'condition' => ['checkbox_pill_style' => 'yes'],
+			]
+		);
+
+		$this->end_controls_tab();
+
+		// ── Checked Hover Tab ─────────────────────────────────────────────────
+		$this->start_controls_tab(
+			'tab_checkbox_pill_checked_hover',
+			[
+				'label'     => esc_html__('Checked Hover', 'pubcrawls-addon'),
+				'condition' => ['checkbox_pill_style' => 'yes'],
+			]
+		);
+
+		$this->add_control(
+			'checkbox_pill_checked_hover_text_color',
+			[
+				'label'     => esc_html__('Text Color', 'pubcrawls-addon'),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'condition' => ['checkbox_pill_style' => 'yes'],
+				'selectors' => [
+					'{{WRAPPER}} .gchoice input[type="checkbox"]:checked + label:hover, ' .
+					'{{WRAPPER}} .gchoice input[type="checkbox"]:checked ~ label:hover, ' .
+					'{{WRAPPER}} .gchoice:hover input[type="checkbox"]:checked + label, ' .
+					'{{WRAPPER}} .gchoice:hover input[type="checkbox"]:checked ~ label, ' .
+					'{{WRAPPER}} .gchoice input[type="radio"]:checked + label:hover, ' .
+					'{{WRAPPER}} .gchoice input[type="radio"]:checked ~ label:hover, ' .
+					'{{WRAPPER}} .gchoice:hover input[type="radio"]:checked + label, ' .
+					'{{WRAPPER}} .gchoice:hover input[type="radio"]:checked ~ label, ' .
+					'{{WRAPPER}} .gchoice .gfield-choice-input:checked + label:hover, ' .
+					'{{WRAPPER}} .gchoice:hover .gfield-choice-input:checked + label, ' .
+					'{{WRAPPER}} .pc-gf-checkbox-pills-yes .gchoice:hover input:checked + label, ' .
+					'{{WRAPPER}}.pc-gf-checkbox-pills-yes .gchoice:hover input:checked + label, ' .
+					'{{WRAPPER}} .gfield_checkbox .gchoice:hover input:checked + label, ' .
+					'{{WRAPPER}} .gfield_radio .gchoice:hover input:checked + label' => 'color: {{VALUE}} !important;',
+				],
+			]
+		);
+
+		$this->add_control(
+			'checkbox_pill_checked_hover_bg_color',
+			[
+				'label'     => esc_html__('Background Color', 'pubcrawls-addon'),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'condition' => ['checkbox_pill_style' => 'yes'],
+				'selectors' => [
+					'{{WRAPPER}} .gchoice input[type="checkbox"]:checked + label:hover, ' .
+					'{{WRAPPER}} .gchoice input[type="checkbox"]:checked ~ label:hover, ' .
+					'{{WRAPPER}} .gchoice:hover input[type="checkbox"]:checked + label, ' .
+					'{{WRAPPER}} .gchoice:hover input[type="checkbox"]:checked ~ label, ' .
+					'{{WRAPPER}} .gchoice input[type="radio"]:checked + label:hover, ' .
+					'{{WRAPPER}} .gchoice input[type="radio"]:checked ~ label:hover, ' .
+					'{{WRAPPER}} .gchoice:hover input[type="radio"]:checked + label, ' .
+					'{{WRAPPER}} .gchoice:hover input[type="radio"]:checked ~ label, ' .
+					'{{WRAPPER}} .gchoice .gfield-choice-input:checked + label:hover, ' .
+					'{{WRAPPER}} .gchoice:hover .gfield-choice-input:checked + label, ' .
+					'{{WRAPPER}} .pc-gf-checkbox-pills-yes .gchoice:hover input:checked + label, ' .
+					'{{WRAPPER}}.pc-gf-checkbox-pills-yes .gchoice:hover input:checked + label, ' .
+					'{{WRAPPER}} .gfield_checkbox .gchoice:hover input:checked + label, ' .
+					'{{WRAPPER}} .gfield_radio .gchoice:hover input:checked + label' => 'background-color: {{VALUE}} !important;',
+				],
+			]
+		);
+
+		$this->add_control(
+			'checkbox_pill_checked_hover_border_color',
+			[
+				'label'     => esc_html__('Border Color', 'pubcrawls-addon'),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'condition' => ['checkbox_pill_style' => 'yes'],
+				'selectors' => [
+					'{{WRAPPER}} .gchoice input[type="checkbox"]:checked + label:hover, ' .
+					'{{WRAPPER}} .gchoice input[type="checkbox"]:checked ~ label:hover, ' .
+					'{{WRAPPER}} .gchoice:hover input[type="checkbox"]:checked + label, ' .
+					'{{WRAPPER}} .gchoice:hover input[type="checkbox"]:checked ~ label, ' .
+					'{{WRAPPER}} .gchoice input[type="radio"]:checked + label:hover, ' .
+					'{{WRAPPER}} .gchoice input[type="radio"]:checked ~ label:hover, ' .
+					'{{WRAPPER}} .gchoice:hover input[type="radio"]:checked + label, ' .
+					'{{WRAPPER}} .gchoice:hover input[type="radio"]:checked ~ label, ' .
+					'{{WRAPPER}} .gchoice .gfield-choice-input:checked + label:hover, ' .
+					'{{WRAPPER}} .gchoice:hover .gfield-choice-input:checked + label, ' .
+					'{{WRAPPER}} .pc-gf-checkbox-pills-yes .gchoice:hover input:checked + label, ' .
+					'{{WRAPPER}}.pc-gf-checkbox-pills-yes .gchoice:hover input:checked + label, ' .
+					'{{WRAPPER}} .gfield_checkbox .gchoice:hover input:checked + label, ' .
+					'{{WRAPPER}} .gfield_radio .gchoice:hover input:checked + label' => 'border-color: {{VALUE}} !important;',
+				],
+			]
+		);
+
+		$this->add_group_control(
+			\Elementor\Group_Control_Box_Shadow::get_type(),
+			[
+				'name'      => 'checkbox_pill_checked_hover_box_shadow',
+				'selector'  => '{{WRAPPER}} .gchoice input:checked + label:hover, ' .
+					'{{WRAPPER}} .gchoice:hover input:checked + label, ' .
+					'{{WRAPPER}} .gfield_checkbox .gchoice:hover input:checked + label, ' .
+					'{{WRAPPER}} .gfield_radio .gchoice:hover input:checked + label',
 				'condition' => ['checkbox_pill_style' => 'yes'],
 			]
 		);
